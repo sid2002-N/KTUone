@@ -8,7 +8,8 @@ interface StatCardProps extends HTMLAttributes<HTMLDivElement> {
   value: React.ReactNode;
   icon?: React.ReactNode;
   hint?: string;
-  accent?: "plum" | "amber" | "mint" | "coral";
+  accent?: "plum" | "amber" | "mint" | "coral" | "lavender";
+  variant?: "default" | "tinted" | "warm" | "paper";
 }
 
 const accentClasses: Record<NonNullable<StatCardProps["accent"]>, string> = {
@@ -16,15 +17,24 @@ const accentClasses: Record<NonNullable<StatCardProps["accent"]>, string> = {
   amber: "text-amber-600 bg-amber-500/10 dark:text-amber-400",
   mint: "text-emerald-600 bg-emerald-500/10 dark:text-emerald-400",
   coral: "text-rose-600 bg-rose-500/10 dark:text-rose-400",
+  lavender: "text-[oklch(0.50_0.12_280)] dark:text-[oklch(0.72_0.10_280)] bg-[oklch(0.50_0.12_280/0.10)]",
+};
+
+const variantClass: Record<NonNullable<StatCardProps["variant"]>, string> = {
+  default: "glass",
+  tinted: "glass-tinted",
+  warm: "glass-warm",
+  paper: "card-warm",
 };
 
 export const StatCard = forwardRef<HTMLDivElement, StatCardProps>(
-  ({ className, label, value, icon, hint, accent = "plum", ...props }, ref) => {
+  ({ className, label, value, icon, hint, accent = "plum", variant = "default", ...props }, ref) => {
     return (
       <div
         ref={ref}
         className={cn(
-          "glass rounded-2xl p-5 flex items-start gap-4",
+          variantClass[variant],
+          "rounded-2xl p-5 flex items-start gap-4 transition-all duration-300 hover:shadow-soft hover:-translate-y-0.5",
           className,
         )}
         {...props}
@@ -40,10 +50,12 @@ export const StatCard = forwardRef<HTMLDivElement, StatCardProps>(
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+          <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">
             {label}
           </p>
-          <p className="text-2xl font-bold tracking-tight mt-1">{value}</p>
+          <p className="text-2xl sm:text-3xl font-bold tracking-tight mt-1 tabular-nums">
+            {value}
+          </p>
           {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
         </div>
       </div>

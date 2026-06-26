@@ -95,7 +95,7 @@ export function AppShell({ children }: AppShellProps) {
                     key={item.key}
                     onClick={() => navigate(item.key)}
                     className={cn(
-                      "relative px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2",
+                      "btn-tactile relative px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2",
                       isActive
                         ? "text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary",

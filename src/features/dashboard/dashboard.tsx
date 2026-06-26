@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Clock,
   ChevronRight,
+  Heart,
 } from "lucide-react";
 import { GlassCard } from "@/components/ui-custom/glass-card";
 import { GradientCard } from "@/components/ui-custom/gradient-card";
@@ -24,6 +25,13 @@ import { StatCard } from "@/components/ui-custom/stat-card";
 import { AnimatedCounter } from "@/components/ui-custom/animated-counter";
 import { CircularProgress } from "@/components/ui-custom/circular-progress";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
+import { HandwrittenText } from "@/components/ui-custom/handwritten-text";
+import {
+  SketchArrow,
+  SketchStar,
+  SketchDotTrail,
+  FloatingParticles,
+} from "@/components/ui-custom/sketch-elements";
 import { Mascot } from "@/components/brand/mascot";
 import { useNavStore } from "@/store/nav-store";
 import { useSupporterStore } from "@/store/supporter-store";
@@ -82,30 +90,62 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Hero welcome */}
+      {/* Hero welcome — premium sketch + editorial glass */}
       <motion.div
         initial={prefersReduced ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <GradientCard className="p-6 sm:p-8">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
+        <GradientCard gradient="plum" float className="p-6 sm:p-10 relative">
+          {/* Floating particles inside hero */}
+          <FloatingParticles count={8} />
+
+          {/* Floating sketch elements */}
+          <motion.div
+            className="absolute top-6 right-6 hidden sm:block"
+            initial={prefersReduced ? false : { opacity: 0, rotate: -20, scale: 0.6 }}
+            animate={{ opacity: 1, rotate: 0, scale: 1 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+          >
+            <SketchStar size={14} color="amber" />
+          </motion.div>
+          <motion.div
+            className="absolute bottom-8 left-1/2 hidden lg:block"
+            initial={prefersReduced ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+          >
+            <SketchDotTrail size={16} color="amber" />
+          </motion.div>
+
+          <div className="flex items-start justify-between gap-4 flex-wrap relative">
             <div className="flex-1 min-w-[200px]">
-              <p className="text-sm opacity-80 font-medium">
+              <p className="text-sm opacity-80 font-medium tracking-wide">
                 {greeting}, {firstName} 👋
               </p>
-              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mt-1">
-                Your academic day, sorted.
+              <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mt-1 leading-[1.05]">
+                Your academic day,
+                <br className="hidden sm:block" />
+                <span className="relative inline-block">
+                  <span className="sketch-underline">sorted.</span>
+                  <HandwrittenText
+                    as="span"
+                    color="amber"
+                    className="absolute -top-7 -right-2 text-2xl rotate-6 hidden sm:block"
+                  >
+                    Sorted.
+                  </HandwrittenText>
+                </span>
               </h1>
-              <p className="mt-2 text-sm opacity-90 max-w-md">
+              <p className="mt-3 text-sm sm:text-base opacity-90 max-w-md leading-relaxed">
                 {profile
                   ? `${profile.branchName} · Semester ${profile.semester}`
                   : "Sign in to see your CGPA, attendance and results."}
               </p>
-              <div className="flex flex-wrap items-center gap-2 mt-5">
+              <div className="flex flex-wrap items-center gap-2 mt-6">
                 <button
                   onClick={() => set("calculators")}
-                  className="px-4 py-2 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur text-sm font-medium transition flex items-center gap-2"
+                  className="btn-tactile px-5 py-2.5 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur text-sm font-medium flex items-center gap-2 border border-white/20"
                 >
                   <Sparkles className="size-4" />
                   Open a calculator
@@ -113,29 +153,44 @@ export function Dashboard() {
                 {!isSupporter && (
                   <button
                     onClick={() => setSupportOpen(true)}
-                    className="px-4 py-2 rounded-full bg-white text-primary text-sm font-semibold hover:bg-white/90 transition"
+                    className="btn-tactile px-5 py-2.5 rounded-full bg-white text-primary text-sm font-semibold hover:bg-white/90 shadow-soft flex items-center gap-2"
                   >
+                    <Heart className="size-3.5" fill="currentColor" />
                     Go ad-free · ₹99
                   </button>
                 )}
               </div>
             </div>
-            <div className="hidden sm:block">
-              <Mascot size={120} mood="wave" />
+            <div className="hidden sm:block relative">
+              <motion.div
+                initial={prefersReduced ? false : { opacity: 0, scale: 0.7, rotate: -10 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 14 }}
+              >
+                <Mascot size={140} mood="wave" />
+              </motion.div>
+              {/* Tiny floating sketch arrow near mascot */}
+              <motion.div
+                className="absolute -top-2 -left-6"
+                initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+              >
+                <SketchArrow size={36} color="amber" />
+              </motion.div>
             </div>
           </div>
         </GradientCard>
       </motion.div>
 
-      {/* Quick stats */}
+      {/* Quick stats — variety of card treatments */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Current CGPA"
-          value={
-            <AnimatedCounter value={8.31} decimals={2} />
-          }
+          value={<AnimatedCounter value={8.31} decimals={2} />}
           icon={<TrendingUp className="size-5" />}
           accent="plum"
+          variant="default"
           hint="Across 2 semesters"
         />
         <StatCard
@@ -147,6 +202,7 @@ export function Dashboard() {
           }
           icon={<CalendarCheck className="size-5" />}
           accent="amber"
+          variant="tinted"
           hint="2 subjects at risk"
         />
         <StatCard
@@ -154,17 +210,15 @@ export function Dashboard() {
           value={<AnimatedCounter value={1280} />}
           icon={<FileText className="size-5" />}
           accent="mint"
+          variant="warm"
           hint="Available to download"
         />
         <StatCard
           label="Notices"
-          value={
-            <span>
-              <AnimatedCounter value={6} />
-            </span>
-          }
+          value={<AnimatedCounter value={6} />}
           icon={<Bell className="size-5" />}
           accent="coral"
+          variant="paper"
           hint="2 unread this week"
         />
       </div>
@@ -186,7 +240,7 @@ export function Dashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04, duration: 0.4 }}
                 onClick={() => set("calculators")}
-                className="glass rounded-2xl p-4 text-left hover:shadow-elevated hover:-translate-y-0.5 transition-all group"
+                className="btn-tactile glass rounded-2xl p-4 text-left hover:shadow-elevated transition-all group"
               >
                 <div
                   className={`size-10 rounded-xl flex items-center justify-center mb-3 ${
@@ -387,20 +441,27 @@ export function Dashboard() {
 
       {/* Support banner — for non-supporters */}
       {!isSupporter && (
-        <GradientCard gradient="warm" className="p-6">
-          <div className="flex items-center gap-5 flex-wrap">
-            <Mascot size={72} mood="happy" />
+        <GradientCard gradient="warm" float className="p-6 sm:p-8 relative overflow-hidden">
+          <FloatingParticles count={4} colors={["amber", "coral"]} />
+          <div className="flex items-center gap-5 flex-wrap relative">
+            <Mascot size={80} mood="celebrate" />
             <div className="flex-1 min-w-[200px]">
-              <h3 className="text-xl font-bold">Love KTU One?</h3>
-              <p className="text-sm opacity-90 mt-1">
-                Support development for ₹99 lifetime. Remove ads, get a badge, and
-                help every KTU student.
+              <HandwrittenText as="p" color="amber" className="text-xl rotate-[-2deg] inline-block mb-1">
+                Hey, friend!
+              </HandwrittenText>
+              <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
+                Love KTU One?
+              </h3>
+              <p className="text-sm opacity-90 mt-1.5 max-w-md leading-relaxed">
+                Support development for ₹99 lifetime. Remove ads, get a badge,
+                and help every KTU student.
               </p>
             </div>
             <button
               onClick={() => setSupportOpen(true)}
-              className="px-5 py-2.5 rounded-full bg-white text-primary font-semibold hover:bg-white/90 transition shadow-soft"
+              className="btn-tactile px-5 py-2.5 rounded-full bg-white text-primary font-semibold hover:bg-white/90 shadow-soft flex items-center gap-2"
             >
+              <Heart className="size-4" fill="currentColor" />
               Become a Supporter
             </button>
           </div>

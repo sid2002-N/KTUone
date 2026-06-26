@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Caveat } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
@@ -15,8 +15,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "KTU One — Everything a KTU Student Needs",
+  title: "KTU One — Everything a KTU Student Needs.",
   description:
     "The ultimate academic companion for APJ Abdul Kalam Technological University students. SGPA/CGPA calculators, question papers, syllabus, notices, calendar — all in one premium app.",
   keywords: [
@@ -38,7 +44,7 @@ export const metadata: Metadata = {
     title: "KTU One",
   },
   openGraph: {
-    title: "KTU One — Everything a KTU Student Needs",
+    title: "KTU One — Everything a KTU Student Needs.",
     description: "Premium academic companion for KTU students.",
     type: "website",
     siteName: "KTU One",
@@ -52,7 +58,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf8f5" },
+    { media: "(prefers-color-scheme: light)", color: "#FCFBF8" },
     { media: "(prefers-color-scheme: dark)", color: "#1a1620" },
   ],
   width: "device-width",
@@ -69,9 +75,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        {/* Ambient background blobs — fixed, behind everything */}
+        <div className="ambient-blobs" aria-hidden="true">
+          <div className="ambient-blob-3" />
+        </div>
+        <div className="relative z-10">
+          <Providers>{children}</Providers>
+        </div>
         <Toaster />
         <SonnerToaster position="top-center" />
       </body>
