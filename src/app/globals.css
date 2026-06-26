@@ -508,4 +508,201 @@
     border-radius: 50%;
     pointer-events: none;
   }
+
+  /* ========== SKETCH BORDERS — hand-drawn outlines ========== */
+  /* Wavy imperfect border using SVG mask */
+  .sketch-border {
+    position: relative;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-paper);
+  }
+  .sketch-border::after {
+    content: "";
+    position: absolute;
+    inset: -1.5px;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path d='M2 8 Q 5 4 10 6 T 22 7 T 34 6 T 46 7' stroke='oklch(0.55 0.18 340)' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: repeat-x;
+    background-position: 0 0;
+    background-size: 50px 8px;
+    opacity: 0.25;
+  }
+
+  /* Double-stroke sketch border */
+  .sketch-double {
+    border: 1.5px solid var(--border);
+    box-shadow:
+      0 0 0 1.5px transparent,
+      inset 0 0 0 4px transparent,
+      4px 4px 0 0 oklch(0.55 0.18 340 / 0.08),
+      var(--shadow-paper);
+  }
+
+  /* Pencil-style edge — subtle dashed warm outline */
+  .sketch-pencil {
+    border: 1.5px dashed oklch(0.55 0.18 340 / 0.35);
+    box-shadow: var(--shadow-paper);
+  }
+
+  /* ========== NOTEBOOK RULED LINES — for hero / sticky notes ========== */
+  .notebook-ruled {
+    background-image:
+      linear-gradient(to bottom, transparent 27px, oklch(0.55 0.18 340 / 0.08) 27px, oklch(0.55 0.18 340 / 0.08) 28px, transparent 28px);
+    background-size: 100% 28px;
+    background-position: 0 4px;
+  }
+  /* Margin red line on left — like a notebook */
+  .notebook-margin {
+    border-left: 1.5px solid oklch(0.62 0.18 25 / 0.25);
+    padding-left: 1rem;
+  }
+
+  /* ========== PAGE FOLD — corner of a card looks folded ========== */
+  .page-fold {
+    position: relative;
+  }
+  .page-fold::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 28px;
+    height: 28px;
+    background:
+      linear-gradient(225deg, transparent 50%, oklch(0.88 0.01 60 / 0.7) 50%, oklch(0.85 0.015 60) 100%);
+    border-bottom-left-radius: 6px;
+    box-shadow: -2px 2px 4px -2px oklch(0.30 0.05 340 / 0.15);
+    pointer-events: none;
+  }
+  .dark .page-fold::before {
+    background:
+      linear-gradient(225deg, transparent 50%, oklch(0.30 0.015 290 / 0.8) 50%, oklch(0.26 0.012 290) 100%);
+  }
+
+  /* ========== STICKY NOTE — paper-textured yellow tint ========== */
+  .sticky-note {
+    background:
+      linear-gradient(180deg, oklch(0.95 0.05 90) 0%, oklch(0.92 0.06 90) 100%);
+    box-shadow:
+      0 1px 0 oklch(0.70 0.10 80 / 0.4) inset,
+      0 6px 16px -4px oklch(0.30 0.05 340 / 0.18),
+      0 2px 4px -2px oklch(0.30 0.05 340 / 0.10);
+    border: 1px solid oklch(0.85 0.06 80 / 0.4);
+    position: relative;
+  }
+  .sticky-note::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2'/></filter><rect width='100' height='100' filter='url(%23n)' opacity='0.08'/></svg>");
+    pointer-events: none;
+    border-radius: inherit;
+    mix-blend-mode: multiply;
+  }
+
+  /* ========== TAPE STRIP — washi tape look ========== */
+  .tape-strip {
+    position: absolute;
+    width: 80px;
+    height: 22px;
+    background:
+      linear-gradient(135deg, oklch(0.88 0.08 70 / 0.7) 0%, oklch(0.85 0.06 75 / 0.7) 100%);
+    box-shadow: 0 2px 6px -2px oklch(0.30 0.05 340 / 0.18);
+    border-radius: 1px;
+    transform: rotate(-3deg);
+  }
+
+  /* ========== PAPER CLIP — metallic clip on card edge ========== */
+  .paper-clip {
+    position: absolute;
+    top: -10px;
+    right: 24px;
+    width: 18px;
+    height: 38px;
+    border: 2px solid oklch(0.55 0.10 220 / 0.55);
+    border-radius: 9px 9px 0 0;
+    border-bottom: none;
+    pointer-events: none;
+  }
+  .paper-clip::after {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 22px;
+    border: 2px solid oklch(0.55 0.10 220 / 0.55);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+  }
+
+  /* ========== TACTILE BUTTON — premium tactile feel ========== */
+  .btn-tactile-warm {
+    background:
+      linear-gradient(180deg, oklch(1 0 0 / 0.5) 0%, oklch(1 0 0 / 0) 60%),
+      var(--primary);
+    background-blend-mode: overlay;
+    box-shadow:
+      0 1px 0 oklch(1 0 0 / 0.3) inset,
+      0 -1px 0 oklch(0 0 0 / 0.08) inset,
+      0 2px 6px -2px oklch(0.30 0.05 340 / 0.20),
+      0 6px 16px -4px oklch(0.30 0.05 340 / 0.15);
+    transition:
+      transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 0.18s ease;
+  }
+  .btn-tactile-warm:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 0 oklch(1 0 0 / 0.3) inset,
+      0 -1px 0 oklch(0 0 0 / 0.08) inset,
+      0 4px 10px -2px oklch(0.30 0.05 340 / 0.25),
+      0 10px 24px -6px oklch(0.30 0.05 340 / 0.22);
+  }
+  .btn-tactile-warm:active {
+    transform: translateY(0.5px) scale(0.985);
+    box-shadow:
+      0 1px 0 oklch(1 0 0 / 0.2) inset,
+      0 -1px 0 oklch(0 0 0 / 0.12) inset,
+      0 2px 4px -1px oklch(0.30 0.05 340 / 0.20);
+  }
+
+  /* ========== HANDWRITTEN NOTE — for sticky-note text ========== */
+  .handwritten-note {
+    font-family: var(--font-caveat), "Comic Sans MS", cursive;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* ========== SKETCH CORNER DECORATION — small doodle in corner ========== */
+  .sketch-corner-tl::before,
+  .sketch-corner-tr::before,
+  .sketch-corner-bl::before,
+  .sketch-corner-br::before {
+    content: "";
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  .sketch-corner-tl::before {
+    top: 6px; left: 6px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M3 3 L 10 3 M3 3 L 3 10' stroke='oklch(0.55 0.18 340)' stroke-width='1.8' fill='none' stroke-linecap='round'/><circle cx='3' cy='3' r='1.5' fill='oklch(0.55 0.18 340)'/></svg>");
+  }
+  .sketch-corner-tr::before {
+    top: 6px; right: 6px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 3 L 21 3 M21 3 L 21 10' stroke='oklch(0.55 0.18 340)' stroke-width='1.8' fill='none' stroke-linecap='round'/><circle cx='21' cy='3' r='1.5' fill='oklch(0.55 0.18 340)'/></svg>");
+  }
+  .sketch-corner-bl::before {
+    bottom: 6px; left: 6px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M3 14 L 3 21 M3 21 L 10 21' stroke='oklch(0.55 0.18 340)' stroke-width='1.8' fill='none' stroke-linecap='round'/><circle cx='3' cy='21' r='1.5' fill='oklch(0.55 0.18 340)'/></svg>");
+  }
+  .sketch-corner-br::before {
+    bottom: 6px; right: 6px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 21 L 21 21 M21 14 L 21 21' stroke='oklch(0.55 0.18 340)' stroke-width='1.8' fill='none' stroke-linecap='round'/><circle cx='21' cy='21' r='1.5' fill='oklch(0.55 0.18 340)'/></svg>");
+  }
 }

@@ -237,3 +237,282 @@ export function FloatingParticles({
     </div>
   );
 }
+
+/* Paper plane — hand-drawn, tilted */
+export function SketchPaperPlane({ className, color = "coral", size = 28 }: SketchProps) {
+  const c = colorMap[color];
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 28 28"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("select-none", className)}
+      aria-hidden="true"
+    >
+      <path
+        d="M2 14 L 26 4 L 18 26 L 14 16 Z"
+        stroke={c}
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+        fill={c}
+        fillOpacity="0.15"
+      />
+      <path d="M14 16 L 26 4" stroke={c} strokeWidth="1.5" strokeLinecap="round" />
+      {/* Motion lines */}
+      <path d="M5 18 L 9 19" stroke={c} strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
+      <path d="M3 22 L 8 23" stroke={c} strokeWidth="1.2" strokeLinecap="round" opacity="0.35" />
+    </svg>
+  );
+}
+
+/* Checkmark in a hand-drawn circle */
+export function SketchCheckmark({ className, color = "mint", size = 20 }: SketchProps) {
+  const c = colorMap[color];
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("select-none", className)}
+      aria-hidden="true"
+    >
+      <path
+        d="M3 10 Q 4 5 10 4 Q 16 5 17 10 Q 16 16 10 16 Q 4 15 3 10 Z"
+        stroke={c}
+        strokeWidth="1.4"
+        fill="none"
+      />
+      <path
+        d="M6 10 L 9 13 L 14 7"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+/* Loose scribble — for under-the-word accents */
+export function SketchScribble({ className, color = "plum", size = 40 }: SketchProps) {
+  const c = colorMap[color];
+  return (
+    <svg
+      width={size}
+      height={size * 0.4}
+      viewBox="0 0 40 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("select-none", className)}
+      aria-hidden="true"
+    >
+      <path
+        d="M2 10 Q 6 4 10 10 T 18 10 T 26 8 T 38 10"
+        stroke={c}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+/* Heart — small hand-drawn heart */
+export function SketchHeart({ className, color = "coral", size = 16 }: SketchProps) {
+  const c = colorMap[color];
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("select-none", className)}
+      aria-hidden="true"
+    >
+      <path
+        d="M8 14 Q 1 9 1 5 Q 1 1 4 1 Q 6 1 8 4 Q 10 1 12 1 Q 15 1 15 5 Q 15 9 8 14 Z"
+        stroke={c}
+        strokeWidth="1.6"
+        fill={c}
+        fillOpacity="0.2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/* Coffee cup — for "study session" feel */
+export function SketchCoffeeCup({ className, color = "coral", size = 36 }: SketchProps) {
+  const c = colorMap[color];
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 36 36"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("select-none", className)}
+      aria-hidden="true"
+    >
+      {/* Steam */}
+      <path d="M11 4 Q 9 7 11 10 Q 13 13 11 16" stroke={c} strokeWidth="1.4" strokeLinecap="round" fill="none" opacity="0.5" />
+      <path d="M17 4 Q 15 7 17 10 Q 19 13 17 16" stroke={c} strokeWidth="1.4" strokeLinecap="round" fill="none" opacity="0.5" />
+      {/* Cup body */}
+      <path
+        d="M6 14 L 8 30 Q 8 32 10 32 L 20 32 Q 22 32 22 30 L 24 14 Z"
+        stroke={c}
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+        fill={c}
+        fillOpacity="0.12"
+      />
+      {/* Handle */}
+      <path
+        d="M24 18 Q 30 18 30 22 Q 30 26 24 26"
+        stroke={c}
+        strokeWidth="1.8"
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* Saucer */}
+      <ellipse cx="15" cy="34" rx="13" ry="1.5" stroke={c} strokeWidth="1.4" fill="none" opacity="0.6" />
+    </svg>
+  );
+}
+
+/* Graduation cap */
+export function SketchGradCap({ className, color = "plum", size = 36 }: SketchProps) {
+  const c = colorMap[color];
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 36 36"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("select-none", className)}
+      aria-hidden="true"
+    >
+      <path
+        d="M3 14 L 18 8 L 33 14 L 18 20 Z"
+        stroke={c}
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+        fill={c}
+        fillOpacity="0.15"
+      />
+      <path d="M9 17 L 9 24 Q 18 28 27 24 L 27 17" stroke={c} strokeWidth="1.8" fill="none" strokeLinecap="round" />
+      {/* Tassel */}
+      <path d="M30 14 L 30 22" stroke={c} strokeWidth="1.4" strokeLinecap="round" />
+      <circle cx="30" cy="24" r="2" fill={c} />
+    </svg>
+  );
+}
+
+/* Stack of books */
+export function SketchBooks({ className, color = "lavender", size = 48 }: SketchProps) {
+  const c = colorMap[color];
+  const amber = colorMap.amber;
+  const coral = colorMap.coral;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("select-none", className)}
+      aria-hidden="true"
+    >
+      {/* Bottom book — lavender */}
+      <rect x="6" y="34" width="36" height="8" rx="1.5" stroke={c} strokeWidth="1.8" fill={c} fillOpacity="0.12" />
+      <line x1="6" y1="38" x2="42" y2="38" stroke={c} strokeWidth="1" opacity="0.5" />
+      {/* Middle book — amber, slightly offset */}
+      <rect x="9" y="24" width="32" height="8" rx="1.5" stroke={amber} strokeWidth="1.8" fill={amber} fillOpacity="0.15" />
+      <line x1="9" y1="28" x2="41" y2="28" stroke={amber} strokeWidth="1" opacity="0.5" />
+      {/* Top book — coral, slightly offset */}
+      <rect x="7" y="14" width="34" height="8" rx="1.5" stroke={coral} strokeWidth="1.8" fill={coral} fillOpacity="0.12" />
+      <line x1="7" y1="18" x2="41" y2="18" stroke={coral} strokeWidth="1" opacity="0.5" />
+      {/* Bookmark sticking out */}
+      <path d="M32 14 L 32 22 L 34 20 L 36 22 L 36 14" stroke={c} strokeWidth="1.4" fill="none" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* Pencil — diagonal */
+export function SketchPencil({ className, color = "amber", size = 32 }: SketchProps) {
+  const c = colorMap[color];
+  const plum = colorMap.plum;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("select-none", className)}
+      aria-hidden="true"
+    >
+      {/* Pencil body */}
+      <path
+        d="M4 28 L 22 10 L 28 4 L 30 6 L 24 12 L 6 30 Z"
+        stroke={c}
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+        fill={c}
+        fillOpacity="0.15"
+      />
+      {/* Tip */}
+      <path d="M4 28 L 6 30 L 8 28 L 6 26 Z" stroke={plum} strokeWidth="1.4" fill={plum} fillOpacity="0.5" strokeLinejoin="round" />
+      {/* Wood band */}
+      <line x1="20" y1="12" x2="24" y2="16" stroke={plum} strokeWidth="1.2" opacity="0.6" />
+      <line x1="22" y1="10" x2="26" y2="14" stroke={plum} strokeWidth="1.2" opacity="0.6" />
+    </svg>
+  );
+}
+
+/* Open notebook with ruled lines */
+export function SketchNotebook({ className, color = "plum", size = 48 }: SketchProps) {
+  const c = colorMap[color];
+  const coral = colorMap.coral;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("select-none", className)}
+      aria-hidden="true"
+    >
+      {/* Pages */}
+      <path
+        d="M4 10 L 24 14 L 44 10 L 44 38 L 24 42 L 4 38 Z"
+        stroke={c}
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+        fill={c}
+        fillOpacity="0.06"
+      />
+      {/* Center spine */}
+      <line x1="24" y1="14" x2="24" y2="42" stroke={c} strokeWidth="1.6" />
+      {/* Margin lines on left page */}
+      <line x1="9" y1="16" x2="9" y2="36" stroke={coral} strokeWidth="1.2" opacity="0.4" />
+      {/* Ruled lines */}
+      <line x1="12" y1="20" x2="22" y2="22" stroke={c} strokeWidth="1" opacity="0.4" />
+      <line x1="12" y1="24" x2="22" y2="26" stroke={c} strokeWidth="1" opacity="0.4" />
+      <line x1="12" y1="28" x2="22" y2="30" stroke={c} strokeWidth="1" opacity="0.4" />
+      <line x1="12" y1="32" x2="22" y2="34" stroke={c} strokeWidth="1" opacity="0.4" />
+      <line x1="26" y1="20" x2="40" y2="18" stroke={c} strokeWidth="1" opacity="0.4" />
+      <line x1="26" y1="24" x2="40" y2="22" stroke={c} strokeWidth="1" opacity="0.4" />
+      <line x1="26" y1="28" x2="40" y2="26" stroke={c} strokeWidth="1" opacity="0.4" />
+      <line x1="26" y1="32" x2="40" y2="30" stroke={c} strokeWidth="1" opacity="0.4" />
+    </svg>
+  );
+}

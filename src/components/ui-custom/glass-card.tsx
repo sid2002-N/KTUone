@@ -3,7 +3,7 @@
 import { forwardRef, type HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-type CardVariant = "default" | "strong" | "tinted" | "warm" | "paper";
+type CardVariant = "default" | "strong" | "tinted" | "warm" | "paper" | "sketch" | "sketch-pencil" | "notebook";
 
 interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: CardVariant;
@@ -18,16 +18,22 @@ const variantClass: Record<CardVariant, string> = {
   tinted: "glass-tinted",
   warm: "glass-warm",
   paper: "card-warm",
+  sketch: "sketch-border",
+  "sketch-pencil": "sketch-pencil",
+  notebook: "glass notebook-ruled",
 };
 
 /**
  * GlassCard — the primary surface across KTU One.
  * Use variants to introduce visual variety:
- *   - default:  standard frosted glass (most cards)
- *   - strong:   higher opacity, for modals & overlays
- *   - tinted:   lavender-tinted glass (stat cards, secondary)
- *   - warm:     peach-tinted glass (callouts, support banners)
- *   - paper:    opaque warm-white card (editorial, formal)
+ *   - default:        standard frosted glass (most cards)
+ *   - strong:         higher opacity, for modals & overlays
+ *   - tinted:         lavender-tinted glass (stat cards, secondary)
+ *   - warm:           peach-tinted glass (callouts, support banners)
+ *   - paper:          opaque warm-white card (editorial, formal)
+ *   - sketch:         hand-drawn wavy border overlay
+ *   - sketch-pencil:  dashed pencil-style border
+ *   - notebook:       glass with notebook ruled-line texture
  */
 export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
   ({ className, variant = "default", hover = false, float = false, children, ...props }, ref) => {

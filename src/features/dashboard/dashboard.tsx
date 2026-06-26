@@ -30,8 +30,15 @@ import {
   SketchArrow,
   SketchStar,
   SketchDotTrail,
+  SketchPaperPlane,
+  SketchHeart,
+  SketchCoffeeCup,
+  SketchBooks,
+  SketchPencil,
+  SketchNotebook,
   FloatingParticles,
 } from "@/components/ui-custom/sketch-elements";
+import { CardDecoration, NotebookHeader, StickyNote } from "@/components/ui-custom/card-decoration";
 import { Mascot } from "@/components/brand/mascot";
 import { useNavStore } from "@/store/nav-store";
 import { useSupporterStore } from "@/store/supporter-store";
@@ -90,51 +97,70 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Hero welcome — premium sketch + editorial glass */}
+      {/* Hero welcome — study desk aesthetic */}
       <motion.div
         initial={prefersReduced ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <GradientCard gradient="plum" float className="p-6 sm:p-10 relative">
+        <GradientCard gradient="plum" float className="p-6 sm:p-10 relative overflow-hidden">
           {/* Floating particles inside hero */}
-          <FloatingParticles count={8} />
+          <FloatingParticles count={10} />
 
-          {/* Floating sketch elements */}
+          {/* Study desk illustrations cluster — top right */}
           <motion.div
-            className="absolute top-6 right-6 hidden sm:block"
+            className="absolute top-6 right-6 hidden lg:flex items-end gap-1 pointer-events-none"
+            initial={prefersReduced ? false : { opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+          >
+            <SketchBooks size={56} color="amber" />
+            <div className="-ml-2 -mb-1">
+              <SketchCoffeeCup size={36} color="coral" />
+            </div>
+            <div className="-ml-1 -mb-2">
+              <SketchPencil size={28} color="amber" />
+            </div>
+          </motion.div>
+
+          {/* Sketch star accents */}
+          <motion.div
+            className="absolute top-8 right-4 sm:top-6 sm:right-1/3"
             initial={prefersReduced ? false : { opacity: 0, rotate: -20, scale: 0.6 }}
             animate={{ opacity: 1, rotate: 0, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             <SketchStar size={14} color="amber" />
           </motion.div>
+
+          {/* Floating paper plane */}
           <motion.div
-            className="absolute bottom-8 left-1/2 hidden lg:block"
-            initial={prefersReduced ? false : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
+            className="absolute bottom-10 right-1/4 hidden md:block"
+            initial={prefersReduced ? false : { opacity: 0, x: -20, rotate: -15 }}
+            animate={{ opacity: 1, x: 0, rotate: -8 }}
+            transition={{ delay: 0.7, duration: 0.7 }}
           >
-            <SketchDotTrail size={16} color="amber" />
+            <SketchPaperPlane size={32} color="amber" />
           </motion.div>
 
           <div className="flex items-start justify-between gap-4 flex-wrap relative">
             <div className="flex-1 min-w-[200px]">
-              <p className="text-sm opacity-80 font-medium tracking-wide">
-                {greeting}, {firstName} 👋
-              </p>
-              <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mt-1 leading-[1.05]">
+              {/* Handwritten annotation above heading */}
+              <motion.div
+                className="mb-2"
+                initial={prefersReduced ? false : { opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
+                <HandwrittenText as="p" color="amber" className="text-xl rotate-[-3deg] inline-block">
+                  {greeting}, {firstName} 👋
+                </HandwrittenText>
+              </motion.div>
+              <h1 className="text-3xl sm:text-5xl font-bold tracking-tight leading-[1.05]">
                 Your academic day,
                 <br className="hidden sm:block" />
                 <span className="relative inline-block">
                   <span className="sketch-underline">sorted.</span>
-                  <HandwrittenText
-                    as="span"
-                    color="amber"
-                    className="absolute -top-7 -right-2 text-2xl rotate-6 hidden sm:block"
-                  >
-                    Sorted.
-                  </HandwrittenText>
                 </span>
               </h1>
               <p className="mt-3 text-sm sm:text-base opacity-90 max-w-md leading-relaxed">
@@ -180,6 +206,22 @@ export function Dashboard() {
               </motion.div>
             </div>
           </div>
+
+          {/* Tiny sticky note bottom-left of hero */}
+          <motion.div
+            className="absolute bottom-4 left-6 hidden xl:block"
+            initial={prefersReduced ? false : { opacity: 0, rotate: -8, y: 10 }}
+            animate={{ opacity: 0.95, rotate: -3, y: 0 }}
+            transition={{ delay: 1, duration: 0.6 }}
+          >
+            <div className="sticky-note rounded-sm px-3 py-2 max-w-[180px]">
+              <p className="handwritten-note text-sm text-foreground/80 leading-tight">
+                Tip: tap{" "}
+                <span className="font-bold text-primary">⌘K</span> to
+                search anything ✦
+              </p>
+            </div>
+          </motion.div>
         </GradientCard>
       </motion.div>
 
@@ -229,6 +271,7 @@ export function Dashboard() {
           title="Quick actions"
           subtitle="Jump straight into a calculator"
           onSeeAll={() => set("calculators" as NavKey)}
+          accent="let's go!"
         />
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {CALCULATORS.map((calc, i) => {
@@ -274,11 +317,13 @@ export function Dashboard() {
       {/* Two-column section: recent activity + upcoming */}
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Recent calculations */}
-        <GlassCard className="lg:col-span-2 p-5">
+        <GlassCard variant="paper" className="lg:col-span-2 p-5 relative">
+          <CardDecoration variant="paperClip" />
           <SectionHeader
             title="Recent activity"
             subtitle="What you calculated recently"
             compact
+            accent="keep going!"
           />
           <div className="space-y-2">
             {recentHistory.map((h) => (
@@ -317,8 +362,9 @@ export function Dashboard() {
         </GlassCard>
 
         {/* Attendance gauge */}
-        <GlassCard className="p-5">
-          <SectionHeader title="Attendance" subtitle="This semester" compact />
+        <GlassCard variant="tinted" className="p-5 relative">
+          <CardDecoration variant="cornerHeart" position="top-right" color="coral" />
+          <SectionHeader title="Attendance" subtitle="This semester" compact accent="almost there!" />
           <div className="flex flex-col items-center justify-center py-4">
             <CircularProgress
               value={78.2}
@@ -350,6 +396,7 @@ export function Dashboard() {
           title="Latest notices"
           subtitle="From the university"
           onSeeAll={() => set("notices" as NavKey)}
+          accent="fresh today"
         />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {recentNotices.map((n) => (
@@ -383,8 +430,9 @@ export function Dashboard() {
       {/* Upcoming + Continue Reading */}
       <div className="grid lg:grid-cols-2 gap-4">
         {/* Upcoming academic event */}
-        <GlassCard className="p-5">
-          <SectionHeader title="Upcoming" subtitle="Next on your calendar" compact />
+        <GlassCard variant="warm" className="p-5 relative">
+          <CardDecoration variant="pageFold" />
+          <SectionHeader title="Upcoming" subtitle="Next on your calendar" compact accent="don't miss!" />
           <div className="flex items-start gap-4 p-3 rounded-xl bg-secondary/40">
             <div className="text-center shrink-0">
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
@@ -410,12 +458,14 @@ export function Dashboard() {
         </GlassCard>
 
         {/* Continue reading */}
-        <GlassCard className="p-5">
+        <GlassCard variant="notebook" className="p-5 relative">
+          <CardDecoration variant="cornerStar" position="top-right" color="amber" />
           <SectionHeader
             title="Continue reading"
             subtitle="Recently viewed papers"
             onSeeAll={() => set("papers" as NavKey)}
             compact
+            accent="pick up where you left off"
           />
           <div className="space-y-2">
             {recentPapers.slice(0, 3).map((p) => (
@@ -443,11 +493,15 @@ export function Dashboard() {
       {!isSupporter && (
         <GradientCard gradient="warm" float className="p-6 sm:p-8 relative overflow-hidden">
           <FloatingParticles count={4} colors={["amber", "coral"]} />
+          {/* Tiny sketch heart accent */}
+          <div className="absolute top-4 right-4 opacity-60">
+            <SketchHeart size={20} color="coral" />
+          </div>
           <div className="flex items-center gap-5 flex-wrap relative">
             <Mascot size={80} mood="celebrate" />
             <div className="flex-1 min-w-[200px]">
               <HandwrittenText as="p" color="amber" className="text-xl rotate-[-2deg] inline-block mb-1">
-                Hey, friend!
+                Hey friend!
               </HandwrittenText>
               <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
                 Love KTU One?
@@ -459,7 +513,7 @@ export function Dashboard() {
             </div>
             <button
               onClick={() => setSupportOpen(true)}
-              className="btn-tactile px-5 py-2.5 rounded-full bg-white text-primary font-semibold hover:bg-white/90 shadow-soft flex items-center gap-2"
+              className="btn-tactile-warm text-primary-foreground px-5 py-2.5 rounded-full font-semibold flex items-center gap-2"
             >
               <Heart className="size-4" fill="currentColor" />
               Become a Supporter
@@ -483,26 +537,39 @@ function SectionHeader({
   subtitle,
   onSeeAll,
   compact,
+  accent,
 }: {
   title: string;
   subtitle?: string;
   onSeeAll?: () => void;
   compact?: boolean;
+  accent?: string;
 }) {
   return (
     <div className={`flex items-end justify-between gap-4 ${compact ? "mb-3" : "mb-4"}`}>
-      <div>
-        <h2 className={`font-bold tracking-tight ${compact ? "text-base" : "text-xl"}`}>
-          {title}
-        </h2>
-        {subtitle && (
-          <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-        )}
+      <div className="flex items-start gap-3">
+        {/* Notebook margin line — vertical accent */}
+        <div className="w-1 self-stretch rounded-full bg-gradient-to-b from-primary/40 via-primary/20 to-transparent mt-1" />
+        <div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className={`font-bold tracking-tight ${compact ? "text-base" : "text-xl"}`}>
+              {title}
+            </h2>
+            {accent && (
+              <HandwrittenText as="span" color="amber" className="text-base rotate-[-3deg]">
+                {accent}
+              </HandwrittenText>
+            )}
+          </div>
+          {subtitle && (
+            <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+          )}
+        </div>
       </div>
       {onSeeAll && (
         <button
           onClick={onSeeAll}
-          className="text-xs text-primary hover:underline font-medium flex items-center gap-1 shrink-0"
+          className="btn-tactile text-xs text-primary hover:underline font-medium flex items-center gap-1 shrink-0 px-2 py-1 rounded-full hover:bg-primary/5"
         >
           See all <ArrowRight className="size-3" />
         </button>
