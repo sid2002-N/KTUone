@@ -50,9 +50,13 @@ export default function Home() {
       <AnimatePresence mode="wait">
         <motion.div
           key={mounted ? active : "ssr"}
-          initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+          // Disable entry animation during SSR + first paint to avoid
+          // hydration mismatch (server would render opacity:0 / translateY(8px)
+          // as inline styles, client immediately animates to opacity:1 / none).
+          // After mount, subsequent view changes get the nice fade-up.
+          initial={mounted && !prefersReduced ? { opacity: 0, y: 8 } : false}
           animate={{ opacity: 1, y: 0 }}
-          exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          exit={mounted && !prefersReduced ? { opacity: 0, y: -8 } : { opacity: 0 }}
           transition={{ duration: 0.25 }}
         >
           {mounted ? <View /> : <SSRShell />}
