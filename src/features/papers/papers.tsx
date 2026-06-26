@@ -15,7 +15,7 @@ import {
 import { PageHeader } from "@/components/layout/page-header";
 import { GlassCard } from "@/components/ui-custom/glass-card";
 import { EmptyState } from "@/components/ui-custom/empty-state";
-import { Mascot } from "@/components/brand/mascot";
+import { SketchBooks } from "@/components/ui-custom/sketch-elements";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -185,7 +185,7 @@ export function Papers() {
         <EmptyState
           title="No papers found"
           description="Try changing your filters or searching for a different subject."
-          illustration={<Mascot size={120} mood="thinking" />}
+          illustration={<SketchBooks size={120} color="lavender" />}
           primaryAction={{ label: "Clear filters", onClick: clearFilters }}
         />
       ) : (

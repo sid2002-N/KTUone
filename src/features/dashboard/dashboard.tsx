@@ -40,7 +40,6 @@ import {
 } from "@/components/ui-custom/sketch-elements";
 import { CardDecoration, NotebookHeader, StickyNote } from "@/components/ui-custom/card-decoration";
 import { EditorialDivider } from "@/components/ui-custom/editorial-divider";
-import { Mascot } from "@/components/brand/mascot";
 import { useNavStore } from "@/store/nav-store";
 import { useSupporterStore } from "@/store/supporter-store";
 import { useAuthStore } from "@/store/auth-store";
@@ -189,17 +188,22 @@ export function Dashboard() {
                 )}
               </div>
             </div>
+            {/* Editorial illustration cluster */}
             <div className="hidden sm:block relative">
               <motion.div
-                initial={prefersReduced ? false : { opacity: 0, scale: 0.7, rotate: -10 }}
+                className="flex items-end gap-1"
+                initial={prefersReduced ? false : { opacity: 0, scale: 0.85, rotate: -8 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 14 }}
+                transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 16 }}
               >
-                <Mascot size={140} mood="wave" />
+                <SketchNotebook size={120} color="plum" />
+                <div className="-ml-3 -mb-1">
+                  <SketchPencil size={44} color="amber" />
+                </div>
               </motion.div>
-              {/* Tiny floating sketch arrow near mascot */}
+              {/* Tiny floating sketch arrow accent */}
               <motion.div
-                className="absolute -top-2 -left-6"
+                className="absolute -top-3 -left-8"
                 initial={prefersReduced ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.6 }}
@@ -208,22 +212,6 @@ export function Dashboard() {
               </motion.div>
             </div>
           </div>
-
-          {/* Tiny sticky note bottom-left of hero */}
-          <motion.div
-            className="absolute bottom-4 left-6 hidden xl:block"
-            initial={prefersReduced ? false : { opacity: 0, rotate: -8, y: 10 }}
-            animate={{ opacity: 0.95, rotate: -3, y: 0 }}
-            transition={{ delay: 1, duration: 0.6 }}
-          >
-            <div className="sticky-note rounded-sm px-3 py-2 max-w-[180px]">
-              <p className="handwritten-note text-sm text-foreground/80 leading-tight">
-                Tip: tap{" "}
-                <span className="font-bold text-primary">⌘K</span> to
-                search anything ✦
-              </p>
-            </div>
-          </motion.div>
         </GradientCard>
       </motion.div>
 
@@ -518,7 +506,10 @@ export function Dashboard() {
             <SketchHeart size={20} color="coral" />
           </div>
           <div className="flex items-center gap-5 flex-wrap relative">
-            <Mascot size={80} mood="celebrate" />
+            {/* Editorial illustration */}
+            <div className="shrink-0">
+              <SketchBooks size={84} color="amber" />
+            </div>
             <div className="flex-1 min-w-[200px]">
               <HandwrittenText as="p" color="amber" className="text-xl rotate-[-2deg] inline-block mb-1">
                 Hey friend!

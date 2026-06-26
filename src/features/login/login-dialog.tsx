@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, User, Lock, Eye, EyeOff, LogIn, AlertCircle } from "lucide-react";
-import { Mascot } from "@/components/brand/mascot";
 import { Logo } from "@/components/brand/logo";
+import { SketchNotebook, SketchPencil } from "@/components/ui-custom/sketch-elements";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -123,14 +123,19 @@ export function LoginDialog() {
             </button>
 
             <div className="p-8 pt-10">
-              {/* Hero */}
+              {/* Hero — editorial illustration */}
               <div className="flex flex-col items-center text-center mb-6">
                 <Logo size={48} />
-                <Mascot size={88} mood="wave" className="mt-4" />
-                <h2 className="text-2xl font-bold tracking-tight mt-3">
+                <div className="flex items-end gap-1 mt-5">
+                  <SketchNotebook size={72} color="plum" />
+                  <div className="-ml-2 -mb-1">
+                    <SketchPencil size={32} color="amber" />
+                  </div>
+                </div>
+                <h2 className="font-serif-display text-2xl tracking-tight mt-4">
                   Welcome to {APP_NAME}
                 </h2>
-                <p className="text-sm text-muted-foreground mt-1.5 max-w-xs">
+                <p className="text-sm text-muted-foreground mt-1.5 max-w-xs italic">
                   Sign in with your KTU credentials to sync your CGPA, results and attendance.
                 </p>
               </div>

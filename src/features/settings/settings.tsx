@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { GlassCard } from "@/components/ui-custom/glass-card";
-import { Mascot } from "@/components/brand/mascot";
+import { SketchHeart, SketchNotebook, SketchPencil } from "@/components/ui-custom/sketch-elements";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
 import { useThemeStore } from "@/store/theme-store";
 import { useSupporterStore } from "@/store/supporter-store";
@@ -72,10 +72,10 @@ export function Settings() {
           ) : (
             <GlassCard className="p-5">
               <div className="flex items-center gap-4">
-                <Mascot size={56} mood="happy" />
+                <SketchHeart size={48} color="coral" />
                 <div className="flex-1">
-                  <p className="font-semibold">Support KTU One</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="font-serif-display text-base">Support KTU One</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 italic">
                     Remove ads · ₹99 lifetime · support development
                   </p>
                 </div>
@@ -207,11 +207,19 @@ export function Settings() {
           <BannerAd slot="settings-top" />
         )}
 
-        {/* Footer */}
+        {/* Footer — editorial colophon */}
         <div className="text-center py-6">
-          <Mascot size={64} mood="happy" className="mx-auto" />
-          <p className="text-xs text-muted-foreground mt-2">
-            {APP_NAME} · Made with 💜 for KTU students
+          <div className="flex items-end justify-center gap-1 mb-3">
+            <SketchNotebook size={48} color="plum" />
+            <div className="-ml-1 -mb-0.5">
+              <SketchPencil size={26} color="amber" />
+            </div>
+          </div>
+          <p className="font-handwritten text-base text-muted-foreground">
+            made with 💜 for KTU students
+          </p>
+          <p className="text-[11px] text-muted-foreground/70 mt-1 tracking-wide">
+            {APP_NAME}
           </p>
         </div>
       </div>

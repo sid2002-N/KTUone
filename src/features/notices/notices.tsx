@@ -6,7 +6,7 @@ import { Bell, Pin, ExternalLink, FileText, ChevronLeft, X } from "lucide-react"
 import { PageHeader } from "@/components/layout/page-header";
 import { GlassCard } from "@/components/ui-custom/glass-card";
 import { EmptyState } from "@/components/ui-custom/empty-state";
-import { Mascot } from "@/components/brand/mascot";
+import { SketchBooks } from "@/components/ui-custom/sketch-elements";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
 import { Badge } from "@/components/ui/badge";
 import { MOCK_NOTICES } from "@/data/mock-data";
@@ -78,7 +78,7 @@ export function Notices() {
         <EmptyState
           title="No notices in this category"
           description="Try a different category filter."
-          illustration={<Mascot size={120} mood="thinking" />}
+          illustration={<SketchBooks size={120} color="amber" />}
         />
       ) : (
         <div className="space-y-3">

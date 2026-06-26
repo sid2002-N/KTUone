@@ -9,7 +9,7 @@ import { GradientCard } from "@/components/ui-custom/gradient-card";
 import { AnimatedCounter } from "@/components/ui-custom/animated-counter";
 import { CircularProgress } from "@/components/ui-custom/circular-progress";
 import { EmptyState } from "@/components/ui-custom/empty-state";
-import { Mascot } from "@/components/brand/mascot";
+import { SketchNotebook, SketchPencil, SketchBooks, SketchCoffeeCup } from "@/components/ui-custom/sketch-elements";
 import { CALCULATORS, GRADE_OPTIONS, GRADE_LABELS, type CalculatorKey } from "@/lib/constants";
 import { GRADE_POINTS, type Grade, type CalculatorCourse } from "@/lib/types";
 import {
@@ -309,7 +309,7 @@ function SgpaCalculator() {
                 title="No subjects yet"
                 description="Add a subject to compute SGPA."
                 compact
-                illustration={<Mascot size={64} mood="thinking" />}
+                illustration={<SketchNotebook size={64} color="plum" />}
                 primaryAction={{ label: "Add subject", onClick: addCourse }}
               />
             )}
@@ -340,8 +340,8 @@ function SgpaCalculator() {
           />
         ) : (
           <GlassCard className="p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
-            <Mascot size={80} mood="thinking" />
-            <p className="text-sm text-muted-foreground mt-3">
+            <SketchNotebook size={80} color="plum" />
+            <p className="text-sm text-muted-foreground mt-3 italic">
               Add subjects and tap Calculate.
             </p>
           </GlassCard>
@@ -460,8 +460,8 @@ function CgpaCalculator() {
           />
         ) : (
           <GlassCard className="p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
-            <Mascot size={80} mood="happy" />
-            <p className="text-sm text-muted-foreground mt-3">
+            <SketchBooks size={80} color="lavender" />
+            <p className="text-sm text-muted-foreground mt-3 italic">
               Enter semester SGPA and credits.
             </p>
           </GlassCard>
@@ -576,8 +576,8 @@ function AttendanceCalculator() {
           </GlassCard>
         ) : (
           <GlassCard className="p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
-            <Mascot size={80} mood="thinking" />
-            <p className="text-sm text-muted-foreground mt-3">
+            <SketchPencil size={80} color="amber" />
+            <p className="text-sm text-muted-foreground mt-3 italic">
               Enter attendance and tap Calculate.
             </p>
           </GlassCard>
@@ -658,8 +658,8 @@ function InternalMarksCalculator() {
           />
         ) : (
           <GlassCard className="p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
-            <Mascot size={80} mood="happy" />
-            <p className="text-sm text-muted-foreground mt-3">Fill series + assignment + attendance.</p>
+            <SketchCoffeeCup size={80} color="coral" />
+            <p className="text-sm text-muted-foreground mt-3 italic">Fill series + assignment + attendance.</p>
           </GlassCard>
         )}
         <HistoryPanel type="INTERNAL_MARKS" />
@@ -743,8 +743,13 @@ function PassCalculator() {
           </GradientCard>
         ) : (
           <GlassCard className="p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
-            <Mascot size={80} mood="thinking" />
-            <p className="text-sm text-muted-foreground mt-3">Enter internal + pass mark.</p>
+            <div className="flex items-end gap-1">
+              <SketchNotebook size={64} color="plum" />
+              <div className="-ml-2 -mb-1">
+                <SketchPencil size={36} color="amber" />
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-3 italic">Enter internal + pass mark.</p>
           </GlassCard>
         )}
         <HistoryPanel type="PASS_CALCULATOR" />

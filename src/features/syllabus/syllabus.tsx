@@ -6,7 +6,7 @@ import { BookOpen, Search, Download, Bookmark, BookmarkCheck, FileText } from "l
 import { PageHeader } from "@/components/layout/page-header";
 import { GlassCard } from "@/components/ui-custom/glass-card";
 import { EmptyState } from "@/components/ui-custom/empty-state";
-import { Mascot } from "@/components/brand/mascot";
+import { SketchNotebook } from "@/components/ui-custom/sketch-elements";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -107,7 +107,7 @@ export function Syllabus() {
         <EmptyState
           title="No syllabus found"
           description="Try a different search or branch."
-          illustration={<Mascot size={120} mood="thinking" />}
+          illustration={<SketchNotebook size={120} color="plum" />}
         />
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">
