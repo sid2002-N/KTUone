@@ -20,7 +20,6 @@ import {
   Heart,
 } from "lucide-react";
 import { GlassCard } from "@/components/ui-custom/glass-card";
-import { GradientCard } from "@/components/ui-custom/gradient-card";
 import { StatCard } from "@/components/ui-custom/stat-card";
 import { AnimatedCounter } from "@/components/ui-custom/animated-counter";
 import { CircularProgress } from "@/components/ui-custom/circular-progress";
@@ -28,17 +27,13 @@ import { BannerAd } from "@/components/ui-custom/banner-ad";
 import { HandwrittenText } from "@/components/ui-custom/handwritten-text";
 import {
   SketchArrow,
-  SketchStar,
-  SketchDotTrail,
-  SketchPaperPlane,
   SketchHeart,
   SketchCoffeeCup,
   SketchBooks,
   SketchPencil,
   SketchNotebook,
-  FloatingParticles,
 } from "@/components/ui-custom/sketch-elements";
-import { CardDecoration, NotebookHeader, StickyNote } from "@/components/ui-custom/card-decoration";
+import { CardDecoration } from "@/components/ui-custom/card-decoration";
 import { EditorialDivider } from "@/components/ui-custom/editorial-divider";
 import { useNavStore } from "@/store/nav-store";
 import { useSupporterStore } from "@/store/supporter-store";
@@ -97,17 +92,14 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Hero — notebook cover with embossed title, integrated study scene */}
+      {/* Hero — editorial notebook cover (paper, not gradient) */}
       <motion.div
         initial={prefersReduced ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <GradientCard gradient="plum" float className="p-7 sm:p-12 relative overflow-hidden">
-          {/* Floating particles inside hero */}
-          <FloatingParticles count={8} />
-
-          {/* Study desk illustrations cluster — top right, integrated (not floating) */}
+        <div className="notebook-cover p-7 sm:p-12 pl-12 sm:pl-14 float-subtle">
+          {/* Study desk illustrations cluster — top right */}
           <motion.div
             className="absolute top-8 right-8 hidden lg:flex items-end gap-1 pointer-events-none opacity-90"
             initial={prefersReduced ? false : { opacity: 0, y: -10 }}
@@ -121,16 +113,6 @@ export function Dashboard() {
             <div className="-ml-1 -mb-2">
               <SketchPencil size={28} color="amber" />
             </div>
-          </motion.div>
-
-          {/* Floating paper plane — feels like tucked into the cover */}
-          <motion.div
-            className="absolute bottom-12 right-1/4 hidden md:block opacity-80"
-            initial={prefersReduced ? false : { opacity: 0, x: -20, rotate: -15 }}
-            animate={{ opacity: 0.8, x: 0, rotate: -8 }}
-            transition={{ delay: 0.7, duration: 0.7 }}
-          >
-            <SketchPaperPlane size={32} color="amber" />
           </motion.div>
 
           <div className="flex items-start justify-between gap-4 flex-wrap relative">
@@ -147,8 +129,8 @@ export function Dashboard() {
                 </HandwrittenText>
               </motion.div>
 
-              {/* Serif display headline — embossed feel, like pressed into notebook cover */}
-              <h1 className="font-serif-display embossed-title text-4xl sm:text-6xl leading-[1.02]">
+              {/* Serif display headline — embossed into notebook cover */}
+              <h1 className="font-serif-display embossed-title-ink text-4xl sm:text-6xl leading-[1.02]">
                 Your academic day,
                 <br className="hidden sm:block" />
                 <span className="relative inline-block italic">
@@ -163,7 +145,7 @@ export function Dashboard() {
                 </span>
               </h1>
 
-              <p className="mt-4 text-sm sm:text-base opacity-90 max-w-md leading-relaxed">
+              <p className="mt-4 text-sm sm:text-base text-muted-foreground max-w-md leading-relaxed">
                 {profile
                   ? `${profile.branchName} · Semester ${profile.semester}`
                   : "Sign in to see your CGPA, attendance and results."}
@@ -172,7 +154,7 @@ export function Dashboard() {
               <div className="flex flex-wrap items-center gap-2 mt-7">
                 <button
                   onClick={() => set("calculators")}
-                  className="btn-tactile px-5 py-2.5 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur text-sm font-medium flex items-center gap-2 border border-white/25"
+                  className="btn-tactile px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-2 shadow-soft hover:opacity-90"
                 >
                   <Sparkles className="size-4" />
                   Open a calculator
@@ -180,7 +162,7 @@ export function Dashboard() {
                 {!isSupporter && (
                   <button
                     onClick={() => setSupportOpen(true)}
-                    className="btn-tactile px-5 py-2.5 rounded-full bg-white text-primary text-sm font-semibold hover:bg-white/90 shadow-soft flex items-center gap-2"
+                    className="btn-tactile px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold hover:bg-secondary/80 flex items-center gap-2 border border-border/60"
                   >
                     <Heart className="size-3.5" fill="currentColor" />
                     Go ad-free · ₹99
@@ -212,7 +194,7 @@ export function Dashboard() {
               </motion.div>
             </div>
           </div>
-        </GradientCard>
+        </div>
       </motion.div>
 
       {/* Quick stats — index cards pinned to a corkboard */}
@@ -270,6 +252,15 @@ export function Dashboard() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {CALCULATORS.map((calc, i) => {
             const Icon = calcIcons[calc.key];
+            // Map accent to CSS custom property for notebook-tab top strip
+            const tabColor =
+              calc.accent === "plum"
+                ? "oklch(0.50 0.12 340)"
+                : calc.accent === "amber"
+                  ? "oklch(0.62 0.11 70)"
+                  : calc.accent === "mint"
+                    ? "oklch(0.58 0.09 155)"
+                    : "oklch(0.55 0.10 25)";
             return (
               <motion.button
                 key={calc.key}
@@ -277,8 +268,12 @@ export function Dashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04, duration: 0.4 }}
                 onClick={() => set("calculators")}
-                style={{ transform: `rotate(${i % 2 === 0 ? -0.5 : 0.5}deg)` }}
-                className="btn-tactile paper-card paper-card-hover rounded-2xl p-4 text-left group"
+                style={{
+                  transform: `rotate(${i % 2 === 0 ? -0.5 : 0.5}deg)`,
+                  // @ts-expect-error custom property
+                  "--tab-color": tabColor,
+                }}
+                className="btn-tactile notebook-tab notebook-tab-hover rounded-2xl p-4 pt-5 text-left group relative"
               >
                 <div
                   className={`size-10 rounded-xl flex items-center justify-center mb-3 border border-foreground/10 ${
@@ -497,12 +492,11 @@ export function Dashboard() {
         </GlassCard>
       </div>
 
-      {/* Support banner — for non-supporters */}
+      {/* Support banner — for non-supporters (kraft paper, no gradient) */}
       {!isSupporter && (
-        <GradientCard gradient="warm" float className="p-6 sm:p-8 relative overflow-hidden">
-          <FloatingParticles count={4} colors={["amber", "coral"]} />
+        <div className="kraft-card p-6 sm:p-8 relative overflow-hidden float-subtle">
           {/* Tiny sketch heart accent */}
-          <div className="absolute top-4 right-4 opacity-60">
+          <div className="absolute top-4 right-4 opacity-70">
             <SketchHeart size={20} color="coral" />
           </div>
           <div className="flex items-center gap-5 flex-wrap relative">
@@ -514,23 +508,23 @@ export function Dashboard() {
               <HandwrittenText as="p" color="amber" className="text-xl rotate-[-2deg] inline-block mb-1">
                 Hey friend!
               </HandwrittenText>
-              <h3 className="font-serif-display text-2xl sm:text-3xl tracking-tight embossed-title">
+              <h3 className="font-serif-display text-2xl sm:text-3xl tracking-tight text-foreground">
                 Love KTU One?
               </h3>
-              <p className="text-sm opacity-90 mt-2 max-w-md leading-relaxed">
+              <p className="text-sm text-foreground/80 mt-2 max-w-md leading-relaxed">
                 Support development for ₹99 lifetime. Remove ads, get a badge,
                 and help every KTU student.
               </p>
             </div>
             <button
               onClick={() => setSupportOpen(true)}
-              className="btn-tactile-warm text-primary-foreground px-5 py-2.5 rounded-full font-semibold flex items-center gap-2"
+              className="btn-tactile bg-primary text-primary-foreground px-5 py-2.5 rounded-full font-semibold flex items-center gap-2 shadow-soft hover:opacity-90"
             >
               <Heart className="size-4" fill="currentColor" />
               Become a Supporter
             </button>
           </div>
-        </GradientCard>
+        </div>
       )}
 
       {/* Footer note — editorial colophon */}
