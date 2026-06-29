@@ -17,6 +17,21 @@ import type { StudentService } from "@/lib/providers/student";
 
 type AuthListener = (session: AuthSession | null) => void;
 
+/**
+ * Typed error thrown by HttpStudentService. Includes the BFF error code so
+ * the UI can branch on it (e.g. show "KTU is down" vs "wrong password").
+ */
+export class BffError extends Error {
+  code: string;
+  status: number;
+  constructor(code: string, message: string, status: number) {
+    super(message);
+    this.code = code;
+    this.status = status;
+    this.name = "BffError";
+  }
+}
+
 export class HttpStudentService implements StudentService {
   private listeners = new Set<AuthListener>();
 
@@ -47,8 +62,9 @@ export class HttpStudentService implements StudentService {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
+      const code = data?.error?.code ?? "LOGIN_FAILED";
       const message = data?.error?.message ?? "Login failed";
-      throw new Error(message);
+      throw new BffError(code, message, res.status);
     }
 
     const data = (await res.json()) as LoginResponse & { expiresIn: number };

@@ -84,12 +84,42 @@ export function LoginDialog() {
       setOpen(false);
       setPassword("");
     } catch (err) {
-      const message =
+      // Branch on the BFF error code to show actionable messages
+      const code =
+        err && typeof err === "object" && "code" in err
+          ? (err as { code: string }).code
+          : "UNKNOWN";
+      const rawMessage =
         err instanceof Error ? err.message : "Login failed. Try again.";
-      setError(message);
+
+      let friendlyMessage: string;
+      let friendlyHint: string | undefined;
+
+      switch (code) {
+        case "AUTH_FAILED":
+          friendlyMessage = "Invalid register number or password.";
+          friendlyHint = "Double-check your KTU portal credentials and try again.";
+          break;
+        case "SCRAPE_FAILED":
+          friendlyMessage = "KTU's portal is unavailable right now.";
+          friendlyHint =
+            "We couldn't reach app.ktu.edu.in. This is usually temporary — try again in a few minutes.";
+          break;
+        case "SCRAPER_UNAVAILABLE":
+          friendlyMessage = "Our backend couldn't be reached.";
+          friendlyHint = "Network issue between KTU One and the scraper. Try again shortly.";
+          break;
+        case "VALIDATION_FAILED":
+          friendlyMessage = rawMessage;
+          break;
+        default:
+          friendlyMessage = rawMessage;
+      }
+
+      setError(friendlyHint ? `${friendlyMessage}\n${friendlyHint}` : friendlyMessage);
       getAnalyticsProvider().track({
         name: "login_failed",
-        props: { reason: message },
+        props: { reason: code },
       });
     } finally {
       setLoading(false);
@@ -193,7 +223,13 @@ export function LoginDialog() {
                     className="flex items-start gap-2 p-3 rounded-xl bg-destructive/10 text-destructive text-sm"
                   >
                     <AlertCircle className="size-4 shrink-0 mt-0.5" />
-                    <span>{error}</span>
+                    <div className="flex flex-col gap-0.5">
+                      {error.split("\n").map((line, i) => (
+                        <span key={i} className={i === 1 ? "text-xs opacity-80" : ""}>
+                          {line}
+                        </span>
+                      ))}
+                    </div>
                   </motion.div>
                 )}
 
