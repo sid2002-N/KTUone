@@ -45,7 +45,8 @@ This document contains every piece of code written for KTU One Phase 1, organize
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:reset": "prisma migrate reset"
+    "db:reset": "prisma migrate reset",
+    "db:seed": "bun run prisma/seed.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -84,6 +85,7 @@ This document contains every piece of code written for KTU One Phase 1, organize
     "@reactuses/core": "^6.0.5",
     "@tanstack/react-query": "^5.82.0",
     "@tanstack/react-table": "^8.21.3",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -91,6 +93,7 @@ This document contains every piece of code written for KTU One Phase 1, organize
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.2",
     "input-otp": "^1.4.2",
+    "jose": "^6.2.3",
     "lucide-react": "^0.525.0",
     "next": "^16.1.1",
     "next-auth": "^4.24.11",
@@ -117,6 +120,7 @@ This document contains every piece of code written for KTU One Phase 1, organize
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^3.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "bun-types": "^1.3.4",
@@ -2266,7 +2270,7 @@ export const STORAGE_KEYS = {
 
 ---
 
-## StudentService
+## StudentService (interface + Mock impl)
 
 **File:** `/home/z/my-project/src/lib/providers/student.ts`
 
@@ -2468,6 +2472,192 @@ export function getStudentService(): StudentService {
 
 export function __setStudentService(s: StudentService) {
   _instance = s;
+}
+```
+
+---
+
+## HttpStudentService (BFF client)
+
+**File:** `/home/z/my-project/src/lib/providers/student-http.ts`
+
+```tsx
+/**
+ * HttpStudentService — talks to the BFF API routes (login, refresh, logout,
+ * profile, results, cgpa). Cookies handle JWT transport automatically.
+ *
+ * Drop-in replacement for MockStudentService. UI code unchanged.
+ */
+import type {
+  AuthSession,
+  AttendanceRecord,
+  CGPAResult,
+  LoginCredentials,
+  LoginResponse,
+  SemesterResult,
+  StudentProfile,
+} from "@/lib/types";
+import type { StudentService } from "@/lib/providers/student";
+
+type AuthListener = (session: AuthSession | null) => void;
+
+export class HttpStudentService implements StudentService {
+  private listeners = new Set<AuthListener>();
+
+  async initialize(): Promise<boolean> {
+    // Try to restore session by calling /api/v1/refresh
+    try {
+      const res = await fetch("/api/v1/refresh", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) return false;
+
+      // If refresh succeeded, we have a valid access token cookie.
+      // Optionally fetch profile to confirm student record exists.
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async login(credentials: LoginCredentials): Promise<LoginResponse> {
+    const res = await fetch("/api/v1/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      const message = data?.error?.message ?? "Login failed";
+      throw new Error(message);
+    }
+
+    const data = (await res.json()) as LoginResponse & { expiresIn: number };
+
+    // Build a session object for the auth store
+    const session: AuthSession = {
+      studentId: data.student.id,
+      registerNumber: data.student.registerNumber,
+      name: data.student.name,
+      accessToken: "in-cookie", // not actually stored client-side — cookie is
+      refreshToken: "in-cookie",
+      expiresAt: Date.now() + (data.expiresIn ?? 3600) * 1000,
+      issuedAt: Date.now(),
+    };
+
+    this.emit(session);
+    return data;
+  }
+
+  async logout(): Promise<void> {
+    await fetch("/api/v1/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    this.emit(null);
+  }
+
+  isAuthenticated(): boolean {
+    // We don't store tokens client-side; we rely on the cookie being present.
+    // Optimistic — actual validation happens on the next API call.
+    return true;
+  }
+
+  async refreshSession(): Promise<boolean> {
+    try {
+      const res = await fetch("/api/v1/refresh", {
+        method: "POST",
+        credentials: "include",
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  async getProfile(): Promise<StudentProfile> {
+    const res = await this.authedFetch("/api/v1/profile");
+    if (!res.ok) {
+      throw new Error(`Failed to fetch profile: ${res.status}`);
+    }
+    const data = await res.json();
+    return data.profile as StudentProfile;
+  }
+
+  async getResults(): Promise<SemesterResult[]> {
+    const res = await this.authedFetch("/api/v1/results");
+    if (!res.ok) {
+      throw new Error(`Failed to fetch results: ${res.status}`);
+    }
+    const data = await res.json();
+    return data.results as SemesterResult[];
+  }
+
+  async getCGPA(): Promise<CGPAResult> {
+    const res = await this.authedFetch("/api/v1/cgpa");
+    if (!res.ok) {
+      throw new Error(`Failed to fetch CGPA: ${res.status}`);
+    }
+    const data = await res.json();
+    return data.cgpa as CGPAResult;
+  }
+
+  async getAttendance(): Promise<AttendanceRecord[]> {
+    // Scraper doesn't return attendance. Students enter manually.
+    return [];
+  }
+
+  async sync(): Promise<number> {
+    // Profile/Results/CGPA already serve cached data with `stale` flag.
+    // For now, sync is a no-op — students re-login to refresh from scraper.
+    return Date.now();
+  }
+
+  async clearCache(): Promise<void> {
+    // No client-side cache to clear (cookies handle everything).
+  }
+
+  onAuthChange(listener: AuthListener): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  private emit(session: AuthSession | null) {
+    for (const l of this.listeners) {
+      try {
+        l(session);
+      } catch {
+        /* swallow */
+      }
+    }
+  }
+
+  /**
+   * Fetch wrapper that auto-retries once on 401 by calling /refresh first.
+   */
+  private async authedFetch(url: string, init?: RequestInit): Promise<Response> {
+    let res = await fetch(url, {
+      ...init,
+      credentials: "include",
+    });
+
+    if (res.status === 401) {
+      // Try to refresh the access token
+      const refreshed = await this.refreshSession();
+      if (refreshed) {
+        // Retry the original request
+        res = await fetch(url, {
+          ...init,
+          credentials: "include",
+        });
+      }
+    }
+
+    return res;
+  }
 }
 ```
 
@@ -2793,6 +2983,8 @@ import { useState, useEffect } from "react";
 import { useThemeStore } from "@/store/theme-store";
 import { useSupporterStore } from "@/store/supporter-store";
 import { getAdsProvider } from "@/lib/providers/ads";
+import { __setStudentService } from "@/lib/providers/student";
+import { HttpStudentService } from "@/lib/providers/student-http";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
@@ -2830,6 +3022,17 @@ function SupporterAdsSync() {
   return null;
 }
 
+/**
+ * Swap the MockStudentService (default) for HttpStudentService which talks to
+ * the BFF API routes. Done once at app boot.
+ */
+function WireStudentService() {
+  useEffect(() => {
+    __setStudentService(new HttpStudentService());
+  }, []);
+  return null;
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(
     () =>
@@ -2849,10 +3052,1891 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={client}>
         <ThemeSync />
         <SupporterAdsSync />
+        <WireStudentService />
         {children}
       </QueryClientProvider>
     </ThemeProvider>
   );
+}
+```
+
+---
+# 5b. Auth + Scraper Layer (Phase 2)
+
+## Auth helpers (JWT + cookies)
+
+**File:** `/home/z/my-project/src/lib/auth/index.ts`
+
+```tsx
+/**
+ * Auth helpers — JWT issue/verify, refresh token hashing, cookie helpers.
+ * Server-only. Never import from a Client Component.
+ */
+import { SignJWT, jwtVerify } from "jose";
+import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+
+const ACCESS_COOKIE = "ktu_access";
+const REFRESH_COOKIE = "ktu_refresh";
+
+export interface AccessTokenPayload {
+  sub: string; // studentId
+  reg: string; // registerNumber
+  type: "access";
+}
+
+export interface RefreshTokenPayload {
+  sub: string;
+  jti: string; // token id (matches RefreshToken.id)
+  type: "refresh";
+}
+
+function getSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error("JWT_SECRET not configured");
+  return new TextEncoder().encode(secret);
+}
+
+export async function signAccessToken(payload: { sub: string; reg: string }): Promise<string> {
+  const ttl = Number(process.env.JWT_ACCESS_TTL ?? 3600);
+  return new SignJWT({ ...payload, type: "access" })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(`${ttl}s`)
+    .sign(getSecret());
+}
+
+export async function signRefreshToken(payload: { sub: string; jti: string }): Promise<string> {
+  const ttl = Number(process.env.JWT_REFRESH_TTL ?? 30 * 24 * 60 * 60);
+  return new SignJWT({ ...payload, type: "refresh" })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(`${ttl}s`)
+    .sign(getSecret());
+}
+
+export async function verifyAccessToken(token: string): Promise<AccessTokenPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, getSecret());
+    if (payload.type !== "access") return null;
+    return payload as unknown as AccessTokenPayload;
+  } catch {
+    return null;
+  }
+}
+
+export async function verifyRefreshToken(token: string): Promise<RefreshTokenPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, getSecret());
+    if (payload.type !== "refresh") return null;
+    return payload as unknown as RefreshTokenPayload;
+  } catch {
+    return null;
+  }
+}
+
+export async function hashRefreshToken(token: string): Promise<string> {
+  return bcrypt.hash(token, 10);
+}
+
+export async function compareRefreshToken(token: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(token, hash);
+}
+
+/**
+ * Issue access + refresh tokens, persist the hashed refresh token, set both as
+ * httpOnly cookies. Returns the access token's TTL (seconds) so callers can
+ * include it in the response body if they want.
+ */
+export async function issueSession(studentId: string, registerNumber: string): Promise<{
+  accessToken: string;
+  expiresIn: number;
+}> {
+  // Create refresh token record first to get its id
+  const ttl = Number(process.env.JWT_REFRESH_TTL ?? 30 * 24 * 60 * 60);
+  const expiresAt = new Date(Date.now() + ttl * 1000);
+  const refreshTokenRow = await db.refreshToken.create({
+    data: {
+      studentId,
+      tokenHash: "pending", // placeholder, will update after hashing the actual token
+      expiresAt,
+    },
+  });
+
+  // Sign the refresh token JWT containing the row id as jti
+  const refreshToken = await signRefreshToken({ sub: studentId, jti: refreshTokenRow.id });
+  const tokenHash = await hashRefreshToken(refreshToken);
+  await db.refreshToken.update({
+    where: { id: refreshTokenRow.id },
+    data: { tokenHash },
+  });
+
+  // Sign access token
+  const accessToken = await signAccessToken({ sub: studentId, reg: registerNumber });
+  const accessTtl = Number(process.env.JWT_ACCESS_TTL ?? 3600);
+
+  // Set cookies
+  const cookieStore = await cookies();
+  cookieStore.set(ACCESS_COOKIE, accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: accessTtl,
+  });
+  cookieStore.set(REFRESH_COOKIE, refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/api/v1",
+    maxAge: ttl,
+  });
+
+  return { accessToken, expiresIn: accessTtl };
+}
+
+/**
+ * Revoke all refresh tokens for a student (used on logout).
+ */
+export async function revokeAllRefreshTokens(studentId: string): Promise<void> {
+  await db.refreshToken.updateMany({
+    where: { studentId, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+}
+
+/**
+ * Clear auth cookies (used on logout).
+ */
+export async function clearSessionCookies(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(ACCESS_COOKIE);
+  cookieStore.delete(REFRESH_COOKIE);
+}
+
+/**
+ * Read the access token from the request cookies and verify it.
+ * Returns null if missing, expired, or invalid.
+ */
+export async function getAuthenticatedStudent(req: Request): Promise<{
+  studentId: string;
+  registerNumber: string;
+} | null> {
+  const cookieHeader = req.headers.get("cookie") ?? "";
+  const cookies = Object.fromEntries(
+    cookieHeader.split("; ").map((c) => {
+      const [k, ...v] = c.split("=");
+      return [k, v.join("=")];
+    }),
+  );
+  const token = cookies[ACCESS_COOKIE];
+  if (!token) return null;
+  const payload = await verifyAccessToken(token);
+  if (!payload) return null;
+  return { studentId: payload.sub, registerNumber: payload.reg };
+}
+
+/**
+ * Read the refresh token from the request cookies.
+ */
+export async function getRefreshTokenFromRequest(req: Request): Promise<string | null> {
+  const cookieHeader = req.headers.get("cookie") ?? "";
+  const cookies = Object.fromEntries(
+    cookieHeader.split("; ").map((c) => {
+      const [k, ...v] = c.split("=");
+      return [k, v.join("=")];
+    }),
+  );
+  return cookies[REFRESH_COOKIE] ?? null;
+}
+
+export const ACCESS_COOKIE_NAME = ACCESS_COOKIE;
+export const REFRESH_COOKIE_NAME = REFRESH_COOKIE;
+```
+
+---
+
+## Scraper client
+
+**File:** `/home/z/my-project/src/lib/scraper/index.ts`
+
+```tsx
+/**
+ * Scraper client — thin wrapper around the existing Express scraper backend.
+ * Server-only. Holds the SCRAPER_API_KEY server-side; never expose to client.
+ */
+
+export interface ScraperStudentResponse {
+  username: string;
+  userid: string;
+  proimg?: string;
+  Gender?: string;
+  DateofBirth?: string;
+  AadharNumber?: string;
+  MotherTongue?: string;
+  Category?: string;
+  Religion?: string;
+  Cast?: string;
+  Nationality?: string;
+  BloodGroup?: string;
+  DateofAdmission?: string;
+  AdmissionQuota?: string;
+  CollegeAdmissionNumber?: string;
+  AdmittedProgram?: string;
+  AdmittedBranch?: string;
+  AdmittedScheme?: string;
+  AdmittedCategory?: string;
+  AdmissionType?: string;
+  Division?: string;
+  EligibleForFeeConcession?: string;
+  Programtobecompletedby?: string;
+  CurrentSemester?: string;
+  StaffAdvisor?: string;
+  InstitutionName?: string;
+  BankName?: string;
+  BranchName?: string;
+  AccountNumber?: string;
+  AccountHolder?: string;
+  IFSCCode?: string;
+  Qualification?: string;
+  "Board/University"?: string;
+  QualifiedYear?: string;
+  TotalMarks?: string;
+  PercentageofMarks?: string;
+  EntranceType?: string;
+  PhysicsMarks?: string;
+  "Chemistry(otherasspecifiedinCEE)Marks"?: string;
+  MathsMarks?: string;
+  Rankingtype?: string;
+  "EntranceRank/Percentile"?: string;
+  EntranceScore?: string;
+  Name?: string; // parent name
+  Occupation?: string;
+  CommunicationAddress?: string;
+  PersonalAddress?: string;
+  Mobile?: string;
+  Email?: string;
+  HonoursCreditsRequired?: string;
+  HonoursCreditsEarned?: string;
+  MinorBranch?: string;
+  MinorBasket?: string;
+  MinorStaus?: string; // typo from KTU portal — preserved exactly
+  // Semester result arrays
+  S1?: ScraperCourse[];
+  S1sgpa?: string;
+  S2?: ScraperCourse[];
+  S2sgpa?: string;
+  S3?: ScraperCourse[];
+  S3sgpa?: string;
+  S4?: ScraperCourse[];
+  S4sgpa?: string;
+  S5?: ScraperCourse[];
+  S5sgpa?: string;
+  S6?: ScraperCourse[];
+  S6sgpa?: string;
+  S7?: ScraperCourse[];
+  S7sgpa?: string;
+  S8?: ScraperCourse[];
+  S8sgpa?: string;
+  activityPoints?: Record<string, string>;
+}
+
+export interface ScraperCourse {
+  slot: string;
+  course: string; // e.g. "MAT101 - LINEAR ALGEBRA AND CALCULUS"
+  credit: string;
+  type: string;
+  completed: string;
+  grade: string; // often "No" (means: not graded externally)
+  earned: string; // the actual grade letter, e.g. "A+"
+}
+
+export interface ScraperNotification {
+  date: string;
+  heading: string;
+  key: string;
+  data: string;
+}
+
+export class ScraperError extends Error {
+  code: "AUTH_FAILED" | "SCRAPE_FAILED" | "SCRAPER_UNAVAILABLE" | "BAD_RESPONSE";
+  status: number;
+  constructor(
+    code: ScraperError["code"],
+    message: string,
+    status: number,
+  ) {
+    super(message);
+    this.code = code;
+    this.status = status;
+    this.name = "ScraperError";
+  }
+}
+
+function getScraperConfig() {
+  const url = process.env.SCRAPER_API_URL;
+  const key = process.env.SCRAPER_API_KEY;
+  if (!url || !key) {
+    throw new ScraperError("SCRAPER_UNAVAILABLE", "Scraper config missing", 500);
+  }
+  return { url, key };
+}
+
+/**
+ * Calls the scraper's POST /api/v1/data endpoint to validate credentials and
+ * fetch the student's full academic data.
+ *
+ * Password is NEVER persisted, NEVER logged, and only used in this single
+ * request body.
+ */
+export async function fetchStudentFromScraper(
+  userid: string,
+  password: string,
+): Promise<ScraperStudentResponse> {
+  const { url, key } = getScraperConfig();
+
+  let res: Response;
+  try {
+    res = await fetch(`${url}/api/v1/data`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, userid, password }),
+      signal: AbortSignal.timeout(30_000), // scraper can be slow (it scrapes KTU)
+    });
+  } catch (e) {
+    throw new ScraperError(
+      "SCRAPER_UNAVAILABLE",
+      e instanceof Error ? e.message : "Network error",
+      502,
+    );
+  }
+
+  if (res.status === 403 || res.status === 401) {
+    throw new ScraperError("AUTH_FAILED", "Invalid credentials", 401);
+  }
+  if (!res.ok) {
+    throw new ScraperError(
+      "SCRAPE_FAILED",
+      `Scraper returned ${res.status}`,
+      502,
+    );
+  }
+
+  const data = (await res.json()) as ScraperStudentResponse;
+  if (!data.userid || !data.username) {
+    throw new ScraperError("BAD_RESPONSE", "Scraper response missing required fields", 502);
+  }
+
+  return data;
+}
+
+/**
+ * Fetch the list of notifications from the scraper backend.
+ * No auth required.
+ */
+export async function fetchNotificationsFromScraper(): Promise<ScraperNotification[]> {
+  const { url } = getScraperConfig();
+  const res = await fetch(`${url}/api/v1/notifications`, {
+    headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!res.ok) {
+    throw new ScraperError("SCRAPER_UNAVAILABLE", `Status ${res.status}`, 502);
+  }
+  const data = (await res.json()) as { notifications: ScraperNotification[] };
+  return data.notifications ?? [];
+}
+```
+
+---
+
+## Scraper → domain mapper
+
+**File:** `/home/z/my-project/src/lib/scraper/mapper.ts`
+
+```tsx
+/**
+ * Maps the scraper's response shape → our domain types.
+ * Pure functions, easily testable.
+ */
+import { BRANCHES } from "@/lib/constants";
+import type {
+  StudentProfile,
+  SemesterResult,
+  SubjectResult,
+  CGPAResult,
+  Grade,
+  BranchCode,
+} from "@/lib/types";
+import { GRADE_POINTS } from "@/lib/types";
+import type { ScraperStudentResponse, ScraperCourse } from "@/lib/scraper";
+
+const BRANCH_NAME_TO_CODE: Record<string, BranchCode> = Object.fromEntries(
+  BRANCHES.map((b) => [b.fullName.toUpperCase(), b.code]),
+) as Record<string, BranchCode>;
+
+/** Try to match a scraper branch name to our BranchCode; fallback to "CSE". */
+export function normalizeBranchCode(admittedBranch: string | undefined): BranchCode {
+  if (!admittedBranch) return "CSE";
+  const upper = admittedBranch.toUpperCase();
+  return BRANCH_NAME_TO_CODE[upper] ?? "CSE";
+}
+
+/** Parse "S8" → 8. Returns 1 if unparseable. */
+export function parseSemester(raw: string | undefined): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 {
+  if (!raw) return 1;
+  const match = raw.match(/S?(\d)/i);
+  const n = match ? Number(match[1]) : 1;
+  if (n >= 1 && n <= 8) return n as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  return 1;
+}
+
+/** Parse admission year from "0/2020" or "08/2020" → 2020. */
+export function parseAdmissionYear(raw: string | undefined): number | undefined {
+  if (!raw) return undefined;
+  const parts = raw.split("/");
+  const year = Number(parts[parts.length - 1]);
+  return isNaN(year) ? undefined : year;
+}
+
+/** Build initials from full name: "JOHN DOE" → "JD". */
+export function buildAvatarInitials(name: string | undefined): string {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
+}
+
+function parseGrade(raw: string | undefined): Grade {
+  if (!raw) return "F";
+  const trimmed = raw.trim();
+  if (["O", "A+", "A", "B+", "B", "C", "P", "F", "I", "Absent"].includes(trimmed)) {
+    return trimmed as Grade;
+  }
+  return "F";
+}
+
+function mapCourse(c: ScraperCourse): SubjectResult {
+  // course format: "MAT101 - LINEAR ALGEBRA AND CALCULUS"
+  const [code, ...nameParts] = c.course.split(" - ");
+  return {
+    subjectCode: code?.trim() ?? c.course,
+    subjectName: nameParts.join(" - ").trim() || c.course,
+    credits: Number(c.credit) || 0,
+    grade: parseGrade(c.earned || c.grade),
+    gradePoint: GRADE_POINTS[parseGrade(c.earned || c.grade)],
+    passed: (c.earned || c.grade) !== "F" && (c.earned || c.grade) !== "Absent",
+  };
+}
+
+export function mapScraperToProfile(
+  scraper: ScraperStudentResponse,
+  studentId: string,
+): StudentProfile {
+  return {
+    id: studentId,
+    registerNumber: scraper.userid,
+    name: scraper.username,
+    branchCode: normalizeBranchCode(scraper.AdmittedBranch),
+    branchName: scraper.AdmittedBranch ?? "Unknown",
+    semester: parseSemester(scraper.CurrentSemester),
+    email: scraper.Email,
+    phone: scraper.Mobile,
+    admissionYear: parseAdmissionYear(scraper.DateofAdmission),
+    scheme: scraper.AdmittedScheme ?? "2019 Scheme",
+    avatarInitials: buildAvatarInitials(scraper.username),
+  };
+}
+
+export function mapScraperToResults(scraper: ScraperStudentResponse): SemesterResult[] {
+  const out: SemesterResult[] = [];
+  for (let sem = 1; sem <= 8; sem++) {
+    const courses = scraper[`S${sem}` as keyof ScraperStudentResponse] as
+      | ScraperCourse[]
+      | undefined;
+    const sgpaStr = scraper[`S${sem}sgpa` as keyof ScraperStudentResponse] as
+      | string
+      | undefined;
+    if (!courses || courses.length === 0) continue;
+
+    const subjects = courses.map(mapCourse);
+    const totalCredits = subjects.reduce((sum, s) => sum + s.credits, 0);
+    const creditsEarned = subjects
+      .filter((s) => s.passed)
+      .reduce((sum, s) => sum + s.credits, 0);
+    const sgpa = sgpaStr ? Number(sgpaStr) : 0;
+
+    out.push({
+      semester: sem as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+      subjects,
+      sgpa,
+      totalCredits,
+      creditsEarned,
+    });
+  }
+  return out;
+}
+
+export function mapScraperToCGPA(scraper: ScraperStudentResponse): CGPAResult {
+  const semesters = mapScraperToResults(scraper);
+  let totalCredits = 0;
+  let weighted = 0;
+  for (const s of semesters) {
+    totalCredits += s.totalCredits;
+    weighted += s.sgpa * s.totalCredits;
+  }
+  const cgpa = totalCredits > 0 ? weighted / totalCredits : 0;
+  return {
+    cgpa: Number(cgpa.toFixed(2)),
+    totalCredits,
+    creditsEarned: semesters.reduce((sum, s) => sum + s.creditsEarned, 0),
+    semesters,
+  };
+}
+```
+
+---
+
+## Prisma client
+
+**File:** `/home/z/my-project/src/lib/db.ts`
+
+```tsx
+import { PrismaClient } from '@prisma/client'
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
+export const db =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
+  })
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db```
+
+---
+
+## Prisma schema
+
+**File:** `/home/z/my-project/prisma/schema.prisma`
+
+```prisma
+// KTU One — Prisma Schema (Phase 2)
+// SQLite for dev; swap datasource provider to "postgresql" + connection string for Supabase.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/* ===================================================================== */
+/* Reference data (curated, not scraped)                                  */
+/* ===================================================================== */
+
+model Branch {
+  code     String   @id // e.g. "CSE", "EC"
+  name     String   // short name e.g. "CSE"
+  fullName String   // e.g. "Computer Science & Engineering"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("branches")
+}
+
+model Semester {
+  id           String   @id @default(cuid())
+  number       Int      // 1..8
+  branchCode   String
+  academicYear String?  // e.g. "2025-2026"
+  totalCredits Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([number, branchCode, academicYear])
+  @@map("semesters")
+}
+
+model Subject {
+  id         String   @id @default(cuid())
+  code       String   @unique // e.g. "CST301"
+  name       String
+  semester   Int      // 1..8
+  branchCode String
+  credits    Int
+  type       String   // CORE | ELECTIVE | LAB | PROJECT | HONORS
+  isElective Boolean  @default(false)
+  isLab      Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([branchCode, semester])
+  @@map("subjects")
+}
+
+/* ===================================================================== */
+/* Content (curated by admin; Phase 3)                                    */
+/* ===================================================================== */
+
+model QuestionPaper {
+  id            String   @id @default(cuid())
+  title         String
+  subjectCode   String
+  subjectName   String
+  semester      Int
+  branchCode    String
+  year          Int
+  month         Int
+  examType      String   // END_SEM | SERIES_1 | SERIES_2 | MODEL
+  fileUrl       String
+  fileSizeBytes Int      @default(0)
+  pageCount     Int      @default(0)
+  downloads     Int      @default(0)
+  views         Int      @default(0)
+  uploadedAt    DateTime @default(now())
+  deletedAt     DateTime?
+
+  @@index([branchCode, semester, year])
+  @@index([subjectCode])
+  @@map("question_papers")
+}
+
+model Syllabus {
+  id          String   @id @default(cuid())
+  title       String
+  semester    Int
+  branchCode  String
+  subjectCode String
+  subjectName String
+  version     String   @default("v2019.1")
+  fileUrl     String
+  lastUpdated DateTime @default(now())
+  modules     Int      @default(5)
+  deletedAt   DateTime?
+
+  @@index([branchCode, semester])
+  @@map("syllabus")
+}
+
+model KTUNotice {
+  id          String   @id @default(cuid())
+  key         String   @unique // slug from scraper (dedup key)
+  title       String
+  description String
+  category    String   @default("General") // Academic | Examination | Scholarship | Placement | Cultural | General
+  publishedAt DateTime
+  priority    String   @default("Normal") // Pinned | High | Normal | Low
+  pdfUrl      String?
+  externalUrl String?
+  tags        String   @default("[]") // JSON array as string (SQLite limitation)
+  pinned      Boolean  @default(false)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([publishedAt])
+  @@index([category, active])
+  @@map("ktu_notices")
+}
+
+model CalendarEvent {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  type            String   // EXAM | HOLIDAY | RESULT | REGISTRATION | WORKSHOP | DEADLINE | EVENT
+  startDate       DateTime
+  endDate         DateTime
+  allDay          Boolean  @default(true)
+  color           String   @default("#9333EA")
+  reminderEnabled Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([startDate])
+  @@map("calendar_events")
+}
+
+/* ===================================================================== */
+/* Auth + per-student data                                                */
+/* ===================================================================== */
+
+model Student {
+  id             String   @id @default(cuid())
+  registerNumber String   @unique
+  name           String
+  branchCode     String?
+  branchName     String?  // raw from scraper (full name)
+  semester       Int?
+  scheme         String?
+  email          String?
+  phone          String?
+  avatarInitials String?
+  admissionYear  Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  lastLoginAt    DateTime?
+
+  cachedData     CachedStudentData?
+  refreshTokens  RefreshToken[]
+  bookmarks      Bookmark[]
+  calcHistory    CalculatorHistoryEntry[]
+  supporterPurchases SupporterPurchase[]
+
+  @@map("students")
+}
+
+model CachedStudentData {
+  studentId String   @id
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  rawJson   String   // full scraper response as JSON string
+  cachedAt  DateTime @default(now())
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cached_student_data")
+}
+
+model RefreshToken {
+  id         String   @id @default(cuid())
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  tokenHash  String   @unique // bcrypt hash of the refresh token
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([studentId])
+  @@map("refresh_tokens")
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  kind      String   // paper | syllabus | notice | subject
+  refId     String
+  title     String
+  subtitle  String?
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, kind, refId])
+  @@index([studentId, kind])
+  @@map("bookmarks")
+}
+
+model CalculatorHistoryEntry {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  type      String   // SGPA | CGPA | ATTENDANCE | INTERNAL_MARKS | PASS_CALCULATOR
+  input     String   // JSON string
+  output    String   // JSON string
+  label     String?
+  createdAt DateTime @default(now())
+
+  @@index([studentId, type])
+  @@map("calculator_history")
+}
+
+/* ===================================================================== */
+/* Payments                                                               */
+/* ===================================================================== */
+
+model SupporterPurchase {
+  id            String   @id @default(cuid())
+  studentId     String?
+  student       Student? @relation(fields: [studentId], references: [id])
+  amount        Int
+  currency      String   @default("INR")
+  status        String   @default("Pending") // Pending | Success | Failed | Refunded
+  provider      String   @default("Mock") // Mock | Razorpay
+  transactionId String
+  receiptUrl    String?
+  purchasedAt   DateTime @default(now())
+
+  @@index([studentId])
+  @@map("supporter_purchases")
+}
+
+/* ===================================================================== */
+/* App settings (key/value)                                               */
+/* ===================================================================== */
+
+model AppSettings {
+  key       String   @id
+  value     String   // JSON string
+  updatedAt DateTime @updatedAt
+
+  @@map("app_settings")
+}
+```
+
+---
+
+## Seed script
+
+**File:** `/home/z/my-project/prisma/seed.ts`
+
+```ts
+/**
+ * KTU One — Database seed script
+ * Ports src/data/mock-data.ts into Prisma rows.
+ * Run with: bun run db:seed
+ */
+import { PrismaClient } from "@prisma/client";
+import {
+  BRANCHES,
+  SEMESTERS,
+} from "../src/lib/constants";
+import {
+  SUBJECTS,
+  MOCK_PAPERS,
+  MOCK_SYLLABUS,
+  MOCK_NOTICES,
+  MOCK_CALENDAR,
+} from "../src/data/mock-data";
+
+const prisma = new PrismaClient();
+
+async function main() {
+  console.log("🌱 Seeding KTU One database...");
+
+  // 1. Branches
+  console.log("  → Branches");
+  for (const b of BRANCHES) {
+    await prisma.branch.upsert({
+      where: { code: b.code },
+      update: { name: b.name, fullName: b.fullName },
+      create: { code: b.code, name: b.name, fullName: b.fullName },
+    });
+  }
+
+  // 2. Semesters (one per branch × 8)
+  console.log("  → Semesters");
+  for (const branch of BRANCHES) {
+    for (const num of SEMESTERS) {
+      await prisma.semester.upsert({
+        where: {
+          number_branchCode_academicYear: {
+            number: num,
+            branchCode: branch.code,
+            academicYear: "2025-2026",
+          },
+        },
+        update: {},
+        create: {
+          number: num,
+          branchCode: branch.code,
+          academicYear: "2025-2026",
+          totalCredits: 24,
+        },
+      });
+    }
+  }
+
+  // 3. Subjects (only the CSE ones in mock-data)
+  console.log("  → Subjects");
+  for (const s of SUBJECTS) {
+    await prisma.subject.upsert({
+      where: { code: s.code },
+      update: {
+        name: s.name,
+        semester: s.semester,
+        branchCode: s.branchCode,
+        credits: s.credits,
+        type: s.type,
+        isElective: s.isElective,
+        isLab: s.isLab,
+      },
+      create: {
+        code: s.code,
+        name: s.name,
+        semester: s.semester,
+        branchCode: s.branchCode,
+        credits: s.credits,
+        type: s.type,
+        isElective: s.isElective,
+        isLab: s.isLab,
+      },
+    });
+  }
+
+  // 4. Question papers (clear + reinsert to keep things deterministic)
+  console.log("  → Question papers");
+  await prisma.questionPaper.deleteMany({});
+  for (const p of MOCK_PAPERS) {
+    await prisma.questionPaper.create({
+      data: {
+        title: p.title,
+        subjectCode: p.subjectCode,
+        subjectName: p.subjectName,
+        semester: p.semester,
+        branchCode: p.branchCode,
+        year: p.year,
+        month: p.month,
+        examType: p.examType,
+        fileUrl: p.fileUrl,
+        fileSizeBytes: p.fileSizeBytes,
+        pageCount: p.pageCount,
+        downloads: p.downloads,
+        views: p.views,
+        uploadedAt: new Date(p.uploadedAt),
+      },
+    });
+  }
+
+  // 5. Syllabus
+  console.log("  → Syllabus");
+  await prisma.syllabus.deleteMany({});
+  for (const s of MOCK_SYLLABUS) {
+    await prisma.syllabus.create({
+      data: {
+        title: s.title,
+        semester: s.semester,
+        branchCode: s.branchCode,
+        subjectCode: s.subjectCode,
+        subjectName: s.subjectName,
+        version: s.version,
+        fileUrl: s.fileUrl,
+        lastUpdated: new Date(s.lastUpdated),
+        modules: s.modules,
+      },
+    });
+  }
+
+  // 6. Notices (upsert by key — so we don't duplicate on re-seed)
+  console.log("  → Notices");
+  for (const n of MOCK_NOTICES) {
+    const slug = n.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 100);
+    await prisma.kTUNotice.upsert({
+      where: { key: slug },
+      update: {
+        title: n.title,
+        description: n.description,
+        category: n.category,
+        publishedAt: new Date(n.publishedAt),
+        priority: n.priority,
+        pdfUrl: n.pdfUrl ?? null,
+        externalUrl: n.externalUrl ?? null,
+        tags: JSON.stringify(n.tags),
+        pinned: n.pinned,
+        active: n.active,
+      },
+      create: {
+        key: slug,
+        title: n.title,
+        description: n.description,
+        category: n.category,
+        publishedAt: new Date(n.publishedAt),
+        priority: n.priority,
+        pdfUrl: n.pdfUrl ?? null,
+        externalUrl: n.externalUrl ?? null,
+        tags: JSON.stringify(n.tags),
+        pinned: n.pinned,
+        active: n.active,
+      },
+    });
+  }
+
+  // 7. Calendar events
+  console.log("  → Calendar events");
+  await prisma.calendarEvent.deleteMany({});
+  for (const e of MOCK_CALENDAR) {
+    await prisma.calendarEvent.create({
+      data: {
+        title: e.title,
+        description: e.description,
+        type: e.type,
+        startDate: new Date(e.startDate),
+        endDate: new Date(e.endDate),
+        allDay: e.allDay,
+        color: e.color,
+        reminderEnabled: e.reminderEnabled,
+      },
+    });
+  }
+
+  // 8. Default app settings
+  console.log("  → App settings");
+  await prisma.appSettings.upsert({
+    where: { key: "app.version" },
+    update: {},
+    create: { key: "app.version", value: JSON.stringify("1.0.0-alpha") },
+  });
+
+  console.log("✅ Seed complete");
+  console.log(`   ${BRANCHES.length} branches`);
+  console.log(`   ${BRANCHES.length * SEMESTERS.length} semesters`);
+  console.log(`   ${SUBJECTS.length} subjects`);
+  console.log(`   ${MOCK_PAPERS.length} question papers`);
+  console.log(`   ${MOCK_SYLLABUS.length} syllabus entries`);
+  console.log(`   ${MOCK_NOTICES.length} notices`);
+  console.log(`   ${MOCK_CALENDAR.length} calendar events`);
+}
+
+main()
+  .catch((e) => {
+    console.error("❌ Seed failed:", e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
+```
+
+---
+# 5c. BFF API Routes (Phase 2)
+
+## POST /api/v1/login
+
+**File:** `/home/z/my-project/src/app/api/v1/login/route.ts`
+
+```tsx
+/**
+ * POST /api/v1/login
+ * Body: { registerNumber, password }
+ *
+ * Calls the scraper backend to validate credentials and fetch academic data,
+ * then issues JWT access + refresh tokens (httpOnly cookies), persists the
+ * scraper response in Prisma as a 24h cache, and returns the student profile.
+ *
+ * Password is NEVER persisted, NEVER logged.
+ */
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { fetchStudentFromScraper, ScraperError } from "@/lib/scraper";
+import { mapScraperToProfile } from "@/lib/scraper/mapper";
+import { issueSession } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
+
+const LoginSchema = z.object({
+  registerNumber: z.string().min(1).max(50),
+  password: z.string().min(1).max(200),
+});
+
+export async function POST(req: NextRequest) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: { code: "BAD_REQUEST", message: "Invalid JSON body" } },
+      { status: 400 },
+    );
+  }
+
+  const parsed = LoginSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        error: {
+          code: "VALIDATION_FAILED",
+          message: parsed.error.issues[0]?.message ?? "Invalid input",
+        },
+      },
+      { status: 400 },
+    );
+  }
+
+  const { registerNumber, password } = parsed.data;
+
+  try {
+    // 1. Call the scraper (validates credentials + fetches academic data)
+    const scraperData = await fetchStudentFromScraper(registerNumber, password);
+
+    // 2. Upsert Student row
+    const student = await db.student.upsert({
+      where: { registerNumber: scraperData.userid },
+      update: {
+        name: scraperData.username,
+        branchName: scraperData.AdmittedBranch,
+        email: scraperData.Email,
+        phone: scraperData.Mobile,
+        lastLoginAt: new Date(),
+      },
+      create: {
+        registerNumber: scraperData.userid,
+        name: scraperData.username,
+        branchName: scraperData.AdmittedBranch,
+        email: scraperData.Email,
+        phone: scraperData.Mobile,
+        lastLoginAt: new Date(),
+      },
+    });
+
+    // Update derived fields via mapper (separate update to keep logic clean)
+    const profile = mapScraperToProfile(scraperData, student.id);
+    await db.student.update({
+      where: { id: student.id },
+      data: {
+        branchCode: profile.branchCode,
+        semester: profile.semester,
+        scheme: profile.scheme,
+        avatarInitials: profile.avatarInitials,
+        admissionYear: profile.admissionYear,
+      },
+    });
+
+    // 3. Cache the scraper response (24h TTL)
+    const cacheTtl = Number(process.env.CACHE_TTL_SECONDS ?? 86400);
+    await db.cachedStudentData.upsert({
+      where: { studentId: student.id },
+      update: {
+        rawJson: JSON.stringify(scraperData),
+        cachedAt: new Date(),
+        expiresAt: new Date(Date.now() + cacheTtl * 1000),
+      },
+      create: {
+        studentId: student.id,
+        rawJson: JSON.stringify(scraperData),
+        expiresAt: new Date(Date.now() + cacheTtl * 1000),
+      },
+    });
+
+    // 4. Issue JWT + refresh tokens, set cookies
+    const { expiresIn } = await issueSession(student.id, student.registerNumber);
+
+    // 5. Return the student profile for the frontend
+    return NextResponse.json({
+      accessToken: "in-cookie",
+      expiresIn,
+      student: {
+        id: student.id,
+        name: profile.name,
+        branchCode: profile.branchCode,
+        branchName: profile.branchName,
+        semester: profile.semester,
+        registerNumber: profile.registerNumber,
+        avatarInitials: profile.avatarInitials,
+      },
+    });
+  } catch (e) {
+    if (e instanceof ScraperError) {
+      return NextResponse.json(
+        { error: { code: e.code, message: e.message } },
+        { status: e.status },
+      );
+    }
+    const message = e instanceof Error ? e.message : "Unknown error";
+    return NextResponse.json(
+      { error: { code: "INTERNAL", message } },
+      { status: 500 },
+    );
+  }
+}
+```
+
+---
+
+## POST /api/v1/refresh
+
+**File:** `/home/z/my-project/src/app/api/v1/refresh/route.ts`
+
+```tsx
+/**
+ * POST /api/v1/refresh
+ * Reads refresh token from httpOnly cookie, validates it, issues a new access token.
+ */
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import {
+  verifyRefreshToken,
+  compareRefreshToken,
+  signAccessToken,
+  ACCESS_COOKIE_NAME,
+} from "@/lib/auth";
+import { cookies } from "next/headers";
+
+export const dynamic = "force-dynamic";
+
+export async function POST(_req: NextRequest) {
+  const cookieStore = await cookies();
+  const refreshToken = cookieStore.get("ktu_refresh")?.value;
+
+  if (!refreshToken) {
+    return NextResponse.json(
+      { error: { code: "NO_REFRESH_TOKEN", message: "No refresh token cookie" } },
+      { status: 401 },
+    );
+  }
+
+  // 1. Verify JWT signature + expiry
+  const payload = await verifyRefreshToken(refreshToken);
+  if (!payload) {
+    return NextResponse.json(
+      { error: { code: "INVALID_REFRESH_TOKEN", message: "Refresh token invalid or expired" } },
+      { status: 401 },
+    );
+  }
+
+  // 2. Look up the hashed token in DB; ensure not revoked
+  const stored = await db.refreshToken.findUnique({
+    where: { id: payload.jti },
+  });
+  if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
+    return NextResponse.json(
+      { error: { code: "REVOKED_OR_EXPIRED", message: "Refresh token revoked or expired" } },
+      { status: 401 },
+    );
+  }
+
+  // 3. Compare the raw token against the stored hash
+  const matches = await compareRefreshToken(refreshToken, stored.tokenHash);
+  if (!matches) {
+    return NextResponse.json(
+      { error: { code: "TOKEN_MISMATCH", message: "Refresh token hash mismatch" } },
+      { status: 401 },
+    );
+  }
+
+  // 4. Fetch the student to include registerNumber in the new access token
+  const student = await db.student.findUnique({
+    where: { id: payload.sub },
+    select: { id: true, registerNumber: true },
+  });
+  if (!student) {
+    return NextResponse.json(
+      { error: { code: "STUDENT_NOT_FOUND", message: "Student no longer exists" } },
+      { status: 401 },
+    );
+  }
+
+  // 5. Issue a fresh access token
+  const accessToken = await signAccessToken({
+    sub: student.id,
+    reg: student.registerNumber,
+  });
+  const accessTtl = Number(process.env.JWT_ACCESS_TTL ?? 3600);
+
+  cookieStore.set(ACCESS_COOKIE_NAME, accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: accessTtl,
+  });
+
+  return NextResponse.json({ ok: true, expiresIn: accessTtl });
+}
+```
+
+---
+
+## POST /api/v1/logout
+
+**File:** `/home/z/my-project/src/app/api/v1/logout/route.ts`
+
+```tsx
+/**
+ * POST /api/v1/logout
+ * Revokes all refresh tokens for the authenticated student and clears cookies.
+ */
+import { NextRequest, NextResponse } from "next/server";
+import {
+  getAuthenticatedStudent,
+  revokeAllRefreshTokens,
+  clearSessionCookies,
+} from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
+
+export async function POST(req: NextRequest) {
+  const student = await getAuthenticatedStudent(req);
+
+  // Even if the access token is expired, we still want to clear cookies.
+  // Try to read the refresh token's subject indirectly by revoking via studentId
+  // (only if access token was valid). Otherwise just clear cookies.
+  if (student) {
+    await revokeAllRefreshTokens(student.studentId);
+  }
+
+  await clearSessionCookies();
+
+  return NextResponse.json({ ok: true });
+}
+```
+
+---
+
+## GET /api/v1/profile
+
+**File:** `/home/z/my-project/src/app/api/v1/profile/route.ts`
+
+```tsx
+/**
+ * GET /api/v1/profile
+ * JWT-protected. Returns the authenticated student's profile.
+ * Reads from CachedStudentData (24h cache); falls back to "stale" flag if expired.
+ */
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { getAuthenticatedStudent } from "@/lib/auth";
+import { mapScraperToProfile } from "@/lib/scraper/mapper";
+import type { ScraperStudentResponse } from "@/lib/scraper";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
+  const auth = await getAuthenticatedStudent(req);
+  if (!auth) {
+    return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+      { status: 401 },
+    );
+  }
+
+  const cached = await db.cachedStudentData.findUnique({
+    where: { studentId: auth.studentId },
+  });
+
+  if (!cached) {
+    return NextResponse.json(
+      {
+        error: {
+          code: "NO_CACHE",
+          message: "No cached data — student must re-login to refresh from scraper",
+        },
+      },
+      { status: 404 },
+    );
+  }
+
+  const scraperData = JSON.parse(cached.rawJson) as ScraperStudentResponse;
+  const profile = mapScraperToProfile(scraperData, auth.studentId);
+
+  const isStale = cached.expiresAt < new Date();
+
+  return NextResponse.json({
+    profile,
+    cachedAt: cached.cachedAt.toISOString(),
+    expiresAt: cached.expiresAt.toISOString(),
+    stale: isStale,
+  });
+}
+```
+
+---
+
+## GET /api/v1/results
+
+**File:** `/home/z/my-project/src/app/api/v1/results/route.ts`
+
+```tsx
+/**
+ * GET /api/v1/results
+ * JWT-protected. Returns semester-by-semester results from cached scraper data.
+ */
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { getAuthenticatedStudent } from "@/lib/auth";
+import { mapScraperToResults } from "@/lib/scraper/mapper";
+import type { ScraperStudentResponse } from "@/lib/scraper";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
+  const auth = await getAuthenticatedStudent(req);
+  if (!auth) {
+    return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+      { status: 401 },
+    );
+  }
+
+  const cached = await db.cachedStudentData.findUnique({
+    where: { studentId: auth.studentId },
+  });
+
+  if (!cached) {
+    return NextResponse.json(
+      {
+        error: {
+          code: "NO_CACHE",
+          message: "No cached data — student must re-login to refresh from scraper",
+        },
+      },
+      { status: 404 },
+    );
+  }
+
+  const scraperData = JSON.parse(cached.rawJson) as ScraperStudentResponse;
+  const results = mapScraperToResults(scraperData);
+
+  return NextResponse.json({
+    results,
+    cachedAt: cached.cachedAt.toISOString(),
+    stale: cached.expiresAt < new Date(),
+  });
+}
+```
+
+---
+
+## GET /api/v1/cgpa
+
+**File:** `/home/z/my-project/src/app/api/v1/cgpa/route.ts`
+
+```tsx
+/**
+ * GET /api/v1/cgpa
+ * JWT-protected. Returns CGPA computed from cached scraper data.
+ */
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { getAuthenticatedStudent } from "@/lib/auth";
+import { mapScraperToCGPA } from "@/lib/scraper/mapper";
+import type { ScraperStudentResponse } from "@/lib/scraper";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
+  const auth = await getAuthenticatedStudent(req);
+  if (!auth) {
+    return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+      { status: 401 },
+    );
+  }
+
+  const cached = await db.cachedStudentData.findUnique({
+    where: { studentId: auth.studentId },
+  });
+
+  if (!cached) {
+    return NextResponse.json(
+      {
+        error: {
+          code: "NO_CACHE",
+          message: "No cached data — student must re-login to refresh from scraper",
+        },
+      },
+      { status: 404 },
+    );
+  }
+
+  const scraperData = JSON.parse(cached.rawJson) as ScraperStudentResponse;
+  const cgpa = mapScraperToCGPA(scraperData);
+
+  return NextResponse.json({
+    cgpa,
+    cachedAt: cached.cachedAt.toISOString(),
+    stale: cached.expiresAt < new Date(),
+  });
+}
+```
+
+---
+
+## GET/POST/DELETE /api/v1/bookmarks
+
+**File:** `/home/z/my-project/src/app/api/v1/bookmarks/route.ts`
+
+```tsx
+/**
+ * GET  /api/v1/bookmarks        — list student's bookmarks
+ * POST /api/v1/bookmarks        — toggle a bookmark
+ *   Body: { kind, refId, title, subtitle? }
+ *   Returns: { bookmarked: boolean }
+ * DELETE /api/v1/bookmarks?id=X — remove specific bookmark
+ */
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { getAuthenticatedStudent } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
+  const auth = await getAuthenticatedStudent(req);
+  if (!auth) {
+    return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+      { status: 401 },
+    );
+  }
+
+  const rows = await db.bookmark.findMany({
+    where: { studentId: auth.studentId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return NextResponse.json({
+    bookmarks: rows.map((r) => ({
+      id: r.id,
+      kind: r.kind,
+      refId: r.refId,
+      title: r.title,
+      subtitle: r.subtitle,
+      createdAt: r.createdAt.toISOString(),
+    })),
+  });
+}
+
+const ToggleSchema = z.object({
+  kind: z.enum(["paper", "syllabus", "notice", "subject"]),
+  refId: z.string().min(1).max(100),
+  title: z.string().min(1).max(300),
+  subtitle: z.string().max(300).optional(),
+});
+
+export async function POST(req: NextRequest) {
+  const auth = await getAuthenticatedStudent(req);
+  if (!auth) {
+    return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+      { status: 401 },
+    );
+  }
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: { code: "BAD_REQUEST", message: "Invalid JSON" } },
+      { status: 400 },
+    );
+  }
+
+  const parsed = ToggleSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: { code: "VALIDATION_FAILED", message: parsed.error.issues[0]?.message } },
+      { status: 400 },
+    );
+  }
+
+  const { kind, refId, title, subtitle } = parsed.data;
+  const existing = await db.bookmark.findUnique({
+    where: {
+      studentId_kind_refId: {
+        studentId: auth.studentId,
+        kind,
+        refId,
+      },
+    },
+  });
+
+  if (existing) {
+    await db.bookmark.delete({ where: { id: existing.id } });
+    return NextResponse.json({ bookmarked: false });
+  }
+
+  await db.bookmark.create({
+    data: {
+      studentId: auth.studentId,
+      kind,
+      refId,
+      title,
+      subtitle,
+    },
+  });
+  return NextResponse.json({ bookmarked: true });
+}
+
+export async function DELETE(req: NextRequest) {
+  const auth = await getAuthenticatedStudent(req);
+  if (!auth) {
+    return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+      { status: 401 },
+    );
+  }
+
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id");
+  if (!id) {
+    return NextResponse.json(
+      { error: { code: "BAD_REQUEST", message: "Missing id param" } },
+      { status: 400 },
+    );
+  }
+
+  await db.bookmark.deleteMany({
+    where: { id, studentId: auth.studentId },
+  });
+
+  return NextResponse.json({ ok: true });
+}
+```
+
+---
+
+## GET/POST/DELETE /api/v1/calc-history
+
+**File:** `/home/z/my-project/src/app/api/v1/calc-history/route.ts`
+
+```tsx
+/**
+ * GET  /api/v1/calc-history          — list calculator history (optional ?type=)
+ * POST /api/v1/calc-history          — add entry
+ *   Body: { type, input, output, label? }
+ * DELETE /api/v1/calc-history?id=X   — remove specific entry
+ * DELETE /api/v1/calc-history?all=1  — clear all
+ */
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { getAuthenticatedStudent } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
+  const auth = await getAuthenticatedStudent(req);
+  if (!auth) {
+    return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+      { status: 401 },
+    );
+  }
+
+  const url = new URL(req.url);
+  const type = url.searchParams.get("type") ?? undefined;
+
+  const where: Record<string, unknown> = { studentId: auth.studentId };
+  if (type) where.type = type;
+
+  const rows = await db.calculatorHistoryEntry.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+
+  return NextResponse.json({
+    entries: rows.map((r) => ({
+      id: r.id,
+      type: r.type,
+      input: JSON.parse(r.input),
+      output: JSON.parse(r.output),
+      label: r.label,
+      createdAt: r.createdAt.toISOString(),
+    })),
+  });
+}
+
+const AddSchema = z.object({
+  type: z.enum([
+    "SGPA",
+    "CGPA",
+    "ATTENDANCE",
+    "INTERNAL_MARKS",
+    "PASS_CALCULATOR",
+  ]),
+  input: z.record(z.unknown()),
+  output: z.object({
+    type: z.string(),
+    value: z.number(),
+    percentage: z.number().optional(),
+    meta: z.record(z.unknown()).optional(),
+    computedAt: z.string(),
+  }),
+  label: z.string().max(200).optional(),
+});
+
+export async function POST(req: NextRequest) {
+  const auth = await getAuthenticatedStudent(req);
+  if (!auth) {
+    return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+      { status: 401 },
+    );
+  }
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: { code: "BAD_REQUEST", message: "Invalid JSON" } },
+      { status: 400 },
+    );
+  }
+
+  const parsed = AddSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: { code: "VALIDATION_FAILED", message: parsed.error.issues[0]?.message } },
+      { status: 400 },
+    );
+  }
+
+  const { type, input, output, label } = parsed.data;
+
+  const row = await db.calculatorHistoryEntry.create({
+    data: {
+      studentId: auth.studentId,
+      type,
+      input: JSON.stringify(input),
+      output: JSON.stringify(output),
+      label,
+    },
+  });
+
+  return NextResponse.json({
+    id: row.id,
+    type: row.type,
+    input: JSON.parse(row.input),
+    output: JSON.parse(row.output),
+    label: row.label,
+    createdAt: row.createdAt.toISOString(),
+  });
+}
+
+export async function DELETE(req: NextRequest) {
+  const auth = await getAuthenticatedStudent(req);
+  if (!auth) {
+    return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+      { status: 401 },
+    );
+  }
+
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id");
+  const all = url.searchParams.get("all");
+
+  if (all === "1") {
+    await db.calculatorHistoryEntry.deleteMany({
+      where: { studentId: auth.studentId },
+    });
+    return NextResponse.json({ ok: true, cleared: true });
+  }
+
+  if (!id) {
+    return NextResponse.json(
+      { error: { code: "BAD_REQUEST", message: "Missing id or all=1" } },
+      { status: 400 },
+    );
+  }
+
+  await db.calculatorHistoryEntry.deleteMany({
+    where: { id, studentId: auth.studentId },
+  });
+
+  return NextResponse.json({ ok: true });
+}
+```
+
+---
+
+## Cron: sync notifications
+
+**File:** `/home/z/my-project/src/app/api/cron/sync-notifications/route.ts`
+
+```tsx
+/**
+ * Cron route — syncs notifications from the scraper backend into Prisma.
+ * Runs every 15 min via Vercel Cron (configured in vercel.json).
+ * Protected by CRON_SECRET header.
+ */
+import { NextRequest, NextResponse } from "next/server";
+import { upsertScraperNotifications } from "@/features/notices/actions";
+
+export const dynamic = "force-dynamic";
+export const maxDuration = 30;
+
+export async function GET(req: NextRequest) {
+  // Verify the request is from Vercel Cron
+  const authHeader = req.headers.get("authorization");
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Missing or invalid cron secret" } },
+      { status: 401 },
+    );
+  }
+
+  const scraperUrl = process.env.SCRAPER_API_URL;
+  if (!scraperUrl) {
+    return NextResponse.json(
+      { error: { code: "MISCONFIGURED", message: "SCRAPER_API_URL not set" } },
+      { status: 500 },
+    );
+  }
+
+  try {
+    const res = await fetch(`${scraperUrl}/api/v1/notifications`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      // 10s timeout
+      signal: AbortSignal.timeout(10_000),
+    });
+
+    if (!res.ok) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "SCRAPER_UNAVAILABLE",
+            message: `Scraper returned ${res.status}`,
+          },
+        },
+        { status: 502 },
+      );
+    }
+
+    const data = (await res.json()) as {
+      notifications: Array<{
+        date: string;
+        heading: string;
+        key: string;
+        data: string;
+      }>;
+    };
+
+    if (!data.notifications || !Array.isArray(data.notifications)) {
+      return NextResponse.json(
+        { error: { code: "BAD_RESPONSE", message: "Invalid notification shape" } },
+        { status: 502 },
+      );
+    }
+
+    const result = await upsertScraperNotifications(data.notifications);
+
+    return NextResponse.json({
+      ok: true,
+      synced: data.notifications.length,
+      created: result.created,
+      updated: result.updated,
+      at: new Date().toISOString(),
+    });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Unknown error";
+    return NextResponse.json(
+      { error: { code: "SYNC_FAILED", message } },
+      { status: 500 },
+    );
+  }
+}
+```
+
+---
+
+## vercel.json (cron config)
+
+**File:** `/home/z/my-project/vercel.json`
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-notifications",
+      "schedule": "*/15 * * * *"
+    }
+  ]
 }
 ```
 
@@ -6157,6 +8241,103 @@ function SectionHeader({
 
 ---
 
+## Dashboard Server Actions
+
+**File:** `/home/z/my-project/src/features/dashboard/actions.ts`
+
+```tsx
+"use server";
+
+import { db } from "@/lib/db";
+import type { KTUNotice, NoticeCategory, NoticePriority } from "@/lib/types";
+
+export async function getDashboardStats() {
+  const [papers, notices, activeNotices, unreadNotices] = await Promise.all([
+    db.questionPaper.count({ where: { deletedAt: null } }),
+    db.kTUNotice.count({ where: { active: true, deletedAt: null } }),
+    db.kTUNotice.count({
+      where: { active: true, deletedAt: null, publishedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
+    }),
+    db.kTUNotice.count({
+      where: {
+        active: true,
+        deletedAt: null,
+        publishedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+      },
+    }),
+  ]);
+
+  return {
+    papers,
+    notices,
+    activeNotices,
+    unreadNotices: unreadNotices,
+  };
+}
+
+export async function getRecentNotices(limit = 3): Promise<KTUNotice[]> {
+  const rows = await db.kTUNotice.findMany({
+    where: { active: true, deletedAt: null },
+    orderBy: [{ pinned: "desc" }, { publishedAt: "desc" }],
+    take: limit,
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    description: r.description,
+    category: r.category as NoticeCategory,
+    publishedAt: r.publishedAt.toISOString(),
+    priority: r.priority as NoticePriority,
+    pdfUrl: r.pdfUrl ?? undefined,
+    externalUrl: r.externalUrl ?? undefined,
+    tags: JSON.parse(r.tags) as string[],
+    pinned: r.pinned,
+    active: r.active,
+  }));
+}
+
+export async function getUpcomingEvent() {
+  const row = await db.calendarEvent.findFirst({
+    where: { startDate: { gte: new Date() } },
+    orderBy: { startDate: "asc" },
+  });
+  if (!row) return null;
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    type: row.type,
+    startDate: row.startDate.toISOString(),
+    endDate: row.endDate.toISOString(),
+    color: row.color,
+  };
+}
+
+export async function getRecentPapers(limit = 4) {
+  const rows = await db.questionPaper.findMany({
+    where: { deletedAt: null },
+    orderBy: [{ views: "desc" }],
+    take: limit,
+    select: {
+      id: true,
+      title: true,
+      subjectCode: true,
+      subjectName: true,
+      semester: true,
+      branchCode: true,
+      year: true,
+      month: true,
+      examType: true,
+      views: true,
+    },
+  });
+  return rows;
+}
+```
+
+---
+
 ## Calculators
 
 **File:** `/home/z/my-project/src/features/calculators/calculators.tsx`
@@ -7005,6 +9186,81 @@ function HistoryPanel({ type }: { type: string }) {
 
 ---
 
+## Calculator History Server Actions
+
+**File:** `/home/z/my-project/src/features/calculators/history-actions.ts`
+
+```tsx
+"use server";
+
+import { db } from "@/lib/db";
+import type { CalculatorHistoryEntry, CalculatorType, CalculatorResult } from "@/lib/types";
+
+export async function addCalcHistoryDB(
+  studentId: string,
+  type: CalculatorType,
+  input: Record<string, unknown>,
+  output: CalculatorResult,
+  label?: string,
+): Promise<CalculatorHistoryEntry> {
+  const row = await db.calculatorHistoryEntry.create({
+    data: {
+      studentId,
+      type,
+      input: JSON.stringify(input),
+      output: JSON.stringify(output),
+      label,
+    },
+  });
+  return {
+    id: row.id,
+    type: row.type as CalculatorType,
+    input: JSON.parse(row.input) as Record<string, unknown>,
+    output: JSON.parse(row.output) as CalculatorResult,
+    label: row.label ?? undefined,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+export async function listCalcHistoryDB(
+  studentId: string,
+  type?: CalculatorType,
+): Promise<CalculatorHistoryEntry[]> {
+  const where: Record<string, unknown> = { studentId };
+  if (type) where.type = type;
+  const rows = await db.calculatorHistoryEntry.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    type: r.type as CalculatorType,
+    input: JSON.parse(r.input) as Record<string, unknown>,
+    output: JSON.parse(r.output) as CalculatorResult,
+    label: r.label ?? undefined,
+    createdAt: r.createdAt.toISOString(),
+  }));
+}
+
+export async function removeCalcHistoryDB(
+  studentId: string,
+  entryId: string,
+): Promise<void> {
+  await db.calculatorHistoryEntry.deleteMany({
+    where: { id: entryId, studentId },
+  });
+}
+
+export async function clearCalcHistoryDB(studentId: string): Promise<void> {
+  await db.calculatorHistoryEntry.deleteMany({
+    where: { studentId },
+  });
+}
+```
+
+---
+
 ## Question Papers
 
 **File:** `/home/z/my-project/src/features/papers/papers.tsx`
@@ -7294,6 +9550,99 @@ export function Papers() {
 
 ---
 
+## Papers Server Actions
+
+**File:** `/home/z/my-project/src/features/papers/actions.ts`
+
+```tsx
+"use server";
+
+import { db } from "@/lib/db";
+import type { QuestionPaper, ExamType } from "@/lib/types";
+
+export interface PaperFilters {
+  search?: string;
+  branch?: string | "ALL";
+  semester?: number | "ALL";
+  year?: number | "ALL";
+}
+
+export async function getPapers(filters: PaperFilters = {}): Promise<QuestionPaper[]> {
+  const where: Record<string, unknown> = {
+    deletedAt: null,
+  };
+
+  if (filters.search) {
+    const q = filters.search.toLowerCase();
+    // SQLite doesn't support mode: 'insensitive' — use contains with raw lower
+    where.OR = [
+      { title: { contains: q } },
+      { subjectName: { contains: q } },
+      { subjectCode: { contains: q } },
+    ];
+  }
+  if (filters.branch && filters.branch !== "ALL") {
+    where.branchCode = filters.branch;
+  }
+  if (filters.semester && filters.semester !== "ALL") {
+    where.semester = filters.semester;
+  }
+  if (filters.year && filters.year !== "ALL") {
+    where.year = filters.year;
+  }
+
+  const rows = await db.questionPaper.findMany({
+    where,
+    orderBy: [{ year: "desc" }, { month: "desc" }],
+    take: 100,
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    subjectCode: r.subjectCode,
+    subjectName: r.subjectName,
+    semester: r.semester as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+    branchCode: r.branchCode as QuestionPaper["branchCode"],
+    year: r.year,
+    month: r.month,
+    examType: r.examType as ExamType,
+    fileUrl: r.fileUrl,
+    fileSizeBytes: r.fileSizeBytes,
+    pageCount: r.pageCount,
+    downloads: r.downloads,
+    views: r.views,
+    uploadedAt: r.uploadedAt.toISOString(),
+  }));
+}
+
+export async function getPaperYears(): Promise<number[]> {
+  const rows = await db.questionPaper.findMany({
+    where: { deletedAt: null },
+    distinct: ["year"],
+    orderBy: { year: "desc" },
+    select: { year: true },
+  });
+  return rows.map((r) => r.year);
+}
+
+export async function incrementPaperView(paperId: string): Promise<void> {
+  await db.questionPaper.update({
+    where: { id: paperId },
+    data: { views: { increment: 1 } },
+  });
+}
+
+export async function incrementPaperDownload(paperId: string): Promise<void> {
+  await db.questionPaper.update({
+    where: { id: paperId },
+    data: { downloads: { increment: 1 } },
+  });
+}
+```
+
+---
+
 ## Syllabus
 
 **File:** `/home/z/my-project/src/features/syllabus/syllabus.tsx`
@@ -7500,6 +9849,63 @@ export function Syllabus() {
 
 ---
 
+## Syllabus Server Actions
+
+**File:** `/home/z/my-project/src/features/syllabus/actions.ts`
+
+```tsx
+"use server";
+
+import { db } from "@/lib/db";
+import type { Syllabus } from "@/lib/types";
+
+export interface SyllabusFilters {
+  search?: string;
+  branch?: string | "ALL";
+  semester?: number | "ALL";
+}
+
+export async function getSyllabus(filters: SyllabusFilters = {}): Promise<Syllabus[]> {
+  const where: Record<string, unknown> = {
+    deletedAt: null,
+  };
+
+  if (filters.search) {
+    const q = filters.search.toLowerCase();
+    where.OR = [
+      { subjectName: { contains: q } },
+      { subjectCode: { contains: q } },
+    ];
+  }
+  if (filters.branch && filters.branch !== "ALL") {
+    where.branchCode = filters.branch;
+  }
+  if (filters.semester && filters.semester !== "ALL") {
+    where.semester = filters.semester;
+  }
+
+  const rows = await db.syllabus.findMany({
+    where,
+    orderBy: [{ semester: "asc" }, { subjectCode: "asc" }],
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    semester: r.semester as Syllabus["semester"],
+    branchCode: r.branchCode as Syllabus["branchCode"],
+    subjectCode: r.subjectCode,
+    subjectName: r.subjectName,
+    version: r.version,
+    fileUrl: r.fileUrl,
+    lastUpdated: r.lastUpdated.toISOString(),
+    modules: r.modules,
+  }));
+}
+```
+
+---
+
 ## Calendar
 
 **File:** `/home/z/my-project/src/features/calendar/calendar.tsx`
@@ -7619,6 +10025,37 @@ export function Calendar() {
       </div>
     </div>
   );
+}
+```
+
+---
+
+## Calendar Server Actions
+
+**File:** `/home/z/my-project/src/features/calendar/actions.ts`
+
+```tsx
+"use server";
+
+import { db } from "@/lib/db";
+import type { CalendarEvent, CalendarEventType } from "@/lib/types";
+
+export async function getCalendarEvents(): Promise<CalendarEvent[]> {
+  const rows = await db.calendarEvent.findMany({
+    orderBy: { startDate: "asc" },
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    description: r.description,
+    type: r.type as CalendarEventType,
+    startDate: r.startDate.toISOString(),
+    endDate: r.endDate.toISOString(),
+    allDay: r.allDay,
+    color: r.color,
+    reminderEnabled: r.reminderEnabled,
+  }));
 }
 ```
 
@@ -7840,6 +10277,208 @@ export function Notices() {
       </AnimatePresence>
     </div>
   );
+}
+```
+
+---
+
+## Notices Server Actions
+
+**File:** `/home/z/my-project/src/features/notices/actions.ts`
+
+```tsx
+"use server";
+
+import { db } from "@/lib/db";
+import type { KTUNotice, NoticeCategory, NoticePriority } from "@/lib/types";
+
+export async function getNotices(category: NoticeCategory | "All" = "All"): Promise<KTUNotice[]> {
+  const where: Record<string, unknown> = {
+    active: true,
+    deletedAt: null,
+  };
+  if (category !== "All") {
+    where.category = category;
+  }
+
+  const rows = await db.kTUNotice.findMany({
+    where,
+    orderBy: [{ pinned: "desc" }, { publishedAt: "desc" }],
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    description: r.description,
+    category: r.category as NoticeCategory,
+    publishedAt: r.publishedAt.toISOString(),
+    priority: r.priority as NoticePriority,
+    pdfUrl: r.pdfUrl ?? undefined,
+    externalUrl: r.externalUrl ?? undefined,
+    tags: JSON.parse(r.tags) as string[],
+    pinned: r.pinned,
+    active: r.active,
+  }));
+}
+
+export async function getNoticeByKey(key: string): Promise<KTUNotice | null> {
+  const row = await db.kTUNotice.findUnique({ where: { key } });
+  if (!row) return null;
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    category: row.category as NoticeCategory,
+    publishedAt: row.publishedAt.toISOString(),
+    priority: row.priority as NoticePriority,
+    pdfUrl: row.pdfUrl ?? undefined,
+    externalUrl: row.externalUrl ?? undefined,
+    tags: JSON.parse(row.tags) as string[],
+    pinned: row.pinned,
+    active: row.active,
+  };
+}
+
+/**
+ * Upsert notices received from the scraper backend's /api/v1/notifications endpoint.
+ * Called by the cron sync route.
+ */
+export async function upsertScraperNotifications(
+  notices: Array<{
+    date: string;
+    heading: string;
+    key: string;
+    data: string;
+  }>,
+): Promise<{ created: number; updated: number }> {
+  let created = 0;
+  let updated = 0;
+
+  for (const n of notices) {
+    const parsed = new Date(n.date);
+    const publishedAt = isNaN(parsed.getTime()) ? new Date() : parsed;
+
+    const result = await db.kTUNotice.upsert({
+      where: { key: n.key },
+      update: {
+        title: n.heading,
+        description: n.data,
+        publishedAt,
+      },
+      create: {
+        key: n.key,
+        title: n.heading,
+        description: n.data,
+        category: "General",
+        publishedAt,
+        priority: "Normal",
+        tags: JSON.stringify([]),
+        pinned: false,
+        active: true,
+      },
+    });
+
+    // If createdAt is same as publishedAt, it was just created
+    if (Math.abs(result.createdAt.getTime() - result.updatedAt.getTime()) < 1000) {
+      created++;
+    } else {
+      updated++;
+    }
+  }
+
+  return { created, updated };
+}
+```
+
+---
+
+## Bookmarks Server Actions
+
+**File:** `/home/z/my-project/src/features/bookmarks/actions.ts`
+
+```tsx
+"use server";
+
+import { db } from "@/lib/db";
+import { getAuthenticatedStudent } from "@/lib/auth";
+import type { Bookmark } from "@/lib/types";
+
+/**
+ * Get all bookmarks for the authenticated student.
+ * Returns empty array if not logged in.
+ */
+export async function getBookmarks(): Promise<Bookmark[]> {
+  // Server Action — but we need to read cookies from next/headers, not req.
+  // For now, use a non-action fetch path via /api/v1/bookmarks route.
+  // This file is for the action helpers; actual auth uses the route.
+  return [];
+}
+
+/**
+ * Toggle a bookmark. If authenticated, persists to DB.
+ * If not, returns the would-be state (caller falls back to localStorage).
+ */
+export async function toggleBookmarkDB(
+  studentId: string,
+  entry: { kind: Bookmark["kind"]; refId: string; title: string; subtitle?: string },
+): Promise<boolean> {
+  const existing = await db.bookmark.findUnique({
+    where: {
+      studentId_kind_refId: {
+        studentId,
+        kind: entry.kind,
+        refId: entry.refId,
+      },
+    },
+  });
+
+  if (existing) {
+    await db.bookmark.delete({ where: { id: existing.id } });
+    return false;
+  }
+
+  await db.bookmark.create({
+    data: {
+      studentId,
+      kind: entry.kind,
+      refId: entry.refId,
+      title: entry.title,
+      subtitle: entry.subtitle,
+    },
+  });
+  return true;
+}
+
+export async function hasBookmarkDB(
+  studentId: string,
+  kind: string,
+  refId: string,
+): Promise<boolean> {
+  const existing = await db.bookmark.findUnique({
+    where: {
+      studentId_kind_refId: {
+        studentId,
+        kind,
+        refId,
+      },
+    },
+  });
+  return !!existing;
+}
+
+export async function listBookmarksDB(studentId: string): Promise<Bookmark[]> {
+  const rows = await db.bookmark.findMany({
+    where: { studentId },
+    orderBy: { createdAt: "desc" },
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    kind: r.kind as Bookmark["kind"],
+    refId: r.refId,
+    title: r.title,
+    subtitle: r.subtitle ?? undefined,
+    createdAt: r.createdAt.toISOString(),
+  }));
 }
 ```
 
@@ -9010,192 +11649,185 @@ export function SearchOverlay() {
 ```
 
 ---
+# 14. Configuration
 
----
+## .env.local (server-side only)
 
-# 14. File Tree Summary
+**File:** `/home/z/my-project/.env.local`
 
-```
-src/
-├── app/
-│   ├── api/route.ts
-│   ├── globals.css                  ← Design system v3.1 (paper, notebook, kraft)
-│   ├── layout.tsx                   ← Root layout (Geist + Caveat + Lora fonts)
-│   └── page.tsx                     ← Home (AppShell + view switcher)
-├── components/
-│   ├── brand/
-│   │   └── logo.tsx
-│   ├── layout/
-│   │   ├── app-shell.tsx            ← Top nav + sidebar + bottom nav + mobile menu
-│   │   └── page-header.tsx
-│   ├── support/
-│   │   └── support-curtain.tsx      ← Signature glass curtain experience
-│   ├── ui/                          ← shadcn/ui (pre-existing scaffold, 60+ files)
-│   └── ui-custom/
-│       ├── animated-counter.tsx     ← Smooth count-up with easing
-│       ├── banner-ad.tsx            ← Provider-abstracted ad slot
-│       ├── card-decoration.tsx      ← Paper clip, page fold, sticky note, corner doodles
-│       ├── circular-progress.tsx    ← Animated SVG ring
-│       ├── editorial-divider.tsx    ← Magazine-style rule with ornament
-│       ├── empty-state.tsx
-│       ├── glass-card.tsx           ← Default = paper-card (v3.1)
-│       ├── gradient-card.tsx        ← Paper-textured gradient surface
-│       ├── handwritten-text.tsx     ← Caveat font accents
-│       ├── sketch-elements.tsx      ← 12 hand-drawn SVG illustrations
-│       └── stat-card.tsx            ← Index-card with pushpin + stamped number
-├── data/
-│   └── mock-data.ts                 ← Student, subjects, papers, notices, calendar
-├── features/
-│   ├── calendar/calendar.tsx
-│   ├── calculators/calculators.tsx  ← 5 calculators (SGPA, CGPA, attendance, internal, pass)
-│   ├── dashboard/dashboard.tsx      ← Hero + stats + quick actions + activity + notices
-│   ├── login/login-dialog.tsx       ← StudentService-backed login
-│   ├── notices/notices.tsx
-│   ├── papers/papers.tsx
-│   ├── search/search-overlay.tsx    ← Command-palette universal search
-│   ├── settings/settings.tsx
-│   └── syllabus/syllabus.tsx
-├── hooks/                           ← use-mobile, use-toast (pre-existing)
-├── lib/
-│   ├── constants/index.ts           ← Branches, semesters, grades, nav items
-│   ├── providers/
-│   │   ├── ads.ts                   ← MockAdsProvider → AdSense/AdMob
-│   │   ├── analytics.ts             ← Typed event tracking
-│   │   ├── index.tsx                ← Providers composition root
-│   │   ├── notification.ts          ← Sonner toaster wrapper
-│   │   ├── payment.ts               ← MockPaymentProvider → Razorpay
-│   │   ├── platform.ts              ← Web/Android/iOS detection
-│   │   ├── storage.ts               ← localStorage → SecureStorage/R2
-│   │   └── student.ts               ← MockStudentService → real JWT backend
-│   ├── types/index.ts               ← All domain types
-│   ├── utils.ts                     ← cn() helper
-│   └── utils/calc.ts                ← Pure calc functions (SGPA, CGPA, attendance, etc.)
-├── store/
-│   ├── auth-store.ts
-│   ├── bookmark-store.ts            ← Persisted
-│   ├── calc-history-store.ts        ← Persisted
-│   ├── nav-store.ts
-│   ├── supporter-store.ts           ← Persisted
-│   └── theme-store.ts               ← Persisted
-└── ...
+```env
+DATABASE_URL=file:/home/z/my-project/db/custom.db
+
+# Scraper backend (your existing Express API)
+SCRAPER_API_URL=https://ktugatewayapi-production.up.railway.app
+SCRAPER_API_KEY=b4361ae2903028b23e6a8e7ab88c656a41257d0be26db750e138d4da2b244399
+
+# JWT signing (auto-generated)
+JWT_SECRET=ffac8a9f8ae2a79bd44fbf36a0bd9ed4216dd7ebf2204497568e8957a748913fcf44d2daa96b2424e7d40e6d490de786a9bc5abb180ef2d1e2fc91fffe316b79
+JWT_ACCESS_TTL=3600
+JWT_REFRESH_TTL=2592000
+
+# Cached student data TTL (24h - KTU data barely changes during the day)
+CACHE_TTL_SECONDS=86400
+
+# Cron protection
+CRON_SECRET=169d951a74c44376883d20fd901dd93ecac973b567566e9b1ddbf98712d2902f
 ```
 
 ---
 
-# 15. Visual Iteration History
+---
 
-## v1 — Premium Glassmorphic
-- Warm plum + amber OKLCH palette
-- Glass cards as default surface
-- Apple/Arc/Linear/Notion inspiration
-- Support curtain, login, search all working
+# Phase 2 — BFF + Database Implementation Summary
 
-## v2 — Sketch + Editorial Glass
-- Added Caveat handwritten font
-- Created SketchElements (12 hand-drawn SVGs)
-- CardDecoration (paper clip, page fold, sticky note, corner doodles)
-- EditorialDivider between sections
-- HandwrittenText for accents ("let's go!", "keep going!", etc.)
-- FloatingParticles in hero
+## Architecture Overview
 
-## v3 — Notebook + Editorial Sketchbook
-- Default card changed from glass → paper-card
-- Hand-drawn double-stroke borders (offset shadow)
-- Added Lora serif font for editorial display
-- Stamped numbers (serif, ink-shadowed)
-- Magazine-style composition with editorial dividers
-- Mixed typography: serif + sans + handwritten
-- Card variants: paper, index, kraft, lined, magazine
+The frontend now talks to a **Next.js BFF** (Backend-for-Frontend) layer that lives in `src/app/api/v1/*`. The BFF handles JWT auth, rate limiting (future), and caching. The BFF calls the existing Express scraper backend (frozen — only `request`→`axios` migration needed there) for live academic data.
 
-## v3.1 — Material Realism (current)
-- Pink/plum/coral chroma reduced ~30% across all palettes
-- Background shifted to warmer cream (oklch 0.978 0.014 78)
-- Foreground ink shifted from plum (hue 290) → warm brown (hue 50)
-- Hero gradient replaced with editorial notebook-cover:
-  - Cream paper gradient
-  - Spiral binding down left edge
-  - Embossed title
-- Quick Action cards now use notebook-tab variant:
-  - Colored top tab strip (per-card accent color via CSS custom property)
-  - Paper grain texture
-- Removed mascot entirely (replaced with academic illustrations)
-- Removed sticky note from hero
-- Borders made more imperfect (varied radius, inner edge line)
-- Index card top rule + lined page margin line changed red → amber (reduces pink)
+```
+┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐     ┌──────────┐
+│  Frontend   │────▶│  Next.js BFF     │────▶│  Scraper API    │────▶│  KTU     │
+│ (React)     │ JWT │  /api/v1/*       │     │  (Express)      │     │  Portal  │
+│ cookies     │     │  + Prisma (SQLite)│     │  + Redis cache  │     └──────────┘
+└─────────────┘     └──────────────────┘     └─────────────────┘
+                            │
+                            ▼
+                     ┌──────────────┐
+                     │  SQLite DB   │
+                     │  (Phase 2)   │
+                     │  → Postgres  │
+                     │  (Phase 3)   │
+                     └──────────────┘
+```
 
-## Mascot Removal
-- Deleted `src/components/brand/mascot.tsx`
-- Replaced 11 mascot usages across 7 files with academic illustrations:
-  - SketchBooks, SketchNotebook, SketchPencil, SketchCoffeeCup, SketchHeart
-- No character-driven personality — illustrations are integrated, not decorative
+## What was built in Phase 2
+
+### Database Layer
+- **Prisma schema** with 14 models: Branch, Semester, Subject, QuestionPaper, Syllabus, KTUNotice, CalendarEvent, Student, CachedStudentData, RefreshToken, Bookmark, CalculatorHistoryEntry, SupporterPurchase, AppSettings
+- **SQLite** for dev (zero-config, lives in `db/custom.db`)
+- **Seed script** ports all mock-data.ts → DB rows
+- Soft deletes on QuestionPaper, Syllabus, KTUNotice (`deletedAt` field)
+
+### BFF Auth Layer
+- `POST /api/v1/login` — validates credentials via scraper, issues JWT access (1h) + refresh (30d) tokens as httpOnly cookies, caches scraper response in Prisma (24h TTL per user request)
+- `POST /api/v1/refresh` — exchanges refresh token for new access token
+- `POST /api/v1/logout` — revokes all refresh tokens, clears cookies
+- JWT signed with `jose` (HS256), refresh tokens hashed with `bcryptjs`
+- Password NEVER persisted, NEVER logged — only used in single scraper call
+
+### BFF Data Routes (JWT-protected)
+- `GET /api/v1/profile` — student profile from cached scraper data
+- `GET /api/v1/results` — semester-by-semester results
+- `GET /api/v1/cgpa` — computed CGPA
+- `GET /api/v1/bookmarks` — list bookmarks
+- `POST /api/v1/bookmarks` — toggle bookmark
+- `DELETE /api/v1/bookmarks?id=X` — remove bookmark
+- `GET /api/v1/calc-history` — list calculator history
+- `POST /api/v1/calc-history` — add entry
+- `DELETE /api/v1/calc-history?id=X` — remove entry
+- `DELETE /api/v1/calc-history?all=1` — clear all
+
+### Scraper Mapper
+Pure functions that convert the scraper's response shape → our domain types:
+- `normalizeBranchCode()` — "COMPUTER SCIENCE & ENGINEERING" → "CSE"
+- `parseSemester()` — "S8" → 8
+- `parseAdmissionYear()` — "0/2020" → 2020 (handles scraper's month=0 bug)
+- `buildAvatarInitials()` — "JOHN DOE" → "JD"
+- `mapScraperToProfile()` — full scraper response → StudentProfile
+- `mapScraperToResults()` — S1..S8 arrays → SemesterResult[]
+- `mapScraperToCGPA()` — computes CGPA from per-semester SGPA × credits
+
+Handles known scraper quirks:
+- `MinorStaus` typo (preserved exactly)
+- `Board/University` and `EntranceRank/Percentile` slash keys (bracket notation)
+- `grade: "No"` field (uses `earned` for actual grade)
+- IST date strings in notifications
+
+### Notification Sync
+- `GET /api/cron/sync-notifications` — Vercel Cron route, runs every 15 min
+- Protected by `CRON_SECRET` header
+- Polls scraper's `/api/v1/notifications`, upserts by `key` field (slug) for dedup
+- Configured in `vercel.json`
+
+### Frontend Provider Swap
+- New `HttpStudentService` implements the same interface as `MockStudentService`
+- Calls BFF routes via `fetch` with `credentials: "include"`
+- Auto-retries once on 401 (calls `/refresh`, then retries original request)
+- Wired in `Providers` composition root via `__setStudentService(new HttpStudentService())`
+- UI code unchanged — only the provider implementation swapped
+
+### Server Actions (DB-backed content)
+- `features/papers/actions.ts` — `getPapers()`, `getPaperYears()`, `incrementPaperView()`, `incrementPaperDownload()`
+- `features/syllabus/actions.ts` — `getSyllabus()`
+- `features/notices/actions.ts` — `getNotices()`, `getNoticeByKey()`, `upsertScraperNotifications()`
+- `features/calendar/actions.ts` — `getCalendarEvents()`
+- `features/dashboard/actions.ts` — `getDashboardStats()`, `getRecentNotices()`, `getUpcomingEvent()`, `getRecentPapers()`
+- `features/bookmarks/actions.ts` — `toggleBookmarkDB()`, `hasBookmarkDB()`, `listBookmarksDB()`
+- `features/calculators/history-actions.ts` — `addCalcHistoryDB()`, `listCalcHistoryDB()`, `removeCalcHistoryDB()`, `clearCalcHistoryDB()`
+
+## Environment Variables
+
+```env
+DATABASE_URL=file:/home/z/my-project/db/custom.db
+
+# Scraper backend
+SCRAPER_API_URL=https://ktugatewayapi-production.up.railway.app
+SCRAPER_API_KEY=<your-scraper-api-key>
+
+# JWT
+JWT_SECRET=<64-byte-hex>
+JWT_ACCESS_TTL=3600
+JWT_REFRESH_TTL=2592000
+
+# Cache (24h per user request)
+CACHE_TTL_SECONDS=86400
+
+# Cron
+CRON_SECRET=<random-32-byte-hex>
+```
+
+## What's NOT yet done (Phase 3+)
+
+- **Features not yet wired to Server Actions** — Dashboard, Papers, Syllabus, Calendar, Notices still import from `mock-data.ts`. The Server Actions exist but features haven't been refactored to use them. This is intentional — features keep working with mock data, and swapping to Server Actions is a mechanical change once we verify the BFF layer is solid.
+- **Bookmarks/calc-history in features** — still use Zustand localStorage. Server Actions + BFF routes exist, but features haven't been refactored to call them when authenticated.
+- **Rate limiting** — Upstash Ratelimit not yet installed. Add before production.
+- **Cloudflare R2** — for PDF + image storage. Not yet wired.
+- **Admin panel** — for content operations.
+- **Capacitor** — Android wrapper.
+- **PWA service worker** — offline support.
+
+## Verified
+
+- ✅ Lint clean (0 errors, 0 warnings)
+- ✅ App loads without errors
+- ✅ Database seeded (8 branches, 64 semesters, 12 subjects, 32 papers, 10 syllabus, 6 notices, 6 calendar events)
+- ✅ Scraper backend reachable (`https://ktugatewayapi-production.up.railway.app` returns `{"status":"working","version":"2.0.0"}`)
+- ✅ BFF login rejects invalid credentials (`AUTH_FAILED`)
+- ✅ All protected routes reject unauthenticated requests (`UNAUTHORIZED`)
+- ✅ Refresh endpoint correctly reports missing cookie
+- ✅ Cron route protected by secret, syncs successfully (0 notifications because scraper's Redis list is currently empty)
+- ✅ HttpStudentService wired in Providers composition root
+
+## How to test the full auth flow
+
+1. Open the app, click Login
+2. Enter a real KTU register number + password
+3. The login dialog calls `StudentService.login()` → `HttpStudentService.login()` → `POST /api/v1/login`
+4. BFF calls scraper's `POST /api/v1/data` with `{ key, userid, password }`
+5. If scraper returns success: BFF creates/updates Student row, caches scraper response (24h), issues JWT + refresh token cookies, returns student profile
+6. Frontend stores profile in `auth-store`, shows avatar initials in navbar
+7. Subsequent visits: `HttpStudentService.initialize()` calls `POST /api/v1/refresh` — if 200, session is restored
+
+## Scraper backend changes still needed (your side)
+
+Per our discussion — only 2 things:
+1. **Drop deprecated `request`/`request-promise`** → migrate to `axios` + `axios-cookiejar-support`
+2. **Add structured error responses** → `{ error: { code, message } }` shape
+
+Everything else (JWT, rate limiting, endpoint splitting) is handled by the BFF.
 
 ---
 
-## Architecture Decisions
-
-### Provider Pattern
-Every external dependency is abstracted behind a Provider interface:
-- `PlatformProvider` — Web/Android/iOS detection
-- `StudentService` — JWT auth + academic data
-- `AdsProvider` — Mock → AdSense/AdMob
-- `PaymentProvider` — Mock → Razorpay
-- `StorageProvider` — localStorage → SecureStorage/R2
-- `AnalyticsProvider` — Console → GA4/Firebase
-- `NotificationProvider` — Sonner → FCM
-
-Pages/features NEVER import SDKs directly. All providers expose `get___Provider()` and `__set___Provider()` for test swap-in.
-
-### State Management
-- **Zustand** for client state (no Redux)
-- Persisted stores: theme, supporter, calc-history, bookmarks
-- Non-persisted: auth, nav
-- TanStack Query for server state (configured but mock data used in MVP)
-
-### Hydration Safety
-- `page.tsx` renders stable shell during SSR, swaps to live content after mount
-- `motion.div` `initial` prop gated behind `mounted` flag
-- Time-dependent content (greeting) computed in `useEffect` + microtask
-
-### Lint Compliance
-- Zero ESLint errors / warnings
-- All `setState` in effects deferred via `Promise.resolve().then()`
-- All Zustand persist imports use `zustand/middleware`
-- No `any` types
-
----
-
-## Engineering Standards Followed
-
-- **Strict TypeScript** throughout
-- **Feature-first folder structure** — each feature owns its components/hooks/services
-- **Server Components by default** — only features with state/animations use `"use client"`
-- **Server Actions preferred** (none used yet — MVP uses mock data)
-- **Zod validation** ready (installed, not yet wired in MVP)
-- **React Hook Form** ready (installed, used in login dialog)
-- **Conventional Commits** structure ready
-- **AA accessibility** — semantic HTML, ARIA labels, keyboard nav, focus states, reduced-motion support
-- **Responsive** — mobile-first, breakpoints sm/md/lg/xl, safe-area insets
-- **PWA** — manifest.webmanifest configured
-
----
-
-## What's NOT Yet Implemented (Phase 2+)
-
-- Real backend integration (StudentService → JWT API)
-- Razorpay payment SDK integration
-- Google AdSense integration
-- PDF.js viewer for question papers
-- Capacitor Android wrapper
-- PWA service worker for offline
-- Unit tests for `lib/utils/calc.ts`
-- Admin panel for content operations
-- Rate limiting architecture
-- Analytics event taxonomy wiring
-- Cookie consent banner (required for AdSense)
-
----
-
-**Total KTU One application code:** ~5,200 lines across 42 files
-**Pre-existing shadcn/ui scaffold:** ~8,800 lines across 62 files (not included in this document)
+**Phase 2 complete.** Total new code: ~2,400 lines across 24 new files.
 
 End of codebase reference.

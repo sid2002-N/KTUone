@@ -77,12 +77,35 @@ append_file /home/z/my-project/src/lib/utils.ts "src/lib/utils.ts"
 echo "# 5. Provider Architecture" >> "$OUT"
 append_file /home/z/my-project/src/lib/providers/platform.ts "PlatformProvider"
 append_file /home/z/my-project/src/lib/providers/storage.ts "StorageProvider"
-append_file /home/z/my-project/src/lib/providers/student.ts "StudentService"
+append_file /home/z/my-project/src/lib/providers/student.ts "StudentService (interface + Mock impl)"
+append_file /home/z/my-project/src/lib/providers/student-http.ts "HttpStudentService (BFF client)"
 append_file /home/z/my-project/src/lib/providers/ads.ts "AdsProvider"
 append_file /home/z/my-project/src/lib/providers/payment.ts "PaymentProvider"
 append_file /home/z/my-project/src/lib/providers/analytics.ts "AnalyticsProvider"
 append_file /home/z/my-project/src/lib/providers/notification.ts "NotificationProvider"
 append_file /home/z/my-project/src/lib/providers/index.tsx "Providers (composition root)"
+
+# 5b. Auth + Scraper (Phase 2)
+echo "# 5b. Auth + Scraper Layer (Phase 2)" >> "$OUT"
+append_file /home/z/my-project/src/lib/auth/index.ts "Auth helpers (JWT + cookies)"
+append_file /home/z/my-project/src/lib/scraper/index.ts "Scraper client"
+append_file /home/z/my-project/src/lib/scraper/mapper.ts "Scraper → domain mapper"
+append_file /home/z/my-project/src/lib/db.ts "Prisma client"
+append_file /home/z/my-project/prisma/schema.prisma "Prisma schema" prisma
+append_file /home/z/my-project/prisma/seed.ts "Seed script" ts
+
+# 5c. BFF API routes
+echo "# 5c. BFF API Routes (Phase 2)" >> "$OUT"
+append_file /home/z/my-project/src/app/api/v1/login/route.ts "POST /api/v1/login"
+append_file /home/z/my-project/src/app/api/v1/refresh/route.ts "POST /api/v1/refresh"
+append_file /home/z/my-project/src/app/api/v1/logout/route.ts "POST /api/v1/logout"
+append_file /home/z/my-project/src/app/api/v1/profile/route.ts "GET /api/v1/profile"
+append_file /home/z/my-project/src/app/api/v1/results/route.ts "GET /api/v1/results"
+append_file /home/z/my-project/src/app/api/v1/cgpa/route.ts "GET /api/v1/cgpa"
+append_file /home/z/my-project/src/app/api/v1/bookmarks/route.ts "GET/POST/DELETE /api/v1/bookmarks"
+append_file /home/z/my-project/src/app/api/v1/calc-history/route.ts "GET/POST/DELETE /api/v1/calc-history"
+append_file /home/z/my-project/src/app/api/cron/sync-notifications/route.ts "Cron: sync notifications"
+append_file /home/z/my-project/vercel.json "vercel.json (cron config)" json
 
 # 6. Stores
 echo "# 6. Zustand Stores" >> "$OUT"
@@ -127,11 +150,18 @@ append_file /home/z/my-project/src/components/layout/page-header.tsx "PageHeader
 # 12. Features
 echo "# 12. Feature Views" >> "$OUT"
 append_file /home/z/my-project/src/features/dashboard/dashboard.tsx "Dashboard"
+append_file /home/z/my-project/src/features/dashboard/actions.ts "Dashboard Server Actions"
 append_file /home/z/my-project/src/features/calculators/calculators.tsx "Calculators"
+append_file /home/z/my-project/src/features/calculators/history-actions.ts "Calculator History Server Actions"
 append_file /home/z/my-project/src/features/papers/papers.tsx "Question Papers"
+append_file /home/z/my-project/src/features/papers/actions.ts "Papers Server Actions"
 append_file /home/z/my-project/src/features/syllabus/syllabus.tsx "Syllabus"
+append_file /home/z/my-project/src/features/syllabus/actions.ts "Syllabus Server Actions"
 append_file /home/z/my-project/src/features/calendar/calendar.tsx "Calendar"
+append_file /home/z/my-project/src/features/calendar/actions.ts "Calendar Server Actions"
 append_file /home/z/my-project/src/features/notices/notices.tsx "Notices"
+append_file /home/z/my-project/src/features/notices/actions.ts "Notices Server Actions"
+append_file /home/z/my-project/src/features/bookmarks/actions.ts "Bookmarks Server Actions"
 append_file /home/z/my-project/src/features/settings/settings.tsx "Settings"
 
 # 13. Signature Experiences
@@ -139,6 +169,10 @@ echo "# 13. Signature Experiences" >> "$OUT"
 append_file /home/z/my-project/src/components/support/support-curtain.tsx "Support Curtain"
 append_file /home/z/my-project/src/features/login/login-dialog.tsx "Login Dialog"
 append_file /home/z/my-project/src/features/search/search-overlay.tsx "Universal Search Overlay"
+
+# 14. Configuration
+echo "# 14. Configuration" >> "$OUT"
+append_file /home/z/my-project/.env.local ".env.local (server-side only)" env
 
 echo ""
 echo "Done."

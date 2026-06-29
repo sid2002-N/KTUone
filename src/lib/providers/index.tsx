@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { useThemeStore } from "@/store/theme-store";
 import { useSupporterStore } from "@/store/supporter-store";
 import { getAdsProvider } from "@/lib/providers/ads";
+import { __setStudentService } from "@/lib/providers/student";
+import { HttpStudentService } from "@/lib/providers/student-http";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
@@ -43,6 +45,17 @@ function SupporterAdsSync() {
   return null;
 }
 
+/**
+ * Swap the MockStudentService (default) for HttpStudentService which talks to
+ * the BFF API routes. Done once at app boot.
+ */
+function WireStudentService() {
+  useEffect(() => {
+    __setStudentService(new HttpStudentService());
+  }, []);
+  return null;
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(
     () =>
@@ -62,6 +75,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={client}>
         <ThemeSync />
         <SupporterAdsSync />
+        <WireStudentService />
         {children}
       </QueryClientProvider>
     </ThemeProvider>
