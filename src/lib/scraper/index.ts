@@ -138,7 +138,7 @@ export async function fetchStudentFromScraper(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key, userid, password }),
-      signal: AbortSignal.timeout(30_000), // scraper can be slow (it scrapes KTU)
+      signal: AbortSignal.timeout(60_000), // scraper can be very slow (logs into KTU, scrapes HTML)
     });
   } catch (e) {
     throw new ScraperError(
@@ -149,14 +149,43 @@ export async function fetchStudentFromScraper(
   }
 
   if (res.status === 403 || res.status === 401) {
-    throw new ScraperError("AUTH_FAILED", "Invalid credentials", 401);
+    // Scraper returns 403 for BOTH wrong credentials AND scraper failures
+    // (KTU site down, HTML changed, CSRF broken, timeout). Surface the real
+    // message so the user knows which.
+    let scraperMessage = "Invalid credentials";
+    let code: ScraperError["code"] = "AUTH_FAILED";
+    try {
+      const body = (await res.json()) as { status?: string; message?: string };
+      if (body?.message) {
+        scraperMessage = body.message;
+        // If the message indicates a scrape failure (not auth), use SCRAPE_FAILED
+        const msg = body.message.toLowerCase();
+        if (
+          msg.includes("could not fetch") ||
+          msg.includes("scrape") ||
+          msg.includes("timeout") ||
+          msg.includes("ktu") ||
+          msg.includes("website") ||
+          msg.includes("network")
+        ) {
+          code = "SCRAPE_FAILED";
+        }
+      }
+    } catch {
+      // body wasn't JSON — keep default message
+    }
+    throw new ScraperError(code, scraperMessage, 401);
   }
   if (!res.ok) {
-    throw new ScraperError(
-      "SCRAPE_FAILED",
-      `Scraper returned ${res.status}`,
-      502,
-    );
+    // Read the body for a better error message if possible
+    let scraperMessage = `Scraper returned ${res.status}`;
+    try {
+      const body = (await res.json()) as { message?: string };
+      if (body?.message) scraperMessage = body.message;
+    } catch {
+      // ignore
+    }
+    throw new ScraperError("SCRAPE_FAILED", scraperMessage, 502);
   }
 
   const data = (await res.json()) as ScraperStudentResponse;

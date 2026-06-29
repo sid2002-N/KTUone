@@ -120,9 +120,14 @@ export async function POST(req: NextRequest) {
     });
   } catch (e) {
     if (e instanceof ScraperError) {
+      // AUTH_FAILED → 401 (wrong password)
+      // SCRAPE_FAILED → 502 (KTU site down, HTML changed, etc.)
+      // SCRAPER_UNAVAILABLE → 502 (can't reach scraper)
+      // BAD_RESPONSE → 502 (scraper returned garbage)
+      const httpStatus = e.code === "AUTH_FAILED" ? 401 : e.status;
       return NextResponse.json(
         { error: { code: e.code, message: e.message } },
-        { status: e.status },
+        { status: httpStatus },
       );
     }
     const message = e instanceof Error ? e.message : "Unknown error";
