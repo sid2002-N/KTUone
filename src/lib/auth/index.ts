@@ -119,7 +119,7 @@ export async function issueSession(studentId: string, registerNumber: string): P
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    path: "/api/v1",
+    path: "/api/v1/refresh",
     maxAge: ttl,
   });
 
@@ -141,8 +141,9 @@ export async function revokeAllRefreshTokens(studentId: string): Promise<void> {
  */
 export async function clearSessionCookies(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete(ACCESS_COOKIE);
-  cookieStore.delete(REFRESH_COOKIE);
+  const isProduction = process.env.NODE_ENV === "production";
+  cookieStore.set(ACCESS_COOKIE, "", { httpOnly: true, secure: isProduction, sameSite: "lax", path: "/", maxAge: 0 });
+  cookieStore.set(REFRESH_COOKIE, "", { httpOnly: true, secure: isProduction, sameSite: "lax", path: "/api/v1/refresh", maxAge: 0 });
 }
 
 /**

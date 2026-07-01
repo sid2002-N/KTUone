@@ -14,6 +14,7 @@ import { db } from "@/lib/db";
 import { fetchStudentFromScraper, ScraperError } from "@/lib/scraper";
 import { mapScraperToProfile } from "@/lib/scraper/mapper";
 import { issueSession } from "@/lib/auth";
+import { checkLoginRateLimit, getRequestIp } from "@/lib/auth/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,16 @@ const LoginSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // C1: Rate limit — 5 login attempts per 15 min per IP
+  const ip = getRequestIp(req);
+  const rateLimit = await checkLoginRateLimit(ip);
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: { code: "RATE_LIMITED", message: "Too many login attempts. Please try again later." } },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((rateLimit.reset - Date.now()) / 1000)) } },
+    );
+  }
+
   let body: unknown;
   try {
     body = await req.json();
