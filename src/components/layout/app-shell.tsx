@@ -18,6 +18,7 @@ import {
   X,
   User,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavStore } from "@/store/nav-store";
@@ -72,14 +73,15 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Top navbar */}
+      {/* ===== PREMIUM TOP NAVBAR ===== */}
       <header className="sticky top-0 z-40 safe-top">
-        <div className="navbar-glass border-b border-border/40">
+        <div className="navbar-premium">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            {/* Left: mobile menu + logo */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setMobileMenu(true)}
-                className="lg:hidden size-10 rounded-xl hover:bg-secondary flex items-center justify-center"
+                className="lg:hidden size-10 rounded-xl icon-btn-premium flex items-center justify-center"
                 aria-label="Open menu"
               >
                 <Menu className="size-5" />
@@ -92,7 +94,7 @@ export function AppShell({ children }: AppShellProps) {
               </button>
             </div>
 
-            {/* Desktop nav */}
+            {/* Center: desktop nav */}
             <nav className="hidden lg:flex items-center gap-1">
               {NAV_ITEMS.map((item) => {
                 const Icon = ICONS[item.icon] ?? Home;
@@ -102,19 +104,12 @@ export function AppShell({ children }: AppShellProps) {
                     key={item.key}
                     onClick={() => navigate(item.key)}
                     className={cn(
-                      "btn-tactile relative px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2",
+                      "nav-btn-premium relative px-3.5 py-2 rounded-full text-sm font-medium flex items-center gap-2",
                       isActive
-                        ? "text-primary-foreground"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary",
+                        ? "active"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    {isActive && (
-                      <motion.span
-                        layoutId="nav-pill"
-                        className="absolute inset-0 rounded-full bg-primary -z-10"
-                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                      />
-                    )}
                     <Icon className="size-4" />
                     {item.label}
                   </button>
@@ -122,14 +117,18 @@ export function AppShell({ children }: AppShellProps) {
               })}
             </nav>
 
+            {/* Right: actions */}
             <div className="flex items-center gap-1.5">
+              {/* Search */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="size-10 rounded-xl hover:bg-secondary flex items-center justify-center"
+                className="size-10 rounded-xl icon-btn-premium flex items-center justify-center"
                 aria-label="Search"
               >
                 <Search className="size-5" />
               </button>
+
+              {/* Theme toggle */}
               <button
                 onClick={() => {
                   toggleTheme();
@@ -138,7 +137,7 @@ export function AppShell({ children }: AppShellProps) {
                     props: { theme: resolved === "light" ? "dark" : "light" },
                   });
                 }}
-                className="size-10 rounded-xl hover:bg-secondary flex items-center justify-center"
+                className="size-10 rounded-xl icon-btn-premium flex items-center justify-center"
                 aria-label="Toggle theme"
               >
                 {resolved === "light" ? (
@@ -148,8 +147,9 @@ export function AppShell({ children }: AppShellProps) {
                 )}
               </button>
 
+              {/* Supporter pill / button */}
               {isSupporter ? (
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full supporter-pill-premium text-primary text-xs font-medium">
                   <Heart className="size-3.5" fill="currentColor" />
                   Supporter
                 </div>
@@ -163,13 +163,11 @@ export function AppShell({ children }: AppShellProps) {
                 </button>
               )}
 
-              {/* Sync button — only shown when authenticated. Opens the
-                  SyncDialog which asks for the KTU password to re-fetch
-                  fresh data from the scraper. Tooltip shows last sync time. */}
+              {/* Sync button — only when authenticated */}
               {isAuthenticated && (
                 <button
                   onClick={() => setSyncOpen(true)}
-                  className="size-10 rounded-xl hover:bg-secondary flex items-center justify-center transition relative group"
+                  className="size-10 rounded-xl icon-btn-premium flex items-center justify-center relative group"
                   aria-label="Sync fresh data from KTU"
                   title={
                     lastSyncedAt
@@ -184,14 +182,20 @@ export function AppShell({ children }: AppShellProps) {
                 </button>
               )}
 
+              {/* Avatar / Login */}
               {profile ? (
-                <div className="size-9 rounded-full bg-gradient-plum flex items-center justify-center text-white text-xs font-semibold">
+                <button
+                  onClick={() => navigate("settings")}
+                  className="avatar-premium size-9 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                  aria-label="Profile"
+                  title={profile.name}
+                >
                   {profile.avatarInitials}
-                </div>
+                </button>
               ) : (
                 <button
                   onClick={() => setLoginOpen(true)}
-                  className="size-9 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition"
+                  className="size-9 rounded-full bg-secondary icon-btn-premium flex items-center justify-center"
                   aria-label="Login"
                 >
                   <User className="size-4" />
@@ -202,36 +206,74 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       </header>
 
-      {/* Body — sidebar + main */}
+      {/* ===== BODY: sidebar + main ===== */}
       <div className="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 flex gap-6 py-6">
-        {/* Sidebar — desktop */}
-        <aside className="hidden lg:block w-56 shrink-0">
-          <div className="sticky top-24 space-y-1">
-            {NAV_ITEMS.map((item) => {
-              const Icon = ICONS[item.icon] ?? Home;
-              const isActive = active === item.key;
-              return (
-                <button
-                  key={item.key}
-                  onClick={() => navigate(item.key)}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-left",
-                    isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60",
-                  )}
-                >
-                  <Icon className="size-4" />
-                  {item.label}
-                </button>
-              );
-            })}
+        {/* ===== PREMIUM SIDEBAR — desktop ===== */}
+        <aside className="hidden lg:block w-60 shrink-0">
+          <div className="sticky top-24 space-y-6">
+            {/* Main navigation */}
+            <div>
+              <p className="sidebar-section-label">Navigate</p>
+              <div className="space-y-1">
+                {NAV_ITEMS.map((item) => {
+                  const Icon = ICONS[item.icon] ?? Home;
+                  const isActive = active === item.key;
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={() => navigate(item.key)}
+                      className={cn(
+                        "sidebar-item-premium w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-left",
+                        isActive
+                          ? "active text-primary"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      <Icon className="size-4" />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-            <div className="pt-4 mt-4 border-t border-border/60">
-              {!isSupporter && (
+            {/* Quick actions */}
+            <div>
+              <p className="sidebar-section-label">Quick Actions</p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    setActive("calculators");
+                    getAnalyticsProvider().track({
+                      name: "page_view",
+                      props: { path: "calculators" },
+                    });
+                  }}
+                  className="quick-action-card w-full p-3.5 rounded-2xl text-left"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Sparkles className="size-4" />
+                    <span className="text-sm font-semibold">Calculators</span>
+                  </div>
+                  <p className="text-xs opacity-80">SGPA · CGPA · Attendance</p>
+                </button>
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
+                >
+                  <Search className="size-4" />
+                  Search
+                  <span className="ml-auto text-[10px] text-muted-foreground/60">⌘K</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Support CTA — only for non-supporters */}
+            {!isSupporter && (
+              <div className="pt-2">
                 <button
                   onClick={() => setSupportOpen(true)}
-                  className="w-full p-3 rounded-2xl bg-gradient-plum text-white text-left hover:opacity-95 transition shadow-soft"
+                  className="w-full p-4 rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-left hover:opacity-95 transition shadow-soft"
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <Heart className="size-4" fill="currentColor" />
@@ -239,8 +281,23 @@ export function AppShell({ children }: AppShellProps) {
                   </div>
                   <p className="text-xs opacity-90">Remove ads · ₹99 lifetime</p>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
+
+            {/* Sync status — when authenticated */}
+            {isAuthenticated && lastSyncedAt && (
+              <div className="px-3.5 py-2.5 rounded-xl bg-secondary/40">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                    Last Synced
+                  </span>
+                </div>
+                <p className="text-xs text-foreground/70 ml-3.5">
+                  {formatRelativeTime(lastSyncedAt)}
+                </p>
+              </div>
+            )}
           </div>
         </aside>
 
@@ -248,9 +305,9 @@ export function AppShell({ children }: AppShellProps) {
         <main className="flex-1 min-w-0 pb-24 lg:pb-6">{children}</main>
       </div>
 
-      {/* Bottom nav — mobile */}
+      {/* ===== PREMIUM BOTTOM NAV — mobile ===== */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 safe-bottom">
-        <div className="navbar-glass border-t border-border/40 px-2 py-2">
+        <div className="bottom-nav-premium px-2 py-2">
           <div className="flex items-center justify-around max-w-md mx-auto">
             {PRIMARY_NAV_KEYS.map((key) => {
               const item = NAV_ITEMS.find((i) => i.key === key)!;
@@ -280,7 +337,7 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       </nav>
 
-      {/* Mobile slide-in menu */}
+      {/* ===== PREMIUM MOBILE MENU — slide-in ===== */}
       <AnimatePresence>
         {mobileMenu && (
           <div className="fixed inset-0 z-50 lg:hidden">
@@ -292,7 +349,7 @@ export function AppShell({ children }: AppShellProps) {
               onClick={() => setMobileMenu(false)}
             />
             <motion.div
-              className="absolute left-0 top-0 bottom-0 w-72 glass-strong p-5 flex flex-col"
+              className="absolute left-0 top-0 bottom-0 w-72 mobile-menu-premium p-5 flex flex-col overflow-y-auto"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
@@ -302,13 +359,16 @@ export function AppShell({ children }: AppShellProps) {
                 <Logo size={32} withWordmark />
                 <button
                   onClick={() => setMobileMenu(false)}
-                  className="size-9 rounded-xl hover:bg-secondary flex items-center justify-center"
+                  className="size-9 rounded-xl icon-btn-premium flex items-center justify-center"
                   aria-label="Close menu"
                 >
                   <X className="size-5" />
                 </button>
               </div>
-              <div className="space-y-1">
+
+              {/* Navigate section */}
+              <p className="sidebar-section-label">Navigate</p>
+              <div className="space-y-1 mb-6">
                 {NAV_ITEMS.map((item) => {
                   const Icon = ICONS[item.icon] ?? Home;
                   const isActive = active === item.key;
@@ -317,10 +377,10 @@ export function AppShell({ children }: AppShellProps) {
                       key={item.key}
                       onClick={() => navigate(item.key)}
                       className={cn(
-                        "w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors text-left",
+                        "sidebar-item-premium w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-left",
                         isActive
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-secondary/60",
+                          ? "active text-primary"
+                          : "text-muted-foreground hover:text-foreground",
                       )}
                     >
                       <Icon className="size-4" />
@@ -329,13 +389,30 @@ export function AppShell({ children }: AppShellProps) {
                   );
                 })}
               </div>
+
+              {/* Quick actions */}
+              <p className="sidebar-section-label">Quick Actions</p>
+              <div className="space-y-2 mb-6">
+                <button
+                  onClick={() => navigate("calculators")}
+                  className="quick-action-card w-full p-3.5 rounded-2xl text-left"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Sparkles className="size-4" />
+                    <span className="text-sm font-semibold">Calculators</span>
+                  </div>
+                  <p className="text-xs opacity-80">SGPA · CGPA · Attendance</p>
+                </button>
+              </div>
+
+              {/* Support CTA */}
               {!isSupporter && (
                 <button
                   onClick={() => {
                     setMobileMenu(false);
                     setSupportOpen(true);
                   }}
-                  className="mt-auto p-4 rounded-2xl bg-gradient-plum text-white text-left"
+                  className="mt-auto w-full p-4 rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-left"
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <Heart className="size-4" fill="currentColor" />

@@ -1082,3 +1082,80 @@ This was Phase 1 (dashboard). The full premium redesign spec covers 10 areas:
 
 Each remaining screen is a separate session to maintain quality. The design tokens (`.magazine-hero`, `.stat-tile-luxury`, `.btn-luxury`, etc.) are reusable across all screens.
 
+
+---
+
+## 2026-07-02 — Task `premium-redesign-phase-2` — Navigation redesign (sidebar + top nav + mobile)
+
+**Scope:** Phase 2 of the premium dark-luxury redesign. Redesigned the entire
+navigation shell — top navbar, desktop sidebar, mobile bottom nav, and mobile
+slide-in menu — to match the magazine-cover hero from Phase 1.
+
+### Design tokens added (`src/app/globals.css`)
+
+| Class | Purpose |
+|-------|---------|
+| `.navbar-premium` | Top navbar — glass with warm tint, 20px blur, saturate(180%) |
+| `.nav-btn-premium` | Desktop nav button — hover lift, active gradient + glow |
+| `.sidebar-premium` | Sidebar surface — subtle gradient with right border |
+| `.sidebar-item-premium` | Sidebar nav item — left gradient indicator bar on active/hover |
+| `.icon-btn-premium` | Icon buttons (search, theme, sync) — hover lift + tint |
+| `.avatar-premium` | Avatar — gradient plum with glow, hover scale |
+| `.supporter-pill-premium` | Supporter badge — plum/amber gradient tint |
+| `.quick-action-card` | Sidebar quick action — gradient plum card with depth |
+| `.bottom-nav-premium` | Mobile bottom nav — glass with blur |
+| `.mobile-menu-premium` | Mobile slide-in menu — premium surface |
+| `.sidebar-section-label` | Section headers — uppercase, tracking, muted |
+
+All classes have `.dark` variants for dark mode (deep plum-black surfaces).
+
+### App shell redesigned (`src/components/layout/app-shell.tsx`)
+
+**Top navbar:**
+- Premium glass background (`navbar-premium`) with 20px blur + saturate
+- Nav buttons use `nav-btn-premium` — hover lift, active state has gradient + glow
+- Icon buttons (search, theme, sync) use `icon-btn-premium` — hover lift + tint
+- Avatar uses `avatar-premium` — gradient plum with glow, hover scale, now clickable (navigates to settings)
+- Supporter pill uses `supporter-pill-premium` — gradient tint
+
+**Desktop sidebar (w-60, up from w-56):**
+- 3 sections with uppercase labels: "Navigate", "Quick Actions", sync status
+- Nav items use `sidebar-item-premium` — left gradient indicator bar (plum→amber) that animates in on active, half-height on hover
+- Quick Actions section:
+  - "Calculators" card (`quick-action-card`) — gradient plum with depth
+  - "Search" button with ⌘K hint
+- Support CTA at bottom (non-supporters only)
+- Sync status card showing "Last Synced: Xh ago" with green dot (when authenticated)
+
+**Mobile bottom nav:**
+- Premium glass (`bottom-nav-premium`) with blur + saturate
+- Same 5 primary nav items, active dot animation preserved
+
+**Mobile slide-in menu:**
+- Premium surface (`mobile-menu-premium`)
+- Same 3-section layout as desktop sidebar: Navigate, Quick Actions, Support CTA
+- Quick action card for calculators
+
+### Validation
+
+- `npx tsc --noEmit` → 0 errors
+- `npx eslint src/` → 0 errors, 0 warnings
+- `npx next build` → compiled successfully in 9.8s
+- Dev server → Home 200, Admin 200
+- Dev log → 0 errors
+
+### Premium redesign progress
+
+| # | Screen | Status |
+|---|--------|--------|
+| 1 | Hero Section | ✅ Done (Phase 1) |
+| 2 | Navigation sidebar | ✅ Done (Phase 2) |
+| 3 | Dashboard Layout | ✅ Done (Phase 1) |
+| 4 | Student Overview | ✅ Done (Phase 1) |
+| 5 | Calculators marketplace | ⏳ Next |
+| 6 | Papers (Netflix-style) | ⏳ |
+| 7 | Notices timeline | ⏳ |
+| 8 | Calendar planner | ⏳ |
+| 9 | Empty states | ⏳ |
+| 10 | Motion polish | ⏳ |
+
