@@ -1304,3 +1304,94 @@ thumbnail hero per paper.
 | 9 | Empty states | ⏳ |
 | 10 | Motion polish | ⏳ |
 
+
+---
+
+## 2026-07-02 — Task `premium-redesign-phase-5` — Notices modern timeline
+
+**Scope:** Phase 5 of the premium dark-luxury redesign. Transformed the
+Notices page from flat cards into a modern timeline with priority indicators,
+smart grouping, and premium detail sheet.
+
+### Design tokens added (`src/app/globals.css`)
+
+| Class | Purpose |
+|-------|---------|
+| `.notices-hero` | Premium gradient header (dark luxury, radial glows) |
+| `.notice-cat-pill` | Category filter pills — glass outline, gradient active state |
+| `.notices-timeline` | Timeline container with vertical gradient line |
+| `.timeline-item` | Each notice item — padded left for dot + line |
+| `.timeline-dot` | Priority indicator dot — 4 variants by priority |
+| `.timeline-dot-priority-pinned` | Amber dot with glow (pinned notices) |
+| `.timeline-dot-priority-high` | Red dot with glow (high priority) |
+| `.timeline-dot-priority-normal` | Plum dot with glow (normal) |
+| `.timeline-dot-priority-low` | Muted dot (low priority) |
+| `.notice-card` | Premium dark luxury card — hover slides right |
+| `.notice-badge-cat` | Category badge base + 6 color variants (Academic/Examination/Scholarship/Placement/Cultural/General) |
+| `.notice-badge-pinned` | Amber pinned badge |
+| `.notice-badge-new` | Plum "New" badge with pulse animation |
+| `.notice-detail-sheet` | Premium detail modal — dark luxury surface |
+| `.notice-close-btn` | Glass close button with hover |
+| `.notice-tag` | Tag chip — glass outline |
+
+### Notices page redesigned (`src/features/notices/notices.tsx`)
+
+**Premium hero:**
+- Dark-luxury gradient card with handwritten "Updates" eyebrow + serif "University notices." headline
+- Live count badge showing notice count
+
+**Category filter pills:**
+- Glass outline pills that become gradient plum when active
+- 7 categories: All, Academic, Examination, Scholarship, Placement, Cultural, General
+
+**Modern timeline:**
+- Vertical gradient line running down the left side
+- Each notice has a **priority dot** on the line:
+  - 🟡 Amber = Pinned
+  - 🔴 Red = High priority
+  - 🟣 Plum = Normal
+  - ⚪ Muted = Low
+- Dots scale up on hover
+- Notice cards slide right on hover (translateX 4px)
+- Cards stagger in from the left (50ms per card)
+
+**Premium category badges:**
+- Each category has its own color-tinted glass badge:
+  - Academic = plum
+  - Examination = red
+  - Scholarship = green
+  - Placement = amber
+  - Cultural = pink
+  - General = blue
+- Pinned badge = amber glass
+- "New" badge = plum glass with pulse animation
+
+**Detail sheet:**
+- Premium dark-luxury modal with backdrop blur
+- Glass close buttons
+- Tags rendered as glass chips
+- PDF + external link buttons use premium plum gradient + glass outline
+
+### Validation
+
+- `npx tsc --noEmit` → 0 errors
+- `npx eslint src/` → 0 errors, 0 warnings
+- `npx next build` → compiled successfully in 8.5s
+- Dev server → Home 200, Admin 200
+- Dev log → 0 errors
+
+### Premium redesign progress
+
+| # | Screen | Status |
+|---|--------|--------|
+| 1 | Hero Section | ✅ Done (Phase 1) |
+| 2 | Navigation sidebar | ✅ Done (Phase 2) |
+| 3 | Dashboard Layout | ✅ Done (Phase 1) |
+| 4 | Student Overview | ✅ Done (Phase 1) |
+| 5 | Calculators marketplace | ✅ Done (Phase 3) |
+| 6 | Papers (Netflix-style) | ✅ Done (Phase 4) |
+| 7 | Notices timeline | ✅ Done (Phase 5) |
+| 8 | Calendar planner | ⏳ Next |
+| 9 | Empty states | ⏳ |
+| 10 | Motion polish | ⏳ |
+

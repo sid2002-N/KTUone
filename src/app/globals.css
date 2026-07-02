@@ -1861,3 +1861,209 @@
   border-radius: 1.25rem;
   border: 1px solid var(--luxury-border);
 }
+
+/* ==========================================================================
+   PREMIUM NOTICES — v4 (modern timeline)
+   ========================================================================== */
+
+/* Notices hero — premium gradient header */
+.notices-hero {
+  background:
+    radial-gradient(ellipse at top right, oklch(0.30 0.08 340 / 0.4), transparent 60%),
+    radial-gradient(ellipse at bottom left, oklch(0.25 0.06 75 / 0.25), transparent 50%),
+    linear-gradient(135deg, var(--luxury-bg) 0%, var(--luxury-surface) 100%);
+  color: var(--luxury-text);
+  border-radius: 1.5rem;
+  border: 1px solid var(--luxury-border);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.05) inset,
+    0 20px 40px -15px oklch(0 0 0 / 0.4);
+}
+
+/* Category filter pills — premium */
+.notice-cat-pill {
+  position: relative;
+  transition: all 0.3s var(--ease-premium);
+  background: oklch(1 0 0 / 0.04);
+  border: 1px solid var(--luxury-border);
+  color: var(--luxury-text-muted);
+  backdrop-filter: blur(10px);
+}
+.notice-cat-pill:hover {
+  background: oklch(1 0 0 / 0.08);
+  color: var(--luxury-cream);
+  transform: translateY(-1px);
+}
+.notice-cat-pill.active {
+  background: linear-gradient(135deg, oklch(0.62 0.15 340), oklch(0.55 0.14 340));
+  border-color: oklch(0.62 0.15 340 / 0.5);
+  color: oklch(0.99 0.008 78);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.2) inset,
+    0 6px 16px -4px oklch(0.50 0.15 340 / 0.4);
+}
+
+/* Timeline container */
+.notices-timeline {
+  position: relative;
+}
+
+/* Timeline vertical line */
+.notices-timeline::before {
+  content: "";
+  position: absolute;
+  left: 19px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, oklch(0.62 0.15 340 / 0.3), oklch(0.62 0.15 340 / 0.1), transparent);
+}
+
+/* Timeline item */
+.timeline-item {
+  position: relative;
+  padding-left: 56px;
+  transition: all 0.3s var(--ease-premium);
+}
+
+/* Timeline dot — priority indicator */
+.timeline-dot {
+  position: absolute;
+  left: 12px;
+  top: 20px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid var(--luxury-bg);
+  z-index: 2;
+  transition: all 0.3s var(--ease-premium);
+}
+.timeline-dot-priority-pinned {
+  background: oklch(0.78 0.13 75);
+  box-shadow: 0 0 0 4px oklch(0.78 0.13 75 / 0.2);
+}
+.timeline-dot-priority-high {
+  background: oklch(0.65 0.22 25);
+  box-shadow: 0 0 0 4px oklch(0.65 0.22 25 / 0.15);
+}
+.timeline-dot-priority-normal {
+  background: oklch(0.62 0.15 340);
+  box-shadow: 0 0 0 4px oklch(0.62 0.15 340 / 0.15);
+}
+.timeline-dot-priority-low {
+  background: oklch(0.55 0.02 75);
+  box-shadow: 0 0 0 4px oklch(0.55 0.02 75 / 0.1);
+}
+.timeline-item:hover .timeline-dot {
+  transform: scale(1.2);
+}
+
+/* Notice card — premium */
+.notice-card {
+  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
+  color: var(--luxury-text);
+  border-radius: 1.25rem;
+  border: 1px solid var(--luxury-border);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.04) inset,
+    0 10px 25px -10px oklch(0 0 0 / 0.3);
+  transition: all 0.4s var(--ease-premium);
+  cursor: pointer;
+}
+.notice-card:hover {
+  transform: translateX(4px);
+  border-color: oklch(0.62 0.15 340 / 0.3);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.06) inset,
+    0 20px 40px -15px oklch(0 0 0 / 0.4);
+}
+
+/* Notice category badge — premium */
+.notice-badge-cat {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(8px);
+}
+.notice-badge-academic {
+  background: oklch(0.62 0.15 340 / 0.15);
+  color: oklch(0.78 0.15 340);
+  border: 1px solid oklch(0.62 0.15 340 / 0.25);
+}
+.notice-badge-examination {
+  background: oklch(0.65 0.22 25 / 0.15);
+  color: oklch(0.75 0.20 25);
+  border: 1px solid oklch(0.65 0.22 25 / 0.25);
+}
+.notice-badge-scholarship {
+  background: oklch(0.72 0.15 155 / 0.15);
+  color: oklch(0.80 0.15 155);
+  border: 1px solid oklch(0.72 0.15 155 / 0.25);
+}
+.notice-badge-placement {
+  background: oklch(0.78 0.13 75 / 0.15);
+  color: oklch(0.85 0.13 75);
+  border: 1px solid oklch(0.78 0.13 75 / 0.25);
+}
+.notice-badge-cultural {
+  background: oklch(0.70 0.15 350 / 0.15);
+  color: oklch(0.80 0.15 350);
+  border: 1px solid oklch(0.70 0.15 350 / 0.25);
+}
+.notice-badge-general {
+  background: oklch(0.60 0.08 250 / 0.15);
+  color: oklch(0.75 0.08 250);
+  border: 1px solid oklch(0.60 0.08 250 / 0.25);
+}
+
+/* Pinned badge — premium amber */
+.notice-badge-pinned {
+  background: oklch(0.78 0.13 75 / 0.15);
+  color: oklch(0.85 0.13 75);
+  border: 1px solid oklch(0.78 0.13 75 / 0.25);
+}
+
+/* New badge — premium plum pulse */
+.notice-badge-new {
+  background: oklch(0.62 0.15 340 / 0.2);
+  color: oklch(0.78 0.15 340);
+  border: 1px solid oklch(0.62 0.15 340 / 0.3);
+  animation: pulse-plum 2s ease-in-out infinite;
+}
+@keyframes pulse-plum {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Notice detail sheet — premium */
+.notice-detail-sheet {
+  background: linear-gradient(180deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
+  color: var(--luxury-text);
+  border: 1px solid var(--luxury-border);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.06) inset,
+    0 30px 60px -20px oklch(0 0 0 / 0.5);
+}
+
+.notice-detail-sheet .notice-close-btn {
+  background: oklch(1 0 0 / 0.04);
+  border: 1px solid var(--luxury-border);
+  color: var(--luxury-text-muted);
+  transition: all 0.25s var(--ease-premium);
+}
+.notice-detail-sheet .notice-close-btn:hover {
+  background: oklch(1 0 0 / 0.08);
+  color: var(--luxury-cream);
+}
+
+.notice-tag {
+  background: oklch(1 0 0 / 0.04);
+  border: 1px solid var(--luxury-border);
+  color: var(--luxury-text-muted);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
