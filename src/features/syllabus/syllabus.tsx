@@ -48,18 +48,21 @@ export function Syllabus() {
       </div>
 
       {/* ===== FILTER BAR ===== */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-md border border-border">
-          <Search className="size-[15px] text-[color:var(--text-faint)]" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by subject name or code…"
-            className="bg-transparent outline-none text-[13.5px] w-full placeholder:text-[color:var(--text-faint)]"
-          />
-        </div>
+      {/* Search — full width on its own row */}
+      <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-[10px] border border-border bg-secondary">
+        <Search className="size-4 text-[color:var(--text-faint)] shrink-0" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by subject name or code…"
+          className="bg-transparent outline-none text-[14px] w-full placeholder:text-[color:var(--text-faint)] border-none shadow-none focus:ring-0"
+          style={{ background: "transparent", border: "none", boxShadow: "none" }}
+        />
+      </div>
+      {/* Filters — 2-column grid on mobile, inline on desktop */}
+      <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2.5">
         <Select value={branch} onValueChange={(v) => setBranch(v as BranchCode | "ALL")}>
-          <SelectTrigger className="h-[42px] sm:w-[150px] text-[13px]">
+          <SelectTrigger className="h-[44px] w-full sm:w-[150px] text-[13px] rounded-[10px]">
             <SelectValue placeholder="Branch" />
           </SelectTrigger>
           <SelectContent>
@@ -77,7 +80,7 @@ export function Syllabus() {
             setSemester(v === "ALL" ? "ALL" : (Number(v) as SemesterNumber))
           }
         >
-          <SelectTrigger className="h-[42px] sm:w-[120px] text-[13px]">
+          <SelectTrigger className="h-[44px] w-full sm:w-[120px] text-[13px] rounded-[10px]">
             <SelectValue placeholder="Sem" />
           </SelectTrigger>
           <SelectContent>

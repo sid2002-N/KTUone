@@ -120,19 +120,21 @@ export function Papers() {
       </div>
 
       {/* ===== FILTER BAR ===== */}
-      <div className="flex flex-col sm:flex-row gap-2.5">
-        <div className="flex-1 flex items-center gap-2 px-3.5 py-2.5 rounded-[10px] border border-border bg-secondary">
-          <Search className="size-4 text-[color:var(--text-faint)] shrink-0" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by subject, code or title…"
-            className="bg-transparent outline-none text-[14px] w-full placeholder:text-[color:var(--text-faint)] border-none shadow-none focus:ring-0"
-            style={{ background: "transparent", border: "none", boxShadow: "none" }}
-          />
-        </div>
+      {/* Search — full width on its own row */}
+      <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-[10px] border border-border bg-secondary">
+        <Search className="size-4 text-[color:var(--text-faint)] shrink-0" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by subject, code or title…"
+          className="bg-transparent outline-none text-[14px] w-full placeholder:text-[color:var(--text-faint)] border-none shadow-none focus:ring-0"
+          style={{ background: "transparent", border: "none", boxShadow: "none" }}
+        />
+      </div>
+      {/* Filters — 3-column grid on mobile, inline on desktop */}
+      <div className="grid grid-cols-3 sm:flex sm:flex-row gap-2.5">
         <Select value={branch} onValueChange={(v) => setBranch(v as BranchCode | "ALL")}>
-          <SelectTrigger className="h-[44px] sm:w-[140px] text-[13px] rounded-[10px]">
+          <SelectTrigger className="h-[44px] w-full sm:w-[140px] text-[13px] rounded-[10px]">
             <SelectValue placeholder="Branch" />
           </SelectTrigger>
           <SelectContent>
@@ -145,7 +147,7 @@ export function Papers() {
           </SelectContent>
         </Select>
         <Select value={String(semester)} onValueChange={(v) => setSemester(v === "ALL" ? "ALL" : (Number(v) as SemesterNumber))}>
-          <SelectTrigger className="h-[44px] sm:w-[110px] text-[13px] rounded-[10px]">
+          <SelectTrigger className="h-[44px] w-full sm:w-[110px] text-[13px] rounded-[10px]">
             <SelectValue placeholder="Sem" />
           </SelectTrigger>
           <SelectContent>
@@ -158,7 +160,7 @@ export function Papers() {
           </SelectContent>
         </Select>
         <Select value={String(year)} onValueChange={(v) => setYear(v === "ALL" ? "ALL" : Number(v))}>
-          <SelectTrigger className="h-[44px] sm:w-[110px] text-[13px] rounded-[10px]">
+          <SelectTrigger className="h-[44px] w-full sm:w-[110px] text-[13px] rounded-[10px]">
             <SelectValue placeholder="Year" />
           </SelectTrigger>
           <SelectContent>
@@ -173,9 +175,9 @@ export function Papers() {
         {hasFilters && (
           <button
             onClick={clearFilters}
-            className="btn-ghost h-[44px] px-3.5 rounded-[10px] text-[13px] font-medium flex items-center gap-1.5 whitespace-nowrap"
+            className="col-span-3 sm:col-span-1 btn-ghost h-[44px] px-3.5 rounded-[10px] text-[13px] font-medium flex items-center justify-center gap-1.5 whitespace-nowrap"
           >
-            <X className="size-4" /> Clear
+            <X className="size-4" /> Clear filters
           </button>
         )}
       </div>
