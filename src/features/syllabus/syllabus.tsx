@@ -23,7 +23,7 @@ import { getSyllabus, type SyllabusFilters } from "@/features/syllabus/actions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BRANCHES, SEMESTERS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils/calc";
-import { useBookmarkStore } from "@/store/bookmark-store";
+import { useBookmarks } from "@/features/bookmarks/use-bookmarks";
 import { getNotificationProvider } from "@/lib/providers/notification";
 import type { BranchCode, SemesterNumber } from "@/lib/types";
 
@@ -32,8 +32,7 @@ export function Syllabus() {
   const [branch, setBranch] = useState<BranchCode | "ALL">("ALL");
   const [semester, setSemester] = useState<SemesterNumber | "ALL">("ALL");
   const prefersReduced = useReducedMotion();
-  const toggleBookmark = useBookmarkStore((s) => s.toggle);
-  const hasBookmark = useBookmarkStore((s) => s.has);
+  const { toggle: toggleBookmark, has: hasBookmark } = useBookmarks();
 
   const filters: SyllabusFilters = { search, branch, semester };
   const { data: syllabus = [], isLoading } = useQuery({
@@ -164,7 +163,6 @@ export function Syllabus() {
                         className="h-8 rounded-full"
                         onClick={() => {
                           toggleBookmark({
-                            id: `bm_syl_${s.id}`,
                             kind: "syllabus",
                             refId: s.id,
                             title: s.subjectName,

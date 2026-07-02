@@ -44,9 +44,12 @@ export function useBookmarks() {
   });
 
   const bookmarks = isAuthenticated ? serverBookmarks : localEntries;
-  const toggle = (entry: Omit<BookmarkEntry, "createdAt">): boolean => {
+  const toggle = (entry: Omit<BookmarkEntry, "createdAt" | "id">): boolean => {
     if (isAuthenticated) { toggleMutation.mutate(entry); return !serverBookmarks.some((b) => b.kind === entry.kind && b.refId === entry.refId); }
-    return localToggle(entry);
+    // Synthesize a deterministic local id so the local store can still
+    // dedupe / remove by id — the server side uses (studentId, kind, refId)
+    // as its unique key and doesn't need an id from the caller.
+    return localToggle({ ...entry, id: `bm_${entry.kind}_${entry.refId}` });
   };
   const has = (kind: BookmarkEntry["kind"], refId: string): boolean => {
     if (isAuthenticated) return serverBookmarks.some((b) => b.kind === kind && b.refId === refId);

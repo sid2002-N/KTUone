@@ -32,7 +32,7 @@ import { getPapers, getPaperYears, type PaperFilters } from "@/features/papers/a
 import { Skeleton } from "@/components/ui/skeleton";
 import { BRANCHES, SEMESTERS } from "@/lib/constants";
 import { formatBytes, formatNumber, formatRelativeTime } from "@/lib/utils/calc";
-import { useBookmarkStore } from "@/store/bookmark-store";
+import { useBookmarks } from "@/features/bookmarks/use-bookmarks";
 import { getNotificationProvider } from "@/lib/providers/notification";
 import { getAnalyticsProvider } from "@/lib/providers/analytics";
 import type { BranchCode, SemesterNumber } from "@/lib/types";
@@ -44,8 +44,7 @@ export function Papers() {
   const [semester, setSemester] = useState<SemesterNumber | "ALL">("ALL");
   const [year, setYear] = useState<number | "ALL">("ALL");
   const prefersReduced = useReducedMotion();
-  const toggleBookmark = useBookmarkStore((s) => s.toggle);
-  const hasBookmark = useBookmarkStore((s) => s.has);
+  const { toggle: toggleBookmark, has: hasBookmark } = useBookmarks();
 
   const { data: years = [] } = useQuery({
     queryKey: ["papers", "years"],
@@ -80,7 +79,6 @@ export function Papers() {
 
   const onBookmark = (paperId: string, title: string) => {
     const added = toggleBookmark({
-      id: `bm_paper_${paperId}`,
       kind: "paper",
       refId: paperId,
       title,

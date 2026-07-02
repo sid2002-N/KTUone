@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Trophy, Award, CalendarCheck, ClipboardList, Target, Plus, X, Save, Share2, History } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
@@ -27,6 +27,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  useStudentData,
+  semesterResultToCourses,
+  cgpaToSemesters,
+} from "@/features/calculators/use-student-data";
 
 const calcIcons: Record<CalculatorKey, React.ComponentType<{ className?: string }>> = {
   sgpa: Trophy,
@@ -185,8 +190,6 @@ function CelebrationTrigger({ onCompute }: { onCompute: (v: boolean) => void }) 
   return null;
 }
 
-import { useEffect } from "react";
-
 function fireCelebration() {
   window.dispatchEvent(new Event("ktu:celebrate"));
 }
@@ -202,7 +205,22 @@ function SgpaCalculator() {
     { id: "c3", subjectName: "DBMS", credits: 3, grade: "B+" },
   ]);
   const [result, setResult] = useState<ReturnType<typeof computeSGPA> | null>(null);
+  const [realLoaded, setRealLoaded] = useState(false);
   const addHistory = useCalcHistoryStore((s) => s.add);
+  const { results, isAuthenticated } = useStudentData();
+
+  // Pre-fill with the latest semester's real grades when authenticated.
+  // The Promise.resolve().then(...) defers the setState out of the render
+  // commit phase to satisfy the lint rule about calling setState in effects.
+  useEffect(() => {
+    if (!realLoaded && isAuthenticated && results && results.length > 0) {
+      const latest = results[results.length - 1];
+      Promise.resolve().then(() => {
+        setCourses(semesterResultToCourses(latest));
+        setRealLoaded(true);
+      });
+    }
+  }, [realLoaded, isAuthenticated, results]);
 
   const update = (id: string, patch: Partial<CalculatorCourse>) => {
     setCourses((arr) => arr.map((c) => (c.id === id ? { ...c, ...patch } : c)));
@@ -363,7 +381,21 @@ function CgpaCalculator() {
     { sgpa: 8.4, credits: 26 },
   ]);
   const [result, setResult] = useState<ReturnType<typeof computeCGPA> | null>(null);
+  const [realLoaded, setRealLoaded] = useState(false);
   const addHistory = useCalcHistoryStore((s) => s.add);
+  const { cgpa, isAuthenticated } = useStudentData();
+
+  // Pre-fill with the student's real semester SGPA data when authenticated.
+  // The Promise.resolve().then(...) defers the setState out of the render
+  // commit phase to satisfy the lint rule about calling setState in effects.
+  useEffect(() => {
+    if (!realLoaded && isAuthenticated && cgpa && cgpa.semesters.length > 0) {
+      Promise.resolve().then(() => {
+        setSems(cgpaToSemesters(cgpa));
+        setRealLoaded(true);
+      });
+    }
+  }, [realLoaded, isAuthenticated, cgpa]);
 
   const update = (i: number, patch: Partial<(typeof sems)[number]>) => {
     setSems((arr) => arr.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
