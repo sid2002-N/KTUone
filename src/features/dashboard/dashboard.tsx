@@ -31,6 +31,7 @@ import {
   getDashboardStats,
   getRecentNotices,
   getUpcomingEvent,
+  getUpcomingEvents,
   getRecentPapers,
 } from "@/features/dashboard/actions";
 import { getActiveTimetable } from "@/features/timetable/actions";
@@ -77,7 +78,7 @@ export function Dashboard() {
   });
   const { data: recentNotices = [] } = useQuery({
     queryKey: ["dashboard", "recent-notices"],
-    queryFn: () => getRecentNotices(3),
+    queryFn: () => getRecentNotices(5),
     staleTime: 60 * 1000,
   });
   const { data: upcomingEvent } = useQuery({
@@ -85,9 +86,14 @@ export function Dashboard() {
     queryFn: () => getUpcomingEvent(),
     staleTime: 5 * 60 * 1000,
   });
+  const { data: upcomingEvents = [] } = useQuery({
+    queryKey: ["dashboard", "upcoming-events"],
+    queryFn: () => getUpcomingEvents(4),
+    staleTime: 5 * 60 * 1000,
+  });
   const { data: recentPapers = [] } = useQuery({
     queryKey: ["dashboard", "recent-papers"],
-    queryFn: () => getRecentPapers(4),
+    queryFn: () => getRecentPapers(6),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -278,168 +284,194 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* ===== TWO COLUMN: recent activity + upcoming ===== */}
-      <div className="grid md:grid-cols-5 gap-6">
-        {/* Recent activity / calc history */}
-        <div className="md:col-span-3 card p-5 md:p-6">
-          <div className="flex items-center justify-between mb-1">
-            <h2 className="section-title text-[19px]">Recent activity</h2>
-            {recentHistory.length > 0 && (
-              <button
-                onClick={() => set("calculators")}
-                className="text-[12.5px] text-muted-foreground hover:text-foreground"
-              >
-                View all →
-              </button>
-            )}
+      {/* ===== RECENT ACTIVITY — full width ===== */}
+      <div className="card p-5 md:p-6">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="section-title text-[19px]">Recent activity</h2>
+          {recentHistory.length > 0 && (
+            <button
+              onClick={() => set("calculators")}
+              className="text-[12.5px] text-muted-foreground hover:text-foreground"
+            >
+              View all →
+            </button>
+          )}
+        </div>
+        {recentHistory.length === 0 ? (
+          <div className="empty-state py-8">
+            <p className="text-sm text-muted-foreground mb-3">
+              No calculations yet.
+            </p>
+            <button
+              onClick={() => set("calculators")}
+              className="text-[12.5px] underline decoration-dotted text-muted-foreground hover:text-foreground"
+            >
+              Open a calculator
+            </button>
           </div>
-          {recentHistory.length === 0 ? (
-            <div className="empty-state py-8">
-              <p className="text-sm text-muted-foreground mb-3">
-                No calculations yet.
-              </p>
-              <button
-                onClick={() => set("calculators")}
-                className="text-[12.5px] underline decoration-dotted text-muted-foreground hover:text-foreground"
-              >
-                Open a calculator
-              </button>
-            </div>
-          ) : (
-            <div className="mt-3">
-              {recentHistory.map((h) => (
-                <div key={h.id} className="ledger-row">
-                  <div>
-                    <div className="text-[13.5px]">{h.label ?? h.type}</div>
-                    <div className="text-[11.5px] font-mono mt-0.5 text-[color:var(--text-faint)]">
-                      {h.type} · {formatRelativeTime(h.output.computedAt)}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-mono text-[14px]">{h.output.value.toFixed(2)}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Upcoming */}
-        <div className="md:col-span-2 card p-5 md:p-6 flex flex-col">
-          <h2 className="section-title text-[19px] mb-4">Upcoming</h2>
-          {upcomingEvent ? (
-            <div className="flex-1">
-              <div className="ledger-row">
+        ) : (
+          <div className="mt-3">
+            {recentHistory.map((h) => (
+              <div key={h.id} className="ledger-row">
                 <div>
-                  <div className="text-[13.5px]">{upcomingEvent.title}</div>
+                  <div className="text-[13.5px]">{h.label ?? h.type}</div>
                   <div className="text-[11.5px] font-mono mt-0.5 text-[color:var(--text-faint)]">
-                    {new Date(upcomingEvent.startDate).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
+                    {h.type} · {formatRelativeTime(h.output.computedAt)}
                   </div>
                 </div>
-                <button
-                  onClick={() => set("calendar")}
-                  className="text-[12.5px] text-muted-foreground hover:text-foreground"
-                >
-                  <ChevronRight className="size-4" />
-                </button>
+                <div className="text-right">
+                  <div className="font-mono text-[14px]">{h.output.value.toFixed(2)}</div>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-start justify-center py-6">
-              <div className="icon-box mb-3">
-                <CalendarCheck className="size-4" />
-              </div>
-              <div className="text-[13.5px] mb-1">Nothing scheduled</div>
-              <div className="text-[12px] mb-4 text-muted-foreground">
-                Add your class timetable or exam dates to see them here.
-              </div>
-              <button
-                onClick={() => set("calendar")}
-                className="btn-ghost text-[12.5px] px-3.5 py-2 rounded-md"
-              >
-                Open calendar
-              </button>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* ===== NOTICES + PAPERS — two column ===== */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Recent notices */}
-        <div className="card p-5 md:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="section-title text-[19px]">Notices</h2>
-            <button
-              onClick={() => set("notices" as NavKey)}
-              className="text-[12.5px] text-muted-foreground hover:text-foreground"
-            >
-              All →
-            </button>
-          </div>
-          {recentNotices.length === 0 ? (
-            <div className="empty-state py-6">
-              <p className="text-sm text-muted-foreground">No notices yet.</p>
-            </div>
-          ) : (
-            <div>
-              {recentNotices.map((n) => (
-                <div key={n.id} className="ledger-row">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      {n.pinned && (
-                        <span className="tag tag-amber">Pinned</span>
-                      )}
-                      <span className="tag">{n.category}</span>
-                    </div>
-                    <div className="text-[13.5px] line-clamp-1">{n.title}</div>
-                    <div className="text-[11.5px] font-mono mt-0.5 text-[color:var(--text-faint)]">
-                      {formatRelativeTime(n.publishedAt)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+      {/* ===== UPCOMING EVENTS — full width, multiple items ===== */}
+      <div className="card p-5 md:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="section-title text-[19px]">Upcoming</h2>
+          <button
+            onClick={() => set("calendar")}
+            className="text-[12.5px] text-muted-foreground hover:text-foreground"
+          >
+            View calendar →
+          </button>
         </div>
-
-        {/* Recent papers */}
-        <div className="card p-5 md:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="section-title text-[19px]">Papers</h2>
+        {upcomingEvents.length === 0 ? (
+          <div className="empty-state py-6">
+            <div className="icon-box mb-3 mx-auto">
+              <CalendarCheck className="size-4" />
+            </div>
+            <p className="text-[13.5px] mb-1">Nothing scheduled</p>
+            <p className="text-[12px] text-muted-foreground mb-3">
+              Add your class timetable or exam dates to see them here.
+            </p>
             <button
-              onClick={() => set("papers" as NavKey)}
-              className="text-[12.5px] text-muted-foreground hover:text-foreground"
+              onClick={() => set("calendar")}
+              className="btn-ghost text-[12.5px] px-3.5 py-2 rounded-md"
             >
-              All →
+              Open calendar
             </button>
           </div>
-          {recentPapers.length === 0 ? (
-            <div className="empty-state py-6">
-              <p className="text-sm text-muted-foreground">No papers yet.</p>
-            </div>
-          ) : (
-            <div>
-              {recentPapers.slice(0, 4).map((p) => (
-                <div key={p.id} className="ledger-row">
-                  <div className="min-w-0">
-                    <div className="text-[13.5px] line-clamp-1">{p.subjectName}</div>
-                    <div className="text-[11.5px] font-mono mt-0.5 text-[color:var(--text-faint)]">
-                      {p.subjectCode} · S{p.semester} · {p.year}
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {upcomingEvents.map((e) => {
+              const startDate = new Date(e.startDate);
+              const daysUntil = Math.ceil(
+                (startDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+              );
+              return (
+                <button
+                  key={e.id}
+                  onClick={() => set("calendar")}
+                  className="text-left p-3 rounded-lg border border-border hover:bg-secondary/40 transition-colors relative overflow-hidden"
+                >
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-1"
+                    style={{ background: e.color }}
+                  />
+                  <div className="pl-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-mono uppercase tracking-wide text-[color:var(--text-faint)]">
+                        {startDate.toLocaleString("en-IN", { month: "short" })} {startDate.getDate()}
+                      </span>
+                      {daysUntil <= 7 && daysUntil >= 0 && (
+                        <span className="tag tag-amber" style={{ fontSize: "9px", padding: "1px 5px" }}>
+                          {daysUntil === 0 ? "Today" : `${daysUntil}d`}
+                        </span>
+                      )}
                     </div>
+                    <p className="text-[13px] font-medium line-clamp-2">{e.title}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1 line-clamp-1">{e.description}</p>
                   </div>
-                  <span className="font-mono text-[12px] text-muted-foreground">
-                    {formatNumber(p.views)} views
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ===== NOTICES — full width, multiple items with rich info ===== */}
+      <div className="card p-5 md:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="section-title text-[19px]">Notices</h2>
+          <button
+            onClick={() => set("notices" as NavKey)}
+            className="text-[12.5px] text-muted-foreground hover:text-foreground"
+          >
+            All notices →
+          </button>
+        </div>
+        {recentNotices.length === 0 ? (
+          <div className="empty-state py-6">
+            <p className="text-sm text-muted-foreground">No notices yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {recentNotices.map((n) => (
+              <button
+                key={n.id}
+                onClick={() => set("notices" as NavKey)}
+                className="text-left p-3.5 rounded-lg border border-border hover:bg-secondary/40 transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span className="tag" style={{ fontSize: "9px", padding: "1px 6px" }}>{n.category}</span>
+                  {n.pinned && (
+                    <span className="tag tag-amber" style={{ fontSize: "9px", padding: "1px 6px" }}>Pinned</span>
+                  )}
+                </div>
+                <p className="text-[13px] font-medium leading-snug line-clamp-2 mb-1.5">{n.title}</p>
+                <p className="text-[11.5px] text-muted-foreground line-clamp-2 mb-2">{n.description}</p>
+                <p className="text-[10px] font-mono text-[color:var(--text-faint)]">
+                  {formatRelativeTime(n.publishedAt)}
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ===== PAPERS — full width, multiple items with rich info ===== */}
+      <div className="card p-5 md:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="section-title text-[19px]">Papers</h2>
+          <button
+            onClick={() => set("papers" as NavKey)}
+            className="text-[12.5px] text-muted-foreground hover:text-foreground"
+          >
+            All papers →
+          </button>
+        </div>
+        {recentPapers.length === 0 ? (
+          <div className="empty-state py-6">
+            <p className="text-sm text-muted-foreground">No papers yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {recentPapers.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => set("papers" as NavKey)}
+                className="text-left p-3 rounded-lg border border-border hover:bg-secondary/40 transition-colors"
+              >
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="tag tag-amber" style={{ fontSize: "8px", padding: "1px 4px" }}>
+                    {p.examType.replace("_", " ")}
                   </span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <p className="text-[12px] font-medium leading-snug line-clamp-2 mb-1">{p.subjectName}</p>
+                <p className="text-[10px] font-mono text-muted-foreground mb-1">
+                  {p.subjectCode} · S{p.semester}
+                </p>
+                <p className="text-[10px] font-mono text-[color:var(--text-faint)]">
+                  {p.month === 5 ? "May" : "Nov"} {p.year} · {formatNumber(p.views)} views
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ===== SUPPORT BANNER — non-supporters only ===== */}

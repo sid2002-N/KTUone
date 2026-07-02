@@ -66,6 +66,26 @@ export async function getUpcomingEvent() {
   };
 }
 
+/**
+ * Fetch multiple upcoming events (default 5) for the dashboard widget.
+ */
+export async function getUpcomingEvents(limit = 5) {
+  const rows = await db.calendarEvent.findMany({
+    where: { startDate: { gte: new Date() } },
+    orderBy: { startDate: "asc" },
+    take: limit,
+  });
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    type: row.type,
+    startDate: row.startDate.toISOString(),
+    endDate: row.endDate.toISOString(),
+    color: row.color,
+  }));
+}
+
 export async function getRecentPapers(limit = 4) {
   const rows = await db.questionPaper.findMany({
     where: { deletedAt: null },
