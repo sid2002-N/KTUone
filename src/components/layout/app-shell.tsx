@@ -80,9 +80,9 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      {/* ===== TOP BAR (single nav — no sidebar) ===== */}
-      <header className="sticky top-0 z-40 safe-top border-b glass">
-        <div className="max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-16">
+      {/* ===== TOP BAR — liquid glass ===== */}
+      <header className="sticky top-0 z-40 safe-top liquid-glass-nav">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-16 relative z-10">
           {/* Left: logo */}
           <div className="flex items-center gap-3">
             <button
@@ -210,9 +210,9 @@ export function AppShell({ children }: AppShellProps) {
         <main>{children}</main>
       </div>
 
-      {/* ===== BOTTOM NAV — mobile ===== */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 safe-bottom bottom-nav">
-        <div className="flex items-center justify-around max-w-md mx-auto">
+      {/* ===== BOTTOM NAV — liquid glass (mobile) ===== */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 safe-bottom liquid-glass-bottom">
+        <div className="flex items-center justify-around max-w-md mx-auto relative z-10">
           {PRIMARY_NAV_KEYS.map((key) => {
             const item = NAV_ITEMS.find((i) => i.key === key)!;
             const Icon = ICONS[item.icon] ?? Home;
