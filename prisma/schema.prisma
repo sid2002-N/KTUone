@@ -1,5 +1,5 @@
-// KTU One — Prisma Schema (Phase 2)
-// SQLite for dev; swap datasource provider to "postgresql" + connection string for Supabase.
+// KTU One — Prisma Schema
+// PostgreSQL (Neon) — connected via DATABASE_URL env var.
 
 generator client {
   provider = "prisma-client-js"
