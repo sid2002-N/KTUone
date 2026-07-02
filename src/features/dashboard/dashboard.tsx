@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Trophy,
   Award,
@@ -46,12 +47,13 @@ import {
   type CalculatorKey,
 } from "@/lib/constants";
 import {
-  MOCK_PAPERS,
-  MOCK_NOTICES,
-  MOCK_CALENDAR,
-  MOCK_HISTORY,
-  MOCK_STUDENT,
-} from "@/data/mock-data";
+  getDashboardStats,
+  getRecentNotices,
+  getUpcomingEvent,
+  getRecentPapers,
+} from "@/features/dashboard/actions";
+import { getActiveTimetable } from "@/features/timetable/actions";
+import { useCalcHistory } from "@/features/calculators/use-calc-history";
 import { formatRelativeTime, formatNumber } from "@/lib/utils/calc";
 
 const calcIcons: Record<CalculatorKey, React.ComponentType<{ className?: string }>> = {
@@ -83,12 +85,47 @@ export function Dashboard() {
     Promise.resolve().then(() => setGreeting(g));
   }, []);
 
-  const firstName = (profile?.name ?? MOCK_STUDENT.name).split(" ")[0]!;
-  const upcomingEvent = MOCK_CALENDAR[0]!;
+  const firstName = (profile?.name ?? "Student").split(" ")[0]!;
 
-  const recentPapers = MOCK_PAPERS.slice(0, 4);
-  const recentNotices = MOCK_NOTICES.slice(0, 3);
-  const recentHistory = MOCK_HISTORY.slice(0, 3);
+  // Fetch dashboard data via Server Actions + TanStack Query
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { data: stats } = useQuery({
+    queryKey: ["dashboard", "stats"],
+    queryFn: () => getDashboardStats(),
+    staleTime: 5 * 60 * 1000,
+  });
+  const { data: recentNotices = [] } = useQuery({
+    queryKey: ["dashboard", "recent-notices"],
+    queryFn: () => getRecentNotices(3),
+    staleTime: 60 * 1000,
+  });
+  const { data: upcomingEvent } = useQuery({
+    queryKey: ["dashboard", "upcoming"],
+    queryFn: () => getUpcomingEvent(),
+    staleTime: 5 * 60 * 1000,
+  });
+  const { data: recentPapers = [] } = useQuery({
+    queryKey: ["dashboard", "recent-papers"],
+    queryFn: () => getRecentPapers(4),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch real CGPA when authenticated
+  const { data: cgpaData } = useQuery({
+    queryKey: ["cgpa"],
+    queryFn: async () => {
+      const res = await fetch("/api/v1/cgpa", { credentials: "include" });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.cgpa as { cgpa: number; totalCredits: number; creditsEarned: number };
+    },
+    enabled: isAuthenticated,
+    staleTime: 60 * 60 * 1000,
+  });
+
+  // Calc history via unified hook
+  const { entries: calcHistory } = useCalcHistory();
+  const recentHistory = calcHistory.slice(0, 3);
 
   return (
     <div className="space-y-6">
@@ -201,29 +238,25 @@ export function Dashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Current CGPA"
-          value={<AnimatedCounter value={8.31} decimals={2} />}
+          value={isAuthenticated && cgpaData ? (<AnimatedCounter value={cgpaData.cgpa} decimals={2} />) : isAuthenticated ? (<span className="text-base text-muted-foreground">Loading…</span>) : (<span className="text-base text-muted-foreground">Login</span>)}
           icon={<TrendingUp className="size-5" />}
           accent="plum"
           variant="index"
           rotate={-1}
-          hint="Across 2 semesters"
+          hint={isAuthenticated && cgpaData ? `${cgpaData.totalCredits} credits earned` : "Sign in to view"}
         />
         <StatCard
           label="Attendance"
-          value={
-            <span>
-              <AnimatedCounter value={78.2} decimals={1} />%
-            </span>
-          }
+          value={<span className="text-base text-muted-foreground">Manual</span>}
           icon={<CalendarCheck className="size-5" />}
           accent="amber"
           variant="index"
           rotate={1}
-          hint="2 subjects at risk"
+          hint="Use the attendance calculator"
         />
         <StatCard
           label="Papers"
-          value={<AnimatedCounter value={1280} />}
+          value={<AnimatedCounter value={stats?.papers ?? 0} />}
           icon={<FileText className="size-5" />}
           accent="mint"
           variant="index"
@@ -232,7 +265,7 @@ export function Dashboard() {
         />
         <StatCard
           label="Notices"
-          value={<AnimatedCounter value={6} />}
+          value={<AnimatedCounter value={stats?.notices ?? 0} />}
           icon={<Bell className="size-5" />}
           accent="coral"
           variant="index"
@@ -354,30 +387,22 @@ export function Dashboard() {
           </div>
         </GlassCard>
 
-        {/* Attendance gauge — kraft paper, hand-drawn feel */}
+        {/* Attendance — manual, no scraper data */}
         <GlassCard variant="kraft" className="p-5 pt-7 relative">
           <CardDecoration variant="cornerHeart" position="top-right" color="coral" />
-          <SectionHeader title="Attendance" subtitle="This semester" compact accent="almost there!" />
+          <SectionHeader title="Attendance" subtitle="This semester" compact accent="track it!" />
           <div className="flex flex-col items-center justify-center py-3">
-            <CircularProgress
-              value={78.2}
-              size={140}
-              label={
-                <span className="stamped-number text-3xl">
-                  <AnimatedCounter value={78.2} decimals={1} />%
-                </span>
-              }
-              sublabel="Overall"
-              color="oklch(0.55 0.18 25)"
-            />
-            <p className="mt-3 text-xs text-foreground/70 text-center italic">
-              <span className="text-rose-700 dark:text-rose-400 font-semibold not-italic">2 subjects</span> below 75% threshold
-            </p>
+            <div className="flex flex-col items-center text-center gap-2 py-6">
+              <CalendarCheck className="size-10 text-foreground/40" />
+              <p className="text-sm text-foreground/70 max-w-[180px] leading-relaxed">
+                KTU doesn't expose attendance data. Use the calculator to track yours manually.
+              </p>
+            </div>
             <button
               onClick={() => set("calculators")}
               className="btn-tactile mt-3 text-xs text-primary hover:underline font-semibold flex items-center gap-1"
             >
-              Check required classes <ChevronRight className="size-3" />
+              Open attendance calculator <ChevronRight className="size-3" />
             </button>
           </div>
         </GlassCard>
@@ -436,28 +461,34 @@ export function Dashboard() {
         <GlassCard variant="kraft" className="p-5 relative">
           <CardDecoration variant="pageFold" />
           <SectionHeader title="Upcoming" subtitle="Next on your calendar" compact accent="don't miss!" />
-          <div className="flex items-start gap-4 p-3 rounded-lg border border-foreground/10 bg-foreground/[0.03]">
-            <div className="text-center shrink-0 px-2">
-              <p className="text-[10px] uppercase tracking-[0.15em] text-foreground/60 font-bold">
-                {new Date(upcomingEvent.startDate).toLocaleString("en-IN", { month: "short" })}
-              </p>
-              <p className="stamped-number text-3xl text-primary">
-                {new Date(upcomingEvent.startDate).getDate()}
-              </p>
+          {upcomingEvent ? (
+            <div className="flex items-start gap-4 p-3 rounded-lg border border-foreground/10 bg-foreground/[0.03]">
+              <div className="text-center shrink-0 px-2">
+                <p className="text-[10px] uppercase tracking-[0.15em] text-foreground/60 font-bold">
+                  {new Date(upcomingEvent.startDate).toLocaleString("en-IN", { month: "short" })}
+                </p>
+                <p className="stamped-number text-3xl text-primary">
+                  {new Date(upcomingEvent.startDate).getDate()}
+                </p>
+              </div>
+              <div className="min-w-0 border-l border-foreground/15 pl-3">
+                <p className="font-serif-display text-sm leading-snug">{upcomingEvent.title}</p>
+                <p className="text-xs text-foreground/70 mt-1 line-clamp-2 italic">
+                  {upcomingEvent.description}
+                </p>
+                <button
+                  onClick={() => set("calendar" as NavKey)}
+                  className="btn-tactile mt-2 text-xs text-primary hover:underline font-semibold flex items-center gap-1"
+                >
+                  View calendar <ChevronRight className="size-3" />
+                </button>
+              </div>
             </div>
-            <div className="min-w-0 border-l border-foreground/15 pl-3">
-              <p className="font-serif-display text-sm leading-snug">{upcomingEvent.title}</p>
-              <p className="text-xs text-foreground/70 mt-1 line-clamp-2 italic">
-                {upcomingEvent.description}
-              </p>
-              <button
-                onClick={() => set("calendar" as NavKey)}
-                className="btn-tactile mt-2 text-xs text-primary hover:underline font-semibold flex items-center gap-1"
-              >
-                View calendar <ChevronRight className="size-3" />
-              </button>
+          ) : (
+            <div className="flex items-center justify-center p-6 text-sm text-foreground/60 italic">
+              No upcoming events
             </div>
-          </div>
+          )}
         </GlassCard>
 
         {/* Continue reading — notebook page */}
