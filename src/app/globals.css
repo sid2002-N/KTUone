@@ -2346,3 +2346,141 @@
 .empty-state-premium.compact {
   border-radius: 1.25rem;
 }
+
+/* ==========================================================================
+   PREMIUM MOTION POLISH — v4 (micro-interactions + page transitions)
+   ========================================================================== */
+
+/* Enhanced page transition — premium spring */
+.page-transition-enter {
+  animation: page-enter 0.5s var(--ease-premium) backwards;
+}
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.99);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Micro-bounce — tap feedback for buttons */
+.micro-bounce {
+  transition: transform 0.15s var(--ease-spring);
+}
+.micro-bounce:active {
+  transform: scale(0.96);
+}
+
+/* Hover lift — for cards + tiles */
+.hover-lift {
+  transition: transform 0.3s var(--ease-premium), box-shadow 0.3s var(--ease-premium);
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+}
+
+/* Premium focus ring — for inputs + buttons */
+.focus-ring-premium:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px oklch(0.62 0.15 340 / 0.2),
+    0 0 0 1px oklch(0.62 0.15 340 / 0.5);
+}
+
+/* Stagger container — sets up staggered children */
+.stagger-container > * {
+  animation: stagger-in 0.5s var(--ease-premium) backwards;
+}
+.stagger-container > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-container > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-container > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-container > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-container > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-container > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-container > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-container > *:nth-child(8) { animation-delay: 0.4s; }
+
+/* Shimmer — premium loading */
+@keyframes shimmer-sweep {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer-premium {
+  background: linear-gradient(
+    90deg,
+    var(--luxury-surface) 0%,
+    oklch(0.30 0.04 340) 50%,
+    var(--luxury-surface) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 1.8s ease-in-out infinite;
+}
+
+/* Pulse glow — for live indicators */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 oklch(0.72 0.15 155 / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px oklch(0.72 0.15 155 / 0);
+  }
+}
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Float — subtle floating animation for decorative elements */
+@keyframes float-subtle-premium {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.float-premium {
+  animation: float-subtle-premium 4s ease-in-out infinite;
+}
+
+/* Reduced motion — disable all premium animations */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition-enter,
+  .stagger-container > *,
+  .shimmer-premium,
+  .pulse-glow,
+  .float-premium {
+    animation: none !important;
+  }
+  .micro-bounce:active {
+    transform: none;
+  }
+  .hover-lift:hover {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   MICRO-BOUNCE — active state for all premium buttons
+   Applied as :active selectors on existing button classes
+   ========================================================================== */
+
+.btn-luxury:active,
+.btn-luxury-outline:active,
+.paper-btn-primary:active,
+.paper-btn-secondary:active,
+.empty-btn-primary:active,
+.empty-btn-secondary:active,
+.nav-btn-premium:active,
+.sidebar-item-premium:active,
+.icon-btn-premium:active,
+.calc-back-btn:active,
+.notice-cat-pill:active,
+.cal-tab:active,
+.calc-tile:active,
+.paper-tile:active,
+.notice-card:active,
+.cal-event-card:active,
+.cal-milestone:active {
+  transform: scale(0.97);
+}

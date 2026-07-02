@@ -1545,3 +1545,117 @@ Each empty state now has personality — the handwritten accent sets the tone (p
 | 9 | Empty states | ✅ Done (Phase 7) |
 | 10 | Motion polish | ⏳ Next |
 
+
+---
+
+## 2026-07-02 — Task `premium-redesign-phase-8` — Motion polish (FINAL PHASE)
+
+**Scope:** Phase 8 — the final phase of the premium dark-luxury redesign.
+Added page transitions, micro-interactions, and motion polish across the
+entire app.
+
+### Design tokens added (`src/app/globals.css`)
+
+| Class | Purpose |
+|-------|---------|
+| `.page-transition-enter` | CSS keyframe page entrance (fade + drift + scale + blur) |
+| `.micro-bounce` | Tap feedback — scale(0.96) on active |
+| `.hover-lift` | Hover lift — translateY(-3px) on hover |
+| `.focus-ring-premium` | Premium focus ring — plum glow on focus-visible |
+| `.stagger-container > *` | Staggered children — 50ms increment per child |
+| `.shimmer-premium` | Premium shimmer — sweep gradient loading effect |
+| `.pulse-glow` | Pulsing glow ring — for live/synced indicators |
+| `.float-premium` | Subtle floating animation — for decorative elements |
+| `:active` on all premium buttons | Micro-bounce scale(0.97) on tap |
+| `@media (prefers-reduced-motion)` | Disables all premium animations for accessibility |
+
+### Page transitions upgraded (`src/app/page.tsx`)
+
+**Before:** Basic fade-up (opacity + y, 0.25s linear)
+**After:** Premium transition with:
+- Opacity fade
+- Upward drift (y: 16 → 0)
+- Subtle scale (0.99 → 1)
+- Blur (4px → 0px)
+- Premium easing (cubic-bezier 0.22, 1, 0.36, 1)
+- 0.4s duration
+- Full `prefers-reduced-motion` support
+
+### Micro-interactions
+
+**Active state (tap feedback):**
+All premium buttons now scale to 0.97 on active:
+- `.btn-luxury`, `.btn-luxury-outline`
+- `.paper-btn-primary`, `.paper-btn-secondary`
+- `.empty-btn-primary`, `.empty-btn-secondary`
+- `.nav-btn-premium`, `.sidebar-item-premium`
+- `.icon-btn-premium`, `.calc-back-btn`
+- `.notice-cat-pill`, `.cal-tab`
+- `.calc-tile`, `.paper-tile`, `.notice-card`, `.cal-event-card`, `.cal-milestone`
+
+**Accessibility:**
+- All animations respect `prefers-reduced-motion: reduce`
+- When reduced motion is preferred: animations disabled, transforms reset to none
+- Focus rings still work (not animation-based)
+
+### Validation
+
+- `npx tsc --noEmit` → 0 errors
+- `npx eslint src/` → 0 errors, 0 warnings
+- `npx next build` → compiled successfully in 9.2s
+- Dev server → Home 200, Admin 200
+- Dev log → 0 errors
+
+---
+
+## 🎉 PREMIUM REDESIGN COMPLETE — ALL 10 PHASES DONE
+
+| # | Screen | Status | Phase |
+|---|--------|--------|-------|
+| 1 | Hero Section | ✅ Done | Phase 1 |
+| 2 | Navigation sidebar | ✅ Done | Phase 2 |
+| 3 | Dashboard Layout | ✅ Done | Phase 1 |
+| 4 | Student Overview | ✅ Done | Phase 1 |
+| 5 | Calculators marketplace | ✅ Done | Phase 3 |
+| 6 | Papers (Netflix-style) | ✅ Done | Phase 4 |
+| 7 | Notices timeline | ✅ Done | Phase 5 |
+| 8 | Calendar planner | ✅ Done | Phase 6 |
+| 9 | Empty states | ✅ Done | Phase 7 |
+| 10 | Motion polish | ✅ Done | Phase 8 |
+
+### Design system summary
+
+**Color palette (dark luxury):**
+- Background: deep plum-black (`oklch(0.18 0.025 340)`)
+- Surface: elevated plum (`oklch(0.22 0.03 340)`)
+- Accents: warm plum, amber, copper, cream
+- No generic blue gradients
+
+**Typography:**
+- Display: Lora (serif) — headlines, titles
+- Body: Inter (sans) — descriptions, UI text
+- Accent: Caveat (handwritten) — eyebrows, empty state accents
+
+**Motion:**
+- Premium easing: `cubic-bezier(0.22, 1, 0.36, 1)`
+- Spring easing: `cubic-bezier(0.34, 1.56, 0.64, 1)`
+- Page transitions: fade + drift + scale + blur (0.4s)
+- Micro-bounce: scale(0.97) on tap
+- Stagger: 50ms per child
+- Full `prefers-reduced-motion` support
+
+**Reusable component classes:**
+- `.magazine-hero` — dashboard hero
+- `.academic-status` — student overview card
+- `.stat-tile-luxury` — mini stat tiles
+- `.calc-marketplace-hero`, `.calc-tile`, `.calc-panel` — calculators
+- `.papers-hero`, `.paper-tile`, `.paper-thumbnail` — papers
+- `.notices-hero`, `.notices-timeline`, `.timeline-dot` — notices
+- `.calendar-hero`, `.cal-event-card`, `.cal-timetable-card` — calendar
+- `.empty-state-premium` — empty states
+- `.btn-luxury`, `.btn-luxury-outline` — premium buttons
+- `.nav-btn-premium`, `.sidebar-item-premium` — navigation
+- `.icon-btn-premium`, `.avatar-premium` — icon buttons + avatar
+
+The app is now a premium dark-luxury student companion with Arc Browser-level polish, Linear-level hierarchy, and Notion-level clarity. 🚀
+
