@@ -1561,3 +1561,148 @@
 .dark .sidebar-section-label {
   color: oklch(0.60 0.02 75);
 }
+
+/* ==========================================================================
+   PREMIUM CALCULATORS — v4 (tools marketplace)
+   ========================================================================== */
+
+/* Marketplace hero — premium gradient header */
+.calc-marketplace-hero {
+  background:
+    radial-gradient(ellipse at top right, oklch(0.30 0.08 340 / 0.4), transparent 60%),
+    radial-gradient(ellipse at bottom left, oklch(0.25 0.06 75 / 0.25), transparent 50%),
+    linear-gradient(135deg, var(--luxury-bg) 0%, var(--luxury-surface) 100%);
+  color: var(--luxury-text);
+  border-radius: 1.5rem;
+  border: 1px solid var(--luxury-border);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.05) inset,
+    0 20px 40px -15px oklch(0 0 0 / 0.4);
+}
+
+/* Featured calculator card — marketplace tile */
+.calc-tile {
+  position: relative;
+  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
+  color: var(--luxury-text);
+  border-radius: 1.25rem;
+  border: 1px solid var(--luxury-border);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.04) inset,
+    0 10px 25px -10px oklch(0 0 0 / 0.3);
+  transition: all 0.4s var(--ease-premium);
+  overflow: hidden;
+}
+
+.calc-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, oklch(0.62 0.15 340 / 0.08), transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-premium);
+  pointer-events: none;
+}
+
+.calc-tile:hover {
+  transform: translateY(-3px);
+  border-color: oklch(0.62 0.15 340 / 0.3);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.06) inset,
+    0 20px 40px -15px oklch(0 0 0 / 0.4),
+    0 0 0 1px oklch(0.62 0.15 340 / 0.15);
+}
+
+.calc-tile:hover::before {
+  opacity: 1;
+}
+
+.calc-tile.active {
+  border-color: oklch(0.62 0.15 340 / 0.5);
+  background: linear-gradient(135deg, oklch(0.28 0.06 340) 0%, oklch(0.32 0.07 340) 100%);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.08) inset,
+    0 20px 40px -15px oklch(0 0 0 / 0.4),
+    0 0 0 1.5px oklch(0.62 0.15 340 / 0.4);
+}
+
+.calc-tile.active::before {
+  opacity: 1;
+}
+
+/* Calculator icon badge — gradient by accent */
+.calc-icon-badge {
+  position: relative;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s var(--ease-premium);
+}
+.calc-tile:hover .calc-icon-badge {
+  transform: scale(1.08) rotate(-3deg);
+}
+.calc-icon-plum {
+  background: linear-gradient(135deg, oklch(0.62 0.15 340 / 0.2), oklch(0.55 0.14 340 / 0.1));
+  border: 1px solid oklch(0.62 0.15 340 / 0.25);
+  color: oklch(0.78 0.15 340);
+}
+.calc-icon-amber {
+  background: linear-gradient(135deg, oklch(0.78 0.13 75 / 0.2), oklch(0.70 0.12 75 / 0.1));
+  border: 1px solid oklch(0.78 0.13 75 / 0.25);
+  color: oklch(0.82 0.13 75);
+}
+.calc-icon-mint {
+  background: linear-gradient(135deg, oklch(0.72 0.15 155 / 0.2), oklch(0.65 0.13 155 / 0.1));
+  border: 1px solid oklch(0.72 0.15 155 / 0.25);
+  color: oklch(0.78 0.15 155);
+}
+.calc-icon-coral {
+  background: linear-gradient(135deg, oklch(0.68 0.13 45 / 0.2), oklch(0.60 0.12 45 / 0.1));
+  border: 1px solid oklch(0.68 0.13 45 / 0.25);
+  color: oklch(0.74 0.13 45);
+}
+
+/* Calculator panel — premium container for the active calculator */
+.calc-panel {
+  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
+  color: var(--luxury-text);
+  border-radius: 1.5rem;
+  border: 1px solid var(--luxury-border);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.04) inset,
+    0 20px 40px -15px oklch(0 0 0 / 0.3);
+}
+
+/* Back button — premium */
+.calc-back-btn {
+  background: oklch(1 0 0 / 0.04);
+  color: var(--luxury-text-muted);
+  border: 1px solid var(--luxury-border);
+  backdrop-filter: blur(10px);
+  transition: all 0.25s var(--ease-premium);
+}
+.calc-back-btn:hover {
+  background: oklch(1 0 0 / 0.08);
+  color: var(--luxury-cream);
+  transform: translateX(-2px);
+}
+
+/* Premium input override for calculators */
+.calc-panel input,
+.calc-panel select {
+  background: oklch(0 0 0 / 0.2) !important;
+  border-color: var(--luxury-border) !important;
+  color: var(--luxury-text) !important;
+}
+.calc-panel input::placeholder {
+  color: var(--luxury-text-muted) !important;
+}
+.calc-panel input:focus,
+.calc-panel select:focus {
+  border-color: oklch(0.62 0.15 340 / 0.5) !important;
+  box-shadow: 0 0 0 3px oklch(0.62 0.15 340 / 0.15) !important;
+}
+.calc-panel label {
+  color: var(--luxury-text-muted) !important;
+}

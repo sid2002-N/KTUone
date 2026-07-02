@@ -1159,3 +1159,72 @@ All classes have `.dark` variants for dark mode (deep plum-black surfaces).
 | 9 | Empty states | ⏳ |
 | 10 | Motion polish | ⏳ |
 
+
+---
+
+## 2026-07-02 — Task `premium-redesign-phase-3` — Calculators marketplace redesign
+
+**Scope:** Phase 3 of the premium dark-luxury redesign. Transformed the
+Calculators page from a flat pill-selector + calculator layout into a
+"tools marketplace" with a featured grid of calculator cards.
+
+### Design tokens added (`src/app/globals.css`)
+
+| Class | Purpose |
+|-------|---------|
+| `.calc-marketplace-hero` | Premium gradient header for the marketplace (dark luxury, radial glows) |
+| `.calc-tile` | Featured calculator card — hover lift, border glow, radial accent glow on hover |
+| `.calc-tile.active` | Active state — stronger border + elevated background |
+| `.calc-icon-badge` | Calculator icon container — hover scale + rotate |
+| `.calc-icon-plum` / `.calc-icon-amber` / `.calc-icon-mint` / `.calc-icon-coral` | Accent-colored icon badges (gradient bg + border + text color) |
+| `.calc-panel` | Premium container for the active calculator (dark luxury surface) |
+| `.calc-back-btn` | "All calculators" back button — glass outline, hover slide-left |
+| `.calc-panel input/select` | Premium input overrides — dark bg, luxury border, plum focus ring |
+
+### Calculators page redesigned (`src/features/calculators/calculators.tsx`)
+
+**New two-view architecture:**
+1. **Marketplace view** (default, `active === null`):
+   - Premium hero card (`.calc-marketplace-hero`) with handwritten "Tools" eyebrow + serif "Calculator marketplace." headline
+   - 3-column grid of 5 calculator tiles (`.calc-tile`), each with:
+     - Accent-colored icon badge (`.calc-icon-{accent}`)
+     - Calculator title + description
+     - "Open →" appears on hover
+     - Stagger entrance animation (80ms per card)
+   - Hover effects: lift, border glow, icon scale+rotate, radial accent glow
+
+2. **Active calculator view** (when a tile is clicked):
+   - "All calculators" back button (`.calc-back-btn`) at top
+   - Premium panel (`.calc-panel`) containing:
+     - Calculator header with icon badge + title + description
+     - The actual calculator component (SgpaCalculator, CgpaCalculator, etc.)
+   - AnimatePresence for smooth view transitions
+   - Inputs styled with premium dark-luxury overrides
+
+**Individual calculator logic preserved** — SgpaCalculator, CgpaCalculator,
+AttendanceCalculator, InternalMarksCalculator, PassCalculator all unchanged.
+Only the outer shell was redesigned.
+
+### Validation
+
+- `npx tsc --noEmit` → 0 errors
+- `npx eslint src/` → 0 errors, 0 warnings
+- `npx next build` → compiled successfully in 8.6s
+- Dev server → Home 200, Admin 200
+- Dev log → 0 errors
+
+### Premium redesign progress
+
+| # | Screen | Status |
+|---|--------|--------|
+| 1 | Hero Section | ✅ Done (Phase 1) |
+| 2 | Navigation sidebar | ✅ Done (Phase 2) |
+| 3 | Dashboard Layout | ✅ Done (Phase 1) |
+| 4 | Student Overview | ✅ Done (Phase 1) |
+| 5 | Calculators marketplace | ✅ Done (Phase 3) |
+| 6 | Papers (Netflix-style) | ⏳ Next |
+| 7 | Notices timeline | ⏳ |
+| 8 | Calendar planner | ⏳ |
+| 9 | Empty states | ⏳ |
+| 10 | Motion polish | ⏳ |
+

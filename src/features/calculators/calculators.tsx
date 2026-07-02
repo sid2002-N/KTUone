@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Trophy, Award, CalendarCheck, ClipboardList, Target, Plus, X, Save, Share2, History } from "lucide-react";
+import { Trophy, Award, CalendarCheck, ClipboardList, Target, Plus, X, Save, Share2, History, ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { GlassCard } from "@/components/ui-custom/glass-card";
 import { GradientCard } from "@/components/ui-custom/gradient-card";
@@ -42,64 +42,135 @@ const calcIcons: Record<CalculatorKey, React.ComponentType<{ className?: string 
 };
 
 export function Calculators() {
-  const [active, setActive] = useState<CalculatorKey>("sgpa");
+  const [active, setActive] = useState<CalculatorKey | null>(null);
   const prefersReduced = useReducedMotion();
+
+  // ===== MARKETPLACE VIEW (no calculator selected) =====
+  if (active === null) {
+    return (
+      <div>
+        {/* Premium marketplace hero */}
+        <motion.div
+          initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="calc-marketplace-hero p-7 sm:p-10 mb-6"
+        >
+          <p className="hero-eyebrow text-lg sm:text-xl rotate-[-2deg] inline-block mb-2">
+            Tools
+          </p>
+          <h1 className="hero-headline text-3xl sm:text-4xl lg:text-5xl">
+            Calculator <em>marketplace.</em>
+          </h1>
+          <p className="text-sm text-[var(--luxury-text-muted)] max-w-md leading-relaxed mt-3">
+            Premium, fast and offline-ready calculators for every KTU scenario.
+            Pick a tool to get started.
+          </p>
+        </motion.div>
+
+        {/* Featured calculator grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {CALCULATORS.map((c, i) => {
+            const CIcon = calcIcons[c.key];
+            const accentClass =
+              c.accent === "plum"
+                ? "calc-icon-plum"
+                : c.accent === "amber"
+                  ? "calc-icon-amber"
+                  : c.accent === "mint"
+                    ? "calc-icon-mint"
+                    : "calc-icon-coral";
+            return (
+              <motion.button
+                key={c.key}
+                initial={prefersReduced ? false : { opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                onClick={() => setActive(c.key)}
+                className="calc-tile p-5 text-left group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`calc-icon-badge size-12 ${accentClass}`}>
+                    <CIcon className="size-6" />
+                  </div>
+                  <span className="text-[10px] uppercase tracking-[0.15em] text-[var(--luxury-text-muted)] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                    Open →
+                  </span>
+                </div>
+                <h3 className="font-serif text-lg text-[var(--luxury-cream)] mb-1">
+                  {c.title.replace(" Calculator", "")}
+                </h3>
+                <p className="text-xs text-[var(--luxury-text-muted)] leading-relaxed line-clamp-2">
+                  {c.description}
+                </p>
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // ===== ACTIVE CALCULATOR VIEW =====
   const calc = CALCULATORS.find((c) => c.key === active)!;
   const Icon = calcIcons[calc.key];
 
   return (
     <div>
-      <PageHeader
-        title="Calculators"
-        description="Premium, fast and offline-ready calculators for every KTU scenario."
-        icon={<Icon className="size-5" />}
-      />
-
-      {/* Calculator selector pills */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {CALCULATORS.map((c) => {
-          const CIcon = calcIcons[c.key];
-          const isActive = active === c.key;
-          return (
-            <button
-              key={c.key}
-              onClick={() => setActive(c.key)}
-              className={cn(
-                "relative px-3.5 py-2 rounded-full text-sm font-medium transition flex items-center gap-2",
-                isActive
-                  ? "text-primary-foreground"
-                  : "glass text-foreground hover:bg-secondary/60",
-              )}
-            >
-              {isActive && (
-                <motion.span
-                  layoutId="calc-pill"
-                  className="absolute inset-0 rounded-full bg-primary -z-10"
-                  transition={prefersReduced ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 30 }}
-                />
-              )}
-              <CIcon className="size-4" />
-              {c.title.replace(" Calculator", "")}
-            </button>
-          );
-        })}
+      {/* Back button + title */}
+      <div className="flex items-center gap-3 mb-5">
+        <button
+          onClick={() => setActive(null)}
+          className="calc-back-btn px-3 py-2 rounded-full text-xs font-medium flex items-center gap-1.5"
+        >
+          <ArrowLeft className="size-3.5" />
+          All calculators
+        </button>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={active}
-          initial={prefersReduced ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -12 }}
-          transition={{ duration: 0.3 }}
-        >
-          {active === "sgpa" && <SgpaCalculator />}
-          {active === "cgpa" && <CgpaCalculator />}
-          {active === "attendance" && <AttendanceCalculator />}
-          {active === "internal" && <InternalMarksCalculator />}
-          {active === "pass" && <PassCalculator />}
-        </motion.div>
-      </AnimatePresence>
+      {/* Premium calculator panel */}
+      <div className="calc-panel p-5 sm:p-7">
+        {/* Calculator header */}
+        <div className="flex items-center gap-3 mb-5 pb-5 border-b border-[var(--luxury-border)]">
+          <div
+            className={`calc-icon-badge size-11 ${
+              calc.accent === "plum"
+                ? "calc-icon-plum"
+                : calc.accent === "amber"
+                  ? "calc-icon-amber"
+                  : calc.accent === "mint"
+                    ? "calc-icon-mint"
+                    : "calc-icon-coral"
+            }`}
+          >
+            <Icon className="size-5" />
+          </div>
+          <div>
+            <h2 className="font-serif text-xl text-[var(--luxury-cream)]">
+              {calc.title}
+            </h2>
+            <p className="text-xs text-[var(--luxury-text-muted)] mt-0.5">
+              {calc.description}
+            </p>
+          </div>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={active}
+            initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -12 }}
+            transition={{ duration: 0.3 }}
+          >
+            {active === "sgpa" && <SgpaCalculator />}
+            {active === "cgpa" && <CgpaCalculator />}
+            {active === "attendance" && <AttendanceCalculator />}
+            {active === "internal" && <InternalMarksCalculator />}
+            {active === "pass" && <PassCalculator />}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
