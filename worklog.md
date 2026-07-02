@@ -1395,3 +1395,79 @@ smart grouping, and premium detail sheet.
 | 9 | Empty states | ⏳ |
 | 10 | Motion polish | ⏳ |
 
+
+---
+
+## 2026-07-02 — Task `premium-redesign-phase-6` — Calendar academic planner
+
+**Scope:** Phase 6 of the premium dark-luxury redesign. Transformed the
+Calendar page into a premium academic planner with upcoming milestones strip,
+exam countdowns, and a premium timetable card.
+
+### Design tokens added (`src/app/globals.css`)
+
+| Class | Purpose |
+|-------|---------|
+| `.calendar-hero` | Premium gradient header (dark luxury, radial glows) |
+| `.cal-tab-switcher` | Premium glass tab container with padding |
+| `.cal-tab` | Tab button — glass hover, gradient plum active state |
+| `.cal-event-card` | Premium dark luxury event card — hover lift |
+| `.cal-date-block` | Date block — dark glass with border |
+| `.cal-badge-type` | Event type badge base + 7 color variants (Exam/Holiday/Result/Registration/Workshop/Deadline/Event) |
+| `.cal-countdown` | Plum countdown badge ("in 5 days") |
+| `.cal-countdown-today` | Red "Today" badge with pulse animation |
+| `.cal-countdown-past` | Muted "Past" badge |
+| `.cal-timetable-card` | Premium timetable card — elevated plum gradient |
+| `.cal-milestone` | Milestone strip item — dark glass, hover lift |
+
+### Calendar page redesigned (`src/features/calendar/calendar.tsx`)
+
+**Premium hero:**
+- Dark-luxury gradient card with handwritten "Planner" eyebrow + serif "Academic calendar." headline
+
+**Premium tab switcher (custom, not Radix Tabs):**
+- Glass container with 2 tabs: "Academic Calendar" + "Exam Timetable"
+- Active tab = gradient plum with glow
+- AnimatePresence for smooth tab transitions
+
+**Events tab — premium academic planner:**
+- **Upcoming milestones strip** — horizontally scrollable row of the next 5 events, each showing month + day + title + days-until countdown
+- **Event cards** — each with:
+  - Color stripe (left edge, from event color)
+  - Premium date block (dark glass with month + day)
+  - Event type badge (color-coded glass: Exam=red, Holiday=green, Result=blue, etc.)
+  - Title + description
+  - Date range + reminder indicator
+  - **Countdown badge**: "in 5 days" (plum), "Today" (red, pulsing), or "Past" (muted)
+- Cards stagger in with premium easing
+
+**Timetable tab — premium:**
+- Elevated plum-gradient card (`.cal-timetable-card`) — stands out from event cards
+- Premium date block showing last-updated date
+- "Active" badge (red glass)
+- Title + semester + branch metadata
+- Updated date + branch name info row
+
+### Validation
+
+- `npx tsc --noEmit` → 0 errors
+- `npx eslint src/` → 0 errors, 0 warnings
+- `npx next build` → compiled successfully in 9.1s
+- Dev server → Home 200, Admin 200
+- Dev log → 0 errors
+
+### Premium redesign progress
+
+| # | Screen | Status |
+|---|--------|--------|
+| 1 | Hero Section | ✅ Done (Phase 1) |
+| 2 | Navigation sidebar | ✅ Done (Phase 2) |
+| 3 | Dashboard Layout | ✅ Done (Phase 1) |
+| 4 | Student Overview | ✅ Done (Phase 1) |
+| 5 | Calculators marketplace | ✅ Done (Phase 3) |
+| 6 | Papers (Netflix-style) | ✅ Done (Phase 4) |
+| 7 | Notices timeline | ✅ Done (Phase 5) |
+| 8 | Calendar planner | ✅ Done (Phase 6) |
+| 9 | Empty states | ⏳ Next |
+| 10 | Motion polish | ⏳ |
+
