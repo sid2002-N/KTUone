@@ -21,6 +21,13 @@ export function LoginDialog() {
   const setOpen = useNavStore((s) => s.setLoginOpen);
   const setSession = useAuthStore((s) => s.setSession);
   const setProfile = useAuthStore((s) => s.setProfile);
+  const setLastSyncedAt = useAuthStore((s) => s.setLastSyncedAt);
+  const setRememberedRegisterNumber = useAuthStore(
+    (s) => s.setRememberedRegisterNumber,
+  );
+  const rememberedRegisterNumber = useAuthStore(
+    (s) => s.rememberedRegisterNumber,
+  );
   const prefersReduced = useReducedMotion();
 
   const [registerNumber, setRegisterNumber] = useState("");
@@ -28,6 +35,21 @@ export function LoginDialog() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Pre-fill the register number from localStorage when the dialog opens.
+  // Password is NEVER stored — must be typed each time. This is intentional:
+  // the register number is just an ID (not secret), but storing the password
+  // (even encrypted) would be a security liability.
+  useEffect(() => {
+    if (open && rememberedRegisterNumber && !registerNumber) {
+      setRegisterNumber(rememberedRegisterNumber);
+    }
+    // Clear the password field every time the dialog opens (security)
+    if (open) {
+      setPassword("");
+      setError(null);
+    }
+  }, [open, rememberedRegisterNumber, registerNumber]);
 
   // Lock body scroll when open
   useEffect(() => {
@@ -69,6 +91,10 @@ export function LoginDialog() {
         issuedAt: Date.now(),
       };
       setSession(session);
+      // Persist the register number for next time (NOT the password)
+      setRememberedRegisterNumber(registerNumber);
+      // Mark the sync time — the scraper just fetched fresh data
+      setLastSyncedAt(new Date().toISOString());
       // Fetch full profile via StudentService (BFF /api/v1/profile)
       const profile = await getStudentService().getProfile();
       setProfile(profile satisfies StudentProfile);

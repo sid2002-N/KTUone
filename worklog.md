@@ -696,3 +696,155 @@ finds it normally — no code changes needed.
   `<AdMobInitializer />` are client components that need to read the
   provider name + IDs at runtime.
 
+
+---
+
+## 2026-07-02 — Task `session-sync-download` — Session restore, sync button, PDF download fix, mock data cleanup
+
+**Scope:** User reported 4 issues:
+1. Front-end showing 0 papers (mock data was drowning out real uploads)
+2. PDF download not working (button just showed a toast, never downloaded)
+3. User had to type register number + password every page reload (no session restore)
+4. Wanted a "Sync" button to re-fetch fresh KTU data without full re-login
+
+### Files created / modified
+
+| # | Path | Action | Purpose |
+|---|------|--------|---------|
+| 1 | `scripts/cleanup-mock-data.ts` | NEW | One-off script that deletes 32 mock papers, 10 mock syllabus, 6 mock notices, 6 mock calendar events from the DB. Real admin-uploaded content (with R2 object keys like `papers/...`) is kept. Mock content (with `https://r2.ktuone.in/...` URLs) is deleted. |
+| 2 | `scripts/cleanup-test-notices.ts` | NEW | Hard-deletes 3 soft-deleted test notices from verification runs (Smoke Test, Audit Test, Final Verify). |
+| 3 | `src/features/papers/papers.tsx` | MODIFIED | Fixed `onDownload` — now calls `window.open('/api/v1/papers/[id]/download', '_blank')` which triggers the actual R2 signed-URL redirect + PDF download. Previously it just showed a toast. Also fixed the "View" button to open the same URL (browser renders PDF inline). |
+| 4 | `src/features/syllabus/syllabus.tsx` | MODIFIED | Same download fix — `window.open('/api/v1/syllabus/[id]/download', '_blank')`. Added `getAnalyticsProvider` import. |
+| 5 | `src/app/api/v1/papers/[id]/download/route.ts` | REWRITTEN | Added `ResponseContentDisposition` header to the signed URL so the browser saves with a clean filename (`Os — END SEM May 2026.pdf`) instead of the raw R2 object key. Sanitizes the title for filesystem safety. |
+| 6 | `src/app/api/v1/syllabus/[id]/download/route.ts` | REWRITTEN | Same content-disposition fix for syllabus downloads. |
+| 7 | `src/lib/storage/r2.ts` | MODIFIED | `getSignedDownloadUrl()` now accepts an optional `contentDisposition` param that gets passed to `GetObjectCommand.ResponseContentDisposition`. |
+| 8 | `src/store/auth-store.ts` | REWRITTEN | Added `lastSyncedAt` + `rememberedRegisterNumber` fields. Store now uses `persist` middleware with `partialize` — only `lastSyncedAt` + `rememberedRegisterNumber` are persisted to localStorage; `session` + `profile` are in-memory only (reconstructed on boot via `/api/v1/refresh`). |
+| 9 | `src/store/nav-store.ts` | MODIFIED | Added `syncOpen` + `setSyncOpen` for the SyncDialog. |
+| 10 | `src/lib/providers/session-restore.tsx` | NEW | `<SessionRestore />` component — runs once on app boot, calls `getStudentService().initialize()` which POSTs to `/api/v1/refresh` using the httpOnly refresh cookie. If valid, fetches the cached profile + sets it in the auth store. If invalid, leaves the user logged out. Mounted inside `<Providers />`. |
+| 11 | `src/lib/providers/index.tsx` | MODIFIED | Added `<SessionRestore />` to the provider tree (runs once on app boot). |
+| 12 | `src/features/login/login-dialog.tsx` | MODIFIED | Pre-fills the register number from `rememberedRegisterNumber` (persisted in localStorage). Password field is always cleared on open (security). On successful login, stores the register number + sets `lastSyncedAt` to now. |
+| 13 | `src/features/sync/sync-dialog.tsx` | NEW | `<SyncDialog />` — modal that asks for the KTU password (register number pre-filled). On submit, calls `getStudentService().login()` to re-scrape fresh data. Updates `lastSyncedAt`, shows a success state with checkmark, auto-closes after 1.5s. Same error branching as LoginDialog (AUTH_FAILED, SCRAPE_FAILED, SCRAPER_UNAVAILABLE). |
+| 14 | `src/components/layout/app-shell.tsx` | MODIFIED | Added a Sync button (RefreshCw icon) to the top nav, shown only when authenticated. Tooltip shows "Last synced Xh ago". Green dot indicator if `lastSyncedAt` is set. Mounted `<SyncDialog />` at the bottom of the shell. |
+| 15 | `src/features/dashboard/dashboard.tsx` | MODIFIED | Added a stale-data banner — shows an amber card with "Data last synced Xh ago" + a "Sync now" button when `lastSyncedAt` is > 24h old or null. Appears above the quick-stats grid. |
+| 16 | `next.config.ts` | MODIFIED (earlier in this session) | Added `experimental.serverActions.allowedOrigins` with `*.space-z.ai`, `*.fcapp.run`, `*.vercel.app` patterns. Fixes the "Invalid Server Actions request" CSRF error that was blocking all Server Action calls in the preview environment. |
+
+### What was cleaned from the DB
+
+```
+📄 Papers:      32 mock deleted, 1 real remaining ("Os" — your admin upload)
+📖 Syllabus:    10 mock deleted, 0 real remaining
+🔔 Notices:     6 mock + 3 test deleted, 0 real remaining
+📅 Calendar:    6 mock deleted, 1 real remaining ("Holilililili daydayddayday")
+🎓 Timetables:  0 deleted, 1 real remaining ("Unit test")
+```
+
+### Session restore flow (new)
+
+```
+User opens app
+  ↓
+<SessionRestore /> mounts (inside <Providers />)
+  ↓
+Calls getStudentService().initialize()
+  ↓ POST /api/v1/refresh (httpOnly cookie)
+  ↓
+  ┌─ 200 OK ─────────────────────────────────┐
+  │  BFF issues new access token cookie      │
+  │  ↓                                       │
+  │  SessionRestore calls getProfile()       │
+  │  ↓ GET /api/v1/profile                   │
+  │  ↓                                       │
+  │  Sets session + profile in auth store    │
+  │  ↓                                       │
+  │  User is logged in (no password typed!)  │
+  │  Cached data (up to 24h old) loads       │
+  └──────────────────────────────────────────┘
+  ┌─ 401 (no cookie / expired) ──────────────┐
+  │  User stays logged out                   │
+  │  Sees login dialog when clicking avatar  │
+  │  Register number pre-filled if remembered│
+  └──────────────────────────────────────────┘
+```
+
+### Sync button flow (new)
+
+```
+User clicks 🔄 in top nav (only visible when authenticated)
+  ↓
+<SyncDialog /> opens
+  ↓
+Register number pre-filled from localStorage
+Password field empty (NEVER stored)
+  ↓
+User types password + clicks "Sync now"
+  ↓
+Calls getStudentService().login() (re-scrapes KTU)
+  ↓
+  ┌─ Success ────────────────────────────────┐
+  │  Scraper fetches fresh profile + results │
+  │  CachedStudentData updated (24h TTL)     │
+  │  New access token cookie issued          │
+  │  lastSyncedAt = now                      │
+  │  Profile updated in auth store           │
+  │  ✓ Success state shown 1.5s              │
+  │  Dialog auto-closes                      │
+  └──────────────────────────────────────────┘
+  ┌─ Failure ────────────────────────────────┐
+  │  Friendly error message shown            │
+  │  Dialog stays open for retry             │
+  └──────────────────────────────────────────┘
+```
+
+### PDF download fix (new)
+
+```
+User clicks Download on a paper card
+  ↓
+window.open('/api/v1/papers/[id]/download', '_blank')
+  ↓
+GET /api/v1/papers/[id]/download
+  ↓
+  ┌─ Auth check (httpOnly cookie) ───────────┐
+  │  401 if not logged in                    │
+  └──────────────────────────────────────────┘
+  ↓
+Look up paper by id (skip soft-deleted)
+  ↓
+Build clean filename: "Os — END SEM May 2026.pdf"
+  ↓
+Generate 2-minute signed R2 URL with:
+  ResponseContentDisposition: attachment; filename="Os — END SEM May 2026.pdf"
+  ↓
+Increment download counter
+  ↓
+302 redirect to signed URL
+  ↓
+Browser downloads PDF with clean filename ✓
+```
+
+### Validation
+
+- `npx tsc --noEmit` → **0 errors**
+- `npx eslint src/` → **0 errors, 0 warnings**
+- `npx next build` → **compiled successfully in 10.0s**
+- Dev server smoke test:
+  - Home: 200 ✓
+  - Admin: 200 ✓
+  - Admin notices/calendar/papers: 200 ✓
+  - `POST /api/v1/refresh` 401 (correct — no cookie in test) ✓
+  - Server Action errors: 0 ✓
+- DB verification:
+  - 1 real paper ("Os", R2 key `papers/CSE/2026/09/C340-END_SEM.pdf`) ✓
+  - 1 real calendar event ✓
+  - 1 real timetable ✓
+  - 0 mock data remaining ✓
+
+### Notes for future agents
+
+- The `SessionRestore` component runs `initialize()` on every app boot. If the refresh token is valid, the user is logged in instantly with cached data (up to 24h old). If not, they stay logged out — no error shown.
+- The `lastSyncedAt` + `rememberedRegisterNumber` fields are persisted to localStorage via Zustand's `persist` middleware. The `session` + `profile` are NOT persisted — they're reconstructed on boot via `/api/v1/refresh`. This avoids stale session data if the refresh token has expired.
+- The Sync button is only visible when `isAuthenticated` is true. If the session expired (but `lastSyncedAt` is recent), the user sees the stale-data banner on the dashboard with a "Sync now" button — clicking it opens the SyncDialog which re-authenticates.
+- The PDF download now uses `ResponseContentDisposition` on the signed URL so the browser saves with a clean filename. This required adding the `contentDisposition` param to `getSignedDownloadUrl()` in `r2.ts`.
+- The `scripts/cleanup-mock-data.ts` + `scripts/cleanup-test-notices.ts` are one-off scripts — they don't need to run again. They're kept for audit trail.
+- Mock data is gone for good — the new `prisma/seed.ts` only seeds branches + semesters (reference data). Real content is always added via `/admin`.
+

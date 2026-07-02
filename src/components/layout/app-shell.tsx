@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   User,
+  RefreshCw,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavStore } from "@/store/nav-store";
@@ -28,6 +29,8 @@ import type { NavKey } from "@/lib/constants";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 import { getAnalyticsProvider } from "@/lib/providers/analytics";
+import { formatRelativeTime } from "@/lib/utils/calc";
+import { SyncDialog } from "@/features/sync/sync-dialog";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Home,
@@ -49,10 +52,13 @@ export function AppShell({ children }: AppShellProps) {
   const setSearchOpen = useNavStore((s) => s.setSearchOpen);
   const setSupportOpen = useNavStore((s) => s.setSupportOpen);
   const setLoginOpen = useNavStore((s) => s.setLoginOpen);
+  const setSyncOpen = useNavStore((s) => s.setSyncOpen);
   const resolved = useThemeStore((s) => s.resolved);
   const toggleTheme = useThemeStore((s) => s.toggle);
   const isSupporter = useSupporterStore((s) => s.isSupporter);
   const profile = useAuthStore((s) => s.profile);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const lastSyncedAt = useAuthStore((s) => s.lastSyncedAt);
   const [mobileMenu, setMobileMenu] = useState(false);
 
   const navigate = (key: NavKey) => {
@@ -154,6 +160,27 @@ export function AppShell({ children }: AppShellProps) {
                 >
                   <Heart className="size-3.5" fill="currentColor" />
                   Support
+                </button>
+              )}
+
+              {/* Sync button — only shown when authenticated. Opens the
+                  SyncDialog which asks for the KTU password to re-fetch
+                  fresh data from the scraper. Tooltip shows last sync time. */}
+              {isAuthenticated && (
+                <button
+                  onClick={() => setSyncOpen(true)}
+                  className="size-10 rounded-xl hover:bg-secondary flex items-center justify-center transition relative group"
+                  aria-label="Sync fresh data from KTU"
+                  title={
+                    lastSyncedAt
+                      ? `Last synced ${formatRelativeTime(lastSyncedAt)} — click to sync fresh data`
+                      : "Sync fresh data from KTU"
+                  }
+                >
+                  <RefreshCw className="size-5 text-muted-foreground group-hover:text-foreground transition" />
+                  {lastSyncedAt && (
+                    <span className="absolute -bottom-0.5 -right-0.5 size-2 rounded-full bg-emerald-500 border border-background" />
+                  )}
                 </button>
               )}
 
@@ -322,6 +349,7 @@ export function AppShell({ children }: AppShellProps) {
         )}
       </AnimatePresence>
       <ScrollToTop />
+      <SyncDialog />
     </div>
   );
 }

@@ -19,6 +19,7 @@ import {
   Clock,
   ChevronRight,
   Heart,
+  RefreshCw,
 } from "lucide-react";
 import { GlassCard } from "@/components/ui-custom/glass-card";
 import { StatCard } from "@/components/ui-custom/stat-card";
@@ -89,6 +90,14 @@ export function Dashboard() {
 
   // Fetch dashboard data via Server Actions + TanStack Query
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const lastSyncedAt = useAuthStore((s) => s.lastSyncedAt);
+  const setSyncOpen = useNavStore((s) => s.setSyncOpen);
+
+  // Stale data check — show a "sync" banner if data is > 24h old (or never synced)
+  const isStale =
+    isAuthenticated &&
+    (!lastSyncedAt || Date.now() - new Date(lastSyncedAt).getTime() > 24 * 60 * 60 * 1000);
+
   const { data: stats } = useQuery({
     queryKey: ["dashboard", "stats"],
     queryFn: () => getDashboardStats(),
@@ -233,6 +242,34 @@ export function Dashboard() {
           </div>
         </div>
       </motion.div>
+
+      {/* Stale data banner — shown when cached data is > 24h old (or never synced) */}
+      {isStale && (
+        <motion.div
+          initial={prefersReduced ? false : { opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="amber-card rounded-2xl p-4 flex items-center gap-3 flex-wrap"
+        >
+          <Clock className="size-5 text-amber-600 shrink-0" />
+          <div className="flex-1 min-w-[200px]">
+            <p className="text-sm font-medium text-foreground">
+              {!lastSyncedAt
+                ? "Sync your data to see latest CGPA and results"
+                : `Data last synced ${formatRelativeTime(lastSyncedAt)}`}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Tap sync to re-fetch fresh data from KTU.
+            </p>
+          </div>
+          <button
+            onClick={() => setSyncOpen(true)}
+            className="btn-tactile px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1.5 shrink-0"
+          >
+            <RefreshCw className="size-3.5" />
+            Sync now
+          </button>
+        </motion.div>
+      )}
 
       {/* Quick stats — index cards pinned to a corkboard */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -25,6 +25,7 @@ import { BRANCHES, SEMESTERS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils/calc";
 import { useBookmarks } from "@/features/bookmarks/use-bookmarks";
 import { getNotificationProvider } from "@/lib/providers/notification";
+import { getAnalyticsProvider } from "@/lib/providers/analytics";
 import type { BranchCode, SemesterNumber } from "@/lib/types";
 
 export function Syllabus() {
@@ -147,13 +148,15 @@ export function Syllabus() {
                       <Button
                         size="sm"
                         className="h-8 flex-1 rounded-full"
-                        onClick={() =>
+                        onClick={() => {
+                          getAnalyticsProvider().track({ name: "paper_downloaded", props: { paperId: s.id } });
                           getNotificationProvider().show({
-                            kind: "success",
-                            title: "Download started",
+                            kind: "info",
+                            title: "Preparing download…",
                             message: s.title,
-                          })
-                        }
+                          });
+                          window.open(`/api/v1/syllabus/${s.id}/download`, "_blank", "noopener,noreferrer");
+                        }}
                       >
                         <Download className="size-3.5 mr-1" /> Download
                       </Button>

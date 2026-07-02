@@ -83,14 +83,25 @@ export async function uploadToR2(
  *
  * @param key                 object key
  * @param expiresInSeconds    URL validity (default 120s — keep short)
+ * @param contentDisposition  optional `response-content-disposition` header
+ *                            override (e.g. `attachment; filename="..."`).
+ *                            Makes the browser save with a clean filename
+ *                            instead of displaying the raw object key.
  */
 export async function getSignedDownloadUrl(
   key: string,
   expiresInSeconds = 120,
+  contentDisposition?: string,
 ): Promise<string> {
   const bucket = getBucketName();
   const client = getClient();
-  const command = new GetObjectCommand({ Bucket: bucket, Key: key });
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: key,
+    ...(contentDisposition
+      ? { ResponseContentDisposition: contentDisposition }
+      : {}),
+  });
   return getSignedUrl(client, command, { expiresIn: expiresInSeconds });
 }
 

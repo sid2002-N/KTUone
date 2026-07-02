@@ -68,13 +68,26 @@ export function Papers() {
     setYear("ALL");
   };
 
-  const onDownload = (paperId: string, title: string) => {
+  const onDownload = async (paperId: string, title: string) => {
     getAnalyticsProvider().track({ name: "paper_downloaded", props: { paperId } });
     getNotificationProvider().show({
-      kind: "success",
-      title: "Download started",
+      kind: "info",
+      title: "Preparing download…",
       message: title,
     });
+    try {
+      // The download route authenticates via httpOnly cookie, generates a
+      // 2-minute signed R2 URL, increments the download counter, and 302-
+      // redirects. Opening in a new tab lets the browser handle the redirect
+      // + PDF display without navigating the student away from the papers list.
+      window.open(`/api/v1/papers/${paperId}/download`, "_blank", "noopener,noreferrer");
+    } catch {
+      getNotificationProvider().show({
+        kind: "error",
+        title: "Download failed",
+        message: "Please try again or check your login.",
+      });
+    }
   };
 
   const onBookmark = (paperId: string, title: string) => {
@@ -256,7 +269,11 @@ export function Papers() {
                       size="sm"
                       variant="secondary"
                       className="h-9 rounded-full"
-                      onClick={() => onDownload(p.id, p.title)}
+                      onClick={() => {
+                        // View = same download URL (browser renders the PDF inline)
+                        getAnalyticsProvider().track({ name: "paper_viewed", props: { paperId: p.id } });
+                        window.open(`/api/v1/papers/${p.id}/download`, "_blank", "noopener,noreferrer");
+                      }}
                     >
                       <Eye className="size-3.5" />
                     </Button>

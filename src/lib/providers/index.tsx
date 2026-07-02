@@ -8,6 +8,7 @@ import { useSupporterStore } from "@/store/supporter-store";
 import { getAdsProvider } from "@/lib/providers/ads";
 import { AdSenseScript } from "@/lib/providers/adsense-script";
 import { AdMobInitializer } from "@/lib/providers/admob-initializer";
+import { SessionRestore } from "@/lib/providers/session-restore";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
@@ -86,6 +87,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ThemeSync />
         <SupporterAdsSync />
         <AdLayers />
+        <SessionRestore />
         {children}
       </QueryClientProvider>
     </ThemeProvider>
