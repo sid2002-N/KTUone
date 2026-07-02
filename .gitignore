@@ -55,3 +55,11 @@ prompt
 server.log
 # Skills directory
 /skills/
+
+# Credentials & secrets — NEVER commit
+/download/keys.md
+/download/*.md
+*.secret
+*.key
+credentials*
+secrets*
