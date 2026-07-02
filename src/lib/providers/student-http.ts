@@ -2,7 +2,8 @@
  * HttpStudentService — talks to the BFF API routes (login, refresh, logout,
  * profile, results, cgpa). Cookies handle JWT transport automatically.
  *
- * Drop-in replacement for MockStudentService. UI code unchanged.
+ * This is the default StudentService implementation; UI code is agnostic to
+ * the underlying transport via the StudentService interface.
  */
 import type {
   AuthSession,

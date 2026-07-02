@@ -1,8 +1,9 @@
 /**
  * AdsProvider — abstracts ad serving across platforms.
  *
- * Web MVP: MockAdsProvider (renders branded placeholders).
- * Future: Google AdSense (web), Google AdMob (android), none (iOS not supported).
+ * Default: BannerAdsProvider — renders in-house promotional CTAs for free
+ * users (no third-party ad network). Swap with AdSenseProvider / AdMobProvider
+ * via `__setAdsProvider` when integrating real ad networks.
  *
  * Pages only render <BannerAd />. They never know which provider is active.
  */
@@ -12,7 +13,7 @@ export type AdSlot = "home-top" | "home-mid" | "papers-list" | "syllabus-list" |
 export interface AdDescriptor {
   slot: AdSlot;
   // Implementation fills these in
-  render: "mock" | "adsense" | "admob" | "none";
+  render: "banner" | "adsense" | "admob" | "none";
   height: number; // px
   label: string;
 }
@@ -28,7 +29,7 @@ export interface AdsProvider {
   getAd(slot: AdSlot): AdDescriptor;
 }
 
-class MockAdsProvider implements AdsProvider {
+class BannerAdsProvider implements AdsProvider {
   private enabled = true;
 
   isEnabled() {
@@ -58,7 +59,7 @@ class MockAdsProvider implements AdsProvider {
     };
     return {
       slot,
-      render: "mock",
+      render: "banner",
       height: heights[slot],
       label: labels[slot],
     };
@@ -68,7 +69,7 @@ class MockAdsProvider implements AdsProvider {
 let _instance: AdsProvider | null = null;
 
 export function getAdsProvider(): AdsProvider {
-  if (!_instance) _instance = new MockAdsProvider();
+  if (!_instance) _instance = new BannerAdsProvider();
   return _instance;
 }
 

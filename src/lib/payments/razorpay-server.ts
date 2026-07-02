@@ -77,7 +77,7 @@ export async function createOrder(
 
   return {
     orderId: order.id,
-    amount: order.amount ?? SUPPORTER_AMOUNT_PAISE,
+    amount: Number(order.amount ?? SUPPORTER_AMOUNT_PAISE),
     currency: order.currency ?? "INR",
     purchaseId: purchase.id,
     keyId,

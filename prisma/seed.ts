@@ -1,27 +1,23 @@
 /**
- * KTU One — Database seed script
- * Ports src/data/mock-data.ts into Prisma rows.
+ * KTU One — Database seed script (reference data only).
+ *
+ * Seeds ONLY curated reference data: branches, semesters, and the default
+ * app-settings row. Real content (papers, syllabus, notices, calendar events,
+ * timetables) is added by admins via /admin after deployment — that is the
+ * intended production flow, so this seed deliberately does NOT fabricate any
+ * fake content.
+ *
  * Run with: bun run db:seed
  */
 import { PrismaClient } from "@prisma/client";
-import {
-  BRANCHES,
-  SEMESTERS,
-} from "../src/lib/constants";
-import {
-  SUBJECTS,
-  MOCK_PAPERS,
-  MOCK_SYLLABUS,
-  MOCK_NOTICES,
-  MOCK_CALENDAR,
-} from "../src/data/mock-data";
+import { BRANCHES, SEMESTERS } from "../src/lib/constants";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding KTU One database...");
+  console.log("🌱 Seeding KTU One reference data…");
 
-  // 1. Branches
+  // 1. Branches — the canonical KTU branch list.
   console.log("  → Branches");
   for (const b of BRANCHES) {
     await prisma.branch.upsert({
@@ -31,8 +27,9 @@ async function main() {
     });
   }
 
-  // 2. Semesters (one per branch × 8)
+  // 2. Semesters — one row per (branch × semester × academic year).
   console.log("  → Semesters");
+  const academicYear = "2025-2026";
   for (const branch of BRANCHES) {
     for (const num of SEMESTERS) {
       await prisma.semester.upsert({
@@ -40,147 +37,21 @@ async function main() {
           number_branchCode_academicYear: {
             number: num,
             branchCode: branch.code,
-            academicYear: "2025-2026",
+            academicYear,
           },
         },
         update: {},
         create: {
           number: num,
           branchCode: branch.code,
-          academicYear: "2025-2026",
+          academicYear,
           totalCredits: 24,
         },
       });
     }
   }
 
-  // 3. Subjects (only the CSE ones in mock-data)
-  console.log("  → Subjects");
-  for (const s of SUBJECTS) {
-    await prisma.subject.upsert({
-      where: { code: s.code },
-      update: {
-        name: s.name,
-        semester: s.semester,
-        branchCode: s.branchCode,
-        credits: s.credits,
-        type: s.type,
-        isElective: s.isElective,
-        isLab: s.isLab,
-      },
-      create: {
-        code: s.code,
-        name: s.name,
-        semester: s.semester,
-        branchCode: s.branchCode,
-        credits: s.credits,
-        type: s.type,
-        isElective: s.isElective,
-        isLab: s.isLab,
-      },
-    });
-  }
-
-  // 4. Question papers (clear + reinsert to keep things deterministic)
-  console.log("  → Question papers");
-  await prisma.questionPaper.deleteMany({});
-  for (const p of MOCK_PAPERS) {
-    await prisma.questionPaper.create({
-      data: {
-        title: p.title,
-        subjectCode: p.subjectCode,
-        subjectName: p.subjectName,
-        semester: p.semester,
-        branchCode: p.branchCode,
-        year: p.year,
-        month: p.month,
-        examType: p.examType,
-        fileUrl: p.fileUrl,
-        fileSizeBytes: p.fileSizeBytes,
-        pageCount: p.pageCount,
-        downloads: p.downloads,
-        views: p.views,
-        uploadedAt: new Date(p.uploadedAt),
-      },
-    });
-  }
-
-  // 5. Syllabus
-  console.log("  → Syllabus");
-  await prisma.syllabus.deleteMany({});
-  for (const s of MOCK_SYLLABUS) {
-    await prisma.syllabus.create({
-      data: {
-        title: s.title,
-        semester: s.semester,
-        branchCode: s.branchCode,
-        subjectCode: s.subjectCode,
-        subjectName: s.subjectName,
-        version: s.version,
-        fileUrl: s.fileUrl,
-        lastUpdated: new Date(s.lastUpdated),
-        modules: s.modules,
-      },
-    });
-  }
-
-  // 6. Notices (upsert by key — so we don't duplicate on re-seed)
-  console.log("  → Notices");
-  for (const n of MOCK_NOTICES) {
-    const slug = n.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 100);
-    await prisma.kTUNotice.upsert({
-      where: { key: slug },
-      update: {
-        title: n.title,
-        description: n.description,
-        category: n.category,
-        publishedAt: new Date(n.publishedAt),
-        priority: n.priority,
-        pdfUrl: n.pdfUrl ?? null,
-        externalUrl: n.externalUrl ?? null,
-        tags: JSON.stringify(n.tags),
-        pinned: n.pinned,
-        active: n.active,
-      },
-      create: {
-        key: slug,
-        title: n.title,
-        description: n.description,
-        category: n.category,
-        publishedAt: new Date(n.publishedAt),
-        priority: n.priority,
-        pdfUrl: n.pdfUrl ?? null,
-        externalUrl: n.externalUrl ?? null,
-        tags: JSON.stringify(n.tags),
-        pinned: n.pinned,
-        active: n.active,
-      },
-    });
-  }
-
-  // 7. Calendar events
-  console.log("  → Calendar events");
-  await prisma.calendarEvent.deleteMany({});
-  for (const e of MOCK_CALENDAR) {
-    await prisma.calendarEvent.create({
-      data: {
-        title: e.title,
-        description: e.description,
-        type: e.type,
-        startDate: new Date(e.startDate),
-        endDate: new Date(e.endDate),
-        allDay: e.allDay,
-        color: e.color,
-        reminderEnabled: e.reminderEnabled,
-      },
-    });
-  }
-
-  // 8. Default app settings
+  // 3. App settings — single seed row used to bootstrap the settings table.
   console.log("  → App settings");
   await prisma.appSettings.upsert({
     where: { key: "app.version" },
@@ -190,12 +61,8 @@ async function main() {
 
   console.log("✅ Seed complete");
   console.log(`   ${BRANCHES.length} branches`);
-  console.log(`   ${BRANCHES.length * SEMESTERS.length} semesters`);
-  console.log(`   ${SUBJECTS.length} subjects`);
-  console.log(`   ${MOCK_PAPERS.length} question papers`);
-  console.log(`   ${MOCK_SYLLABUS.length} syllabus entries`);
-  console.log(`   ${MOCK_NOTICES.length} notices`);
-  console.log(`   ${MOCK_CALENDAR.length} calendar events`);
+  console.log(`   ${BRANCHES.length * SEMESTERS.length} semesters (${academicYear})`);
+  console.log("   0 papers / syllabus / notices / calendar / timetables — add via /admin");
 }
 
 main()

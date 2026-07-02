@@ -1,13 +1,16 @@
 /**
  * PaymentProvider — abstracts the supporter purchase flow.
  *
- * MVP: MockPaymentProvider (simulates success after short delay).
- * Future: RazorpayProvider (web), Google Play Billing (android), Apple IAP (ios).
+ * The default implementation is RazorpayPaymentProvider (talks to
+ * /api/v1/payments/create-order + /api/v1/payments/verify via the BFF, opens
+ * the Razorpay checkout modal). For tests or platform variants, swap with
+ * `__setPaymentProvider`.
  *
  * Pages only call PaymentProvider.initiatePurchase() — never Razorpay directly.
  */
 
 import type { PaymentProvider as ProviderName, SupporterPurchase } from "@/lib/types";
+import { RazorpayPaymentProvider } from "@/lib/providers/payment-razorpay";
 
 export interface InitiatePurchaseInput {
   studentId?: string;
@@ -32,45 +35,10 @@ export interface PaymentProvider {
   cancelPurchase?(purchaseId: string): Promise<void>;
 }
 
-class MockPaymentProvider implements PaymentProvider {
-  readonly name: ProviderName = "Mock";
-
-  async initiatePurchase(input: InitiatePurchaseInput): Promise<InitiatePurchaseResult> {
-    await new Promise((r) => setTimeout(r, 1200));
-    const purchaseId = `purchase_${Date.now()}`;
-    const transactionId = `txn_${Math.random().toString(36).slice(2, 12).toUpperCase()}`;
-    return {
-      purchaseId,
-      status: "Success",
-      provider: "Mock",
-      transactionId,
-      receiptUrl: undefined,
-    };
-  }
-
-  async verifyPurchase(purchaseId: string): Promise<SupporterPurchase> {
-    await new Promise((r) => setTimeout(r, 300));
-    return {
-      id: purchaseId,
-      amount: 99,
-      currency: "INR",
-      status: "Success",
-      provider: "Mock",
-      transactionId: `txn_${Math.random().toString(36).slice(2, 12).toUpperCase()}`,
-      purchasedAt: new Date().toISOString(),
-    };
-  }
-
-  async restorePurchase(studentId?: string): Promise<SupporterPurchase | null> {
-    await new Promise((r) => setTimeout(r, 300));
-    return null;
-  }
-}
-
 let _instance: PaymentProvider | null = null;
 
 export function getPaymentProvider(): PaymentProvider {
-  if (!_instance) _instance = new MockPaymentProvider();
+  if (!_instance) _instance = new RazorpayPaymentProvider();
   return _instance;
 }
 

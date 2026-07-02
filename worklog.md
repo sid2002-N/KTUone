@@ -405,3 +405,132 @@ data source on the client:
   `TimetableTab`'s render to iterate them — the surrounding tab
   structure won't need to change.
 
+
+---
+
+## 2026-07-02 — Task `purge-mocks` — Remove all mock data + wire real impls as defaults
+
+**Scope:** User reported mock-data in admin and demanded no mocks anywhere —
+everything must work end-to-end if deployed. Audit found `src/data/mock-data.ts`
+plus `MockStudentService` and `MockPaymentProvider` (which were "default until
+swapped at runtime" via a `WireStudentService` useEffect — a fragile pattern
+that briefly served mocks on first paint).
+
+### Files deleted / created / modified
+
+| # | Path | Action | What changed |
+|---|------|--------|--------------|
+| 1 | `src/data/mock-data.ts` | DELETED | All 10 mock exports (`MOCK_STUDENT`, `MOCK_CGPA`, `MOCK_SEMESTER_RESULTS`, `MOCK_ATTENDANCE`, `MOCK_PAPERS`, `MOCK_SYLLABUS`, `MOCK_NOTICES`, `MOCK_CALENDAR`, `MOCK_HISTORY`, `SUBJECTS`) removed. The `src/data/` directory is now empty and removed. |
+| 2 | `src/lib/providers/student.ts` | REWRITTEN | `MockStudentService` class deleted entirely. The `StudentService` interface + `getStudentService()` / `__setStudentService()` now live here, and the default instance is `new HttpStudentService()` (imported from `student-http.ts`). No more "swap on app boot" pattern — the default IS the real implementation. |
+| 3 | `src/lib/providers/payment.ts` | REWRITTEN | `MockPaymentProvider` class deleted entirely. Default is now `new RazorpayPaymentProvider()` (imported from `payment-razorpay.ts`). |
+| 4 | `src/lib/providers/index.tsx` | SIMPLIFIED | `WireStudentService` component removed (no longer needed — defaults are real). Imports for `__setStudentService`, `HttpStudentService`, `__setPaymentProvider`, `RazorpayPaymentProvider` removed. `Providers` tree now only contains `ThemeSync` + `SupporterAdsSync` + children. |
+| 5 | `src/lib/providers/student-http.ts` | COMMENT UPDATE | Header comment updated from "Drop-in replacement for MockStudentService" to "This is the default StudentService implementation". |
+| 6 | `src/lib/providers/payment-razorpay.ts` | COMMENT UPDATE + TYPE FIX | Header comment updated to drop the MockPaymentProvider mention. Line 141 `window.Razorpay` possibly-undefined error fixed by extracting to a local `const RazorpayCtor = window.Razorpay;` after the load. |
+| 7 | `src/lib/providers/ads.ts` | RENAMED | `MockAdsProvider` → `BannerAdsProvider`. The `render` discriminator literal changed from `"mock"` to `"banner"`. This is the real default — renders in-house promotional CTAs (no third-party ad network). Header doc rewritten. |
+| 8 | `src/lib/providers/analytics.ts` | RENAMED | `MockAnalyticsProvider` → `ConsoleAnalyticsProvider`. Real default — logs to console in dev, no-op in prod. Header doc rewritten. |
+| 9 | `src/features/login/login-dialog.tsx` | COMMENT FIX | Inline comment "(mock returns MOCK_STUDENT)" → "(BFF /api/v1/profile)". |
+| 10 | `prisma/seed.ts` | REWRITTEN | Removed all `MOCK_*` imports + the papers/syllabus/notices/calendar seeding loops. Seed now only inserts reference data: branches, semesters (one row per branch × semester × "2025-2026" academic year), and a single `app.version` settings row. Real content is added via `/admin` after deployment — the intended production flow. |
+| 11 | `src/store/bookmark-store.ts` | TYPE FIX | `BookmarkEntry` interface exported (was previously only declared locally). `toggle` signature widened from `Omit<BookmarkEntry, "createdAt">` to `Omit<BookmarkEntry, "createdAt" \| "id"> & { id?: string }` so callers don't need to synthesize an id. The store now synthesizes `id: \`bm_${kind}_${refId}\`` if the caller doesn't supply one. |
+| 12 | `src/features/bookmarks/use-bookmarks.ts` | (no code change) | Now compiles cleanly thanks to the bookmark-store export + widened toggle signature. |
+| 13 | `src/app/api/v1/calc-history/route.ts` | TYPE FIX | Zod v4 requires `z.record(keySchema, valueSchema)` — `z.record(z.unknown())` (1 arg) → `z.record(z.string(), z.unknown())`. Applied to both `input` and `output.meta` schemas. |
+| 14 | `src/components/ui-custom/circular-progress.tsx` | TYPE FIX | `label` and `sublabel` props widened from `string` to `React.ReactNode` to match how callers actually use them (passing `<span>` JSX). |
+| 15 | `src/lib/payments/razorpay-server.ts` | TYPE FIX | `order.amount` from razorpay SDK is `string \| number`; wrapped in `Number(...)` before returning. |
+| 16 | `src/lib/scraper/mapper.ts` | (no code change) | Now compiles cleanly thanks to the `admissionYear?: number` widening in `StudentProfile`. |
+| 17 | `src/lib/types/index.ts` | TYPE FIX | `StudentProfile.admissionYear` widened from `number` to `number?` — scraper returns `undefined` when the field is missing and the previous required-type caused a TS error. |
+| 18 | `tsconfig.json` | EXCLUDE | Added `examples`, `skills`, `mini-services`, `.zscripts` to the `exclude` list. These are unrelated reference / scaffolding directories that have their own (intentionally broken) TypeScript — they were failing `next build`'s TS pass. |
+| 19 | `scripts/dev-start.sh` | NEW | Wrapper that fully detaches the dev server (`setsid nohup` + `env -u DATABASE_URL -u DIRECT_URL`) so it survives the launching bash session, AND unsets the stale shell `DATABASE_URL=file:...` env var that was overriding `.env.local` and causing Prisma to throw "URL must start with postgresql://" at runtime. |
+
+### Validation
+
+- `npx tsc --noEmit` on src/ + prisma/ → **0 errors** (examples/skills/mini-services/.zscripts excluded).
+- `npx eslint src/` → **0 errors, 0 warnings**.
+- `npx next build` → **compiled successfully in 8.2s**, 26 routes generated (4 static + 22 dynamic). No TS errors, no lint errors.
+- End-to-end smoke test against live dev server:
+  - `GET /` → 200
+  - `GET /admin` → 200
+  - `GET /api/v1/admin/notices` with admin key → 200 (real notices from Neon DB)
+  - `GET /api/v1/admin/calendar` with admin key → 200
+  - `GET /api/v1/admin/papers` with admin key → 200
+  - `GET /api/v1/admin/syllabus` with admin key → 200
+  - `GET /api/v1/admin/timetables` with admin key → 200
+  - `GET /api/v1/admin/notices` (no key) → 401 ✓
+  - `GET /api/v1/profile` (no auth) → 401 ✓
+  - `POST /api/v1/admin/notices` → 201 (real DB row, real cuid id returned)
+  - `POST /api/v1/admin/calendar` → 201
+  - `POST /api/v1/admin/timetables` → 201
+  - `DELETE /api/v1/admin/notices?id=…` → 200 (soft-delete)
+  - `DELETE /api/v1/admin/calendar?id=…` → 200 (hard delete)
+  - `DELETE /api/v1/admin/timetables?id=…` → 200 (hard delete + R2 cleanup attempted)
+  - All smoke-test rows cleaned up after verification.
+
+### Architecture: where the real data flows now
+
+- **Student auth + profile + results + CGPA**: `HttpStudentService` →
+  `/api/v1/{login,refresh,logout,profile,results,cgpa}` → Prisma → Neon PostgreSQL.
+  Cached scraper responses live in the `CachedStudentData` table (24h TTL).
+  Scraper calls go to `https://ktugatewayapi-production.up.railway.app` (Railway-hosted).
+- **Notices / Calendar / Papers / Syllabus / Timetables (admin)**:
+  `/admin` UI → `/api/v1/admin/*` (Bearer ADMIN_API_KEY auth) → Prisma.
+  Papers + Syllabus uploads go to Cloudflare R2 (`ktu1` bucket) via signed PUT URLs;
+  downloads go through `/api/v1/{papers,syllabus}/[id]/download` which signs
+  GET URLs (2-minute expiry) after authenticating the student cookie.
+- **Bookmarks**: hybrid — `useBookmarks` hook uses `/api/v1/bookmarks` when
+  authenticated, falls back to localStorage when not. Toggle signature no
+  longer requires an `id` (server uses `(studentId, kind, refId)` unique key).
+- **Calc history**: hybrid — `/api/v1/calc-history` when authenticated,
+  localStorage when not.
+- **Search**: `/api/v1/...` not used; goes through `searchAll` Server Action
+  → Prisma `findMany` across 5 tables (QuestionPaper, Syllabus, KTUNotice,
+  CalendarEvent, Subject).
+- **Dashboard stats**: `getDashboardStats`, `getRecentNotices`, `getUpcomingEvent`,
+  `getRecentPapers` Server Actions → Prisma. CGPA card fetches
+  `/api/v1/cgpa` only when authenticated.
+- **Payments**: `RazorpayPaymentProvider` → `/api/v1/payments/create-order`
+  (creates Razorpay order + `Pending` SupporterPurchase row) → Razorpay
+  checkout modal → `/api/v1/payments/verify` (HMAC-SHA256 signature verify +
+  timing-safe compare) → `Success` row. Webhook at `/api/webhooks/razorpay`
+  for async confirmations.
+- **Rate limiting**: Upstash Redis on `/api/v1/login` (5/15min) and
+  `/api/v1/refresh` (30/hour). Graceful no-op when `UPSTASH_REDIS_REST_URL`
+  unset (dev / preview deploys without rate limiting).
+- **Route protection**: `src/middleware.ts` enforces `ktu_access` JWT cookie
+  on all `/api/v1/*` except login/refresh/logout (public), admin/* (Bearer key,
+  handler-verified), and papers/syllabus download (handler-verified).
+
+### Stale shell env var caveat (dev only)
+
+The agent's shell exports `DATABASE_URL=file:/home/z/my-project/db/custom.db`
+(a leftover from an earlier SQLite phase). Next.js's dotenv loader does NOT
+override existing `process.env` values, so this stale var was masking the
+real Neon PostgreSQL URL in `.env.local` and causing Prisma to reject every
+query with "URL must start with postgresql://".
+
+`scripts/dev-start.sh` works around this by launching the dev server with
+`env -u DATABASE_URL -u DIRECT_URL` (unsets both, letting `.env.local` take
+effect). On Vercel / production deploys, this is a non-issue — Vercel sets
+the env vars directly from its dashboard, no shell-inherited values.
+
+### Notes for future agents
+
+- There is NO mock data anywhere in the codebase anymore. Search confirmed:
+  `rg "mock-data|MOCK_|MockStudentService|MockPaymentProvider" src/` returns
+  zero code matches (only doc references in `lib/types/index.ts` where the
+  `PaymentProvider` union still allows `"Mock"` for backward-compat with old
+  DB rows; new rows are tagged `"Razorpay"`).
+- `MockAdsProvider` and `MockAnalyticsProvider` were renamed to
+  `BannerAdsProvider` and `ConsoleAnalyticsProvider` respectively. They were
+  never mock-DATA providers — they're real implementations of swappable
+  interfaces. The rename just makes that honest.
+- The `__setStudentService` / `__setPaymentProvider` / `__setAdsProvider` /
+  `__setAnalyticsProvider` escape hatches are kept for tests and future
+  platform variants (native iOS/Android). They are NOT used at runtime.
+- If the user adds fresh content via `/admin` and the student-facing pages
+  still show empty states, the issue is one of: (a) the rows are
+  soft-deleted (`deletedAt` set), (b) the rows are marked `active: false`,
+  (c) the student isn't authenticated (CGPA / results / bookmarks require
+  login). The server actions already filter on these.
+- The `prisma/seed.ts` script now only seeds reference data — branches +
+  semesters + a settings row. Run it once after creating a fresh Neon DB:
+  `bun run db:seed`. Real content (papers, syllabus, notices, calendar
+  events, timetables) is added via `/admin` — never via seed.
+

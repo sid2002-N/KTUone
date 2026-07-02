@@ -69,7 +69,7 @@ export function LoginDialog() {
         issuedAt: Date.now(),
       };
       setSession(session);
-      // Fetch full profile via StudentService (mock returns MOCK_STUDENT)
+      // Fetch full profile via StudentService (BFF /api/v1/profile)
       const profile = await getStudentService().getProfile();
       setProfile(profile satisfies StudentProfile);
       getAnalyticsProvider().track({

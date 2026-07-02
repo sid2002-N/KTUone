@@ -2,8 +2,7 @@
  * Razorpay client-side payment provider.
  *
  * Implements the PaymentProvider interface from @/lib/providers/payment so
- * the UI can swap MockPaymentProvider ↔ RazorpayPaymentProvider without
- * touching page code.
+ * the UI can swap providers without touching page code.
  *
  * Flow:
  *   1. initiatePurchase(input):
@@ -131,14 +130,15 @@ export class RazorpayPaymentProvider implements PaymentProvider {
 
     // 2. Load the Razorpay checkout script
     await loadRazorpayScript();
-    if (!window.Razorpay) {
+    const RazorpayCtor = window.Razorpay;
+    if (!RazorpayCtor) {
       throw new Error("Razorpay SDK failed to initialize");
     }
 
     // 3. Open the modal and await the handler / dismiss
     const paymentResult = await new Promise<RazorpayHandlerResponse>(
       (resolve, reject) => {
-        const rz = new window.Razorpay({
+        const rz = new RazorpayCtor({
           key: order.keyId,
           amount: order.amount,
           currency: order.currency,

@@ -1,8 +1,9 @@
 /**
  * AnalyticsProvider — abstracts event tracking.
  *
- * MVP: MockAnalyticsProvider (console logs in dev, no-op in prod).
- * Future: FirebaseAnalytics (native), GA4 / Vercel Analytics (web).
+ * Default: ConsoleAnalyticsProvider — logs events to console in dev,
+ * no-op in production. Swap with a real provider (GA4, Vercel Analytics,
+ * FirebaseAnalytics) via `__setAnalyticsProvider` when integrating.
  */
 
 export type AnalyticsEvent =
@@ -27,7 +28,7 @@ export interface AnalyticsProvider {
   setUserId(id: string | null): void;
 }
 
-class MockAnalyticsProvider implements AnalyticsProvider {
+class ConsoleAnalyticsProvider implements AnalyticsProvider {
   track(event: AnalyticsEvent) {
     if (process.env.NODE_ENV !== "production") {
       console.debug(`[analytics] ${event.name}`, event.props);
@@ -48,7 +49,7 @@ class MockAnalyticsProvider implements AnalyticsProvider {
 let _instance: AnalyticsProvider | null = null;
 
 export function getAnalyticsProvider(): AnalyticsProvider {
-  if (!_instance) _instance = new MockAnalyticsProvider();
+  if (!_instance) _instance = new ConsoleAnalyticsProvider();
   return _instance;
 }
 

@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-interface BookmarkEntry {
+export interface BookmarkEntry {
   id: string;
   kind: "paper" | "syllabus" | "notice" | "subject";
   refId: string;
@@ -14,7 +14,7 @@ interface BookmarkEntry {
 
 interface BookmarkState {
   entries: BookmarkEntry[];
-  toggle: (entry: Omit<BookmarkEntry, "createdAt">) => boolean;
+  toggle: (entry: Omit<BookmarkEntry, "createdAt" | "id"> & { id?: string }) => boolean;
   has: (kind: BookmarkEntry["kind"], refId: string) => boolean;
   remove: (id: string) => void;
   clear: () => void;
@@ -32,9 +32,10 @@ export const useBookmarkStore = create<BookmarkState>()(
           set((s) => ({ entries: s.entries.filter((e) => e !== exists) }));
           return false;
         }
+        const id = entry.id ?? `bm_${entry.kind}_${entry.refId}`;
         set((s) => ({
           entries: [
-            { ...entry, createdAt: new Date().toISOString() },
+            { ...entry, id, createdAt: new Date().toISOString() },
             ...s.entries,
           ],
         }));

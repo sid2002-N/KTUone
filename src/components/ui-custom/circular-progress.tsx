@@ -9,8 +9,8 @@ interface CircularProgressProps {
   strokeWidth?: number;
   color?: string; // CSS color (defaults to primary)
   trackColor?: string;
-  label?: string;
-  sublabel?: string;
+  label?: React.ReactNode;
+  sublabel?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
 }

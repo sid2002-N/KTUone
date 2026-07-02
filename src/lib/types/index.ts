@@ -58,7 +58,7 @@ export interface StudentProfile {
   semester: SemesterNumber;
   email?: string;
   phone?: string;
-  admissionYear: number;
+  admissionYear?: number;
   scheme: string; // e.g. "2019 Scheme"
   avatarInitials: string;
 }
