@@ -510,6 +510,32 @@
     pointer-events: none;
   }
 
+  /* ========== NAVBAR GLASS — opaque enough to prevent text bleed-through ========== */
+  .navbar-glass {
+    background: oklch(0.978 0.014 78 / 0.92);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+  }
+  .dark .navbar-glass {
+    background: oklch(0.19 0.012 50 / 0.92);
+  }
+
+  /* ========== MOBILE TOUCH OPTIMIZATION ========== */
+  button, [role="button"], a {
+    touch-action: manipulation;
+  }
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
   /* ========== SKETCH BORDERS — hand-drawn outlines ========== */
   /* Wavy imperfect border using SVG mask */
   .sketch-border {

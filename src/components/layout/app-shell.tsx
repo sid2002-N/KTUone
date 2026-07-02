@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { ScrollToTop } from "@/components/ui-custom/scroll-to-top";
 import {
   Home,
   Calculator,
@@ -67,7 +68,7 @@ export function AppShell({ children }: AppShellProps) {
     <div className="min-h-screen flex flex-col bg-background">
       {/* Top navbar */}
       <header className="sticky top-0 z-40 safe-top">
-        <div className="glass border-b border-border/40">
+        <div className="navbar-glass border-b border-border/40">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <button
@@ -222,7 +223,7 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Bottom nav — mobile */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 safe-bottom">
-        <div className="glass-strong border-t border-border/40 px-2 py-2">
+        <div className="navbar-glass border-t border-border/40 px-2 py-2">
           <div className="flex items-center justify-around max-w-md mx-auto">
             {PRIMARY_NAV_KEYS.map((key) => {
               const item = NAV_ITEMS.find((i) => i.key === key)!;
@@ -320,6 +321,7 @@ export function AppShell({ children }: AppShellProps) {
           </div>
         )}
       </AnimatePresence>
+      <ScrollToTop />
     </div>
   );
 }
