@@ -17,17 +17,19 @@ import {
   Sparkles,
   Languages,
   Vibrate,
+  LogOut,
 } from "lucide-react";
-import { PageHeader } from "@/components/layout/page-header";
-import { GlassCard } from "@/components/ui-custom/glass-card";
-import { SketchHeart, SketchNotebook, SketchPencil } from "@/components/ui-custom/sketch-elements";
+import { EmptyState } from "@/components/ui-custom/empty-state";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
 import { useThemeStore } from "@/store/theme-store";
 import { useSupporterStore } from "@/store/supporter-store";
+import { useAuthStore } from "@/store/auth-store";
 import { useNavStore } from "@/store/nav-store";
 import { getAnalyticsProvider } from "@/lib/providers/analytics";
 import { getNotificationProvider } from "@/lib/providers/notification";
+import { getStudentService } from "@/lib/providers/student";
 import { APP_VERSION, UNIVERSITY_NAME, APP_NAME } from "@/lib/constants";
+import { hapticSync } from "@/lib/utils/haptics";
 import { cn } from "@/lib/utils";
 
 export function Settings() {
@@ -36,240 +38,299 @@ export function Settings() {
   const resolved = useThemeStore((s) => s.resolved);
   const isSupporter = useSupporterStore((s) => s.isSupporter);
   const setSupportOpen = useNavStore((s) => s.setSupportOpen);
+  const profile = useAuthStore((s) => s.profile);
+  const clearAuth = useAuthStore((s) => s.clear);
   const prefersReduced = useReducedMotion();
 
-  return (
-    <div>
-      <PageHeader
-        title="Settings"
-        description="Personalise KTU One, manage your account and find help."
-        icon={<SettingsIcon className="size-5" />}
-      />
+  const handleLogout = async () => {
+    hapticSync("medium");
+    await getStudentService().logout();
+    clearAuth();
+    getNotificationProvider().show({
+      kind: "info",
+      title: "Signed out",
+      message: "You can sign back in anytime.",
+    });
+  };
 
-      <div className="space-y-5">
-        {/* Supporter status */}
+  return (
+    <div className="space-y-6">
+      {/* ===== HEADER ===== */}
+      <div>
+        <div className="section-eyebrow">Account</div>
+        <h1 className="section-title text-[28px] md:text-[32px] mt-2">Settings</h1>
+      </div>
+
+      {/* ===== PROFILE CARD ===== */}
+      {profile ? (
         <motion.div
           initial={prefersReduced ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
         >
-          {isSupporter ? (
-            <GlassCard className="p-5">
-              <div className="flex items-center gap-4">
-                <div className="size-12 rounded-2xl bg-gradient-plum flex items-center justify-center">
-                  <Sparkles className="size-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold">You're a Lifetime Supporter</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Ads are removed forever. Thank you 💜
-                  </p>
-                </div>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                  Active
-                </span>
-              </div>
-            </GlassCard>
-          ) : (
-            <GlassCard className="p-5">
-              <div className="flex items-center gap-4">
-                <SketchHeart size={48} color="coral" />
-                <div className="flex-1">
-                  <p className="font-serif-display text-base">Support KTU One</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 italic">
-                    Remove ads · ₹99 lifetime · support development
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSupportOpen(true)}
-                  className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition shadow-soft flex items-center gap-1.5"
-                >
-                  <Heart className="size-3.5" fill="currentColor" />
-                  Support
-                </button>
-              </div>
-            </GlassCard>
-          )}
-        </motion.div>
-
-        {/* Appearance */}
-        <SettingsGroup title="Appearance" icon={<Sparkles className="size-4" />}>
-          <SettingsRow label="Theme" description="Switch between light, dark, or system.">
-            <div className="flex items-center gap-1.5 p-1 rounded-full bg-secondary/60">
-              {(["light", "dark", "system"] as const).map((m) => {
-                const Icon = m === "light" ? Sun : m === "dark" ? Moon : Monitor;
-                const isActive = mode === m;
-                return (
-                  <button
-                    key={m}
-                    onClick={() => {
-                      setMode(m);
-                      getAnalyticsProvider().track({
-                        name: "theme_changed",
-                        props: { theme: m },
-                      });
-                    }}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 capitalize transition",
-                      isActive
-                        ? "bg-background shadow-soft text-foreground"
-                        : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    <Icon className="size-3.5" />
-                    {m}
-                  </button>
-                );
-              })}
+          <div className="card p-5 flex items-center gap-4">
+            <div className="size-14 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-serif text-xl font-semibold">
+              {profile.avatarInitials}
             </div>
-          </SettingsRow>
-          <SettingsRow label="Current" description={`Currently rendering as ${resolved}.`}>
-            <span className="text-xs px-2 py-1 rounded-full bg-secondary text-muted-foreground">
-              {resolved === "dark" ? "Dark" : "Light"}
-            </span>
-          </SettingsRow>
-        </SettingsGroup>
-
-        {/* Preferences */}
-        <SettingsGroup title="Preferences" icon={<Vibrate className="size-4" />}>
-          <SettingsRow label="Language" description="Currently English. Malayalam coming soon.">
-            <Languages className="size-4 text-muted-foreground" />
-          </SettingsRow>
-          <SettingsRow label="Haptics" description="Vibrate on interactions (mobile only).">
-            <ToggleSwitch defaultChecked />
-          </SettingsRow>
-          <SettingsRow label="Reduced motion" description="Respect system reduced-motion.">
-            <ToggleSwitch defaultChecked />
-          </SettingsRow>
-        </SettingsGroup>
-
-        {/* About */}
-        <SettingsGroup title="About" icon={<Info className="size-4" />}>
-          <SettingsRow label="App version" description={`KTU One v${APP_VERSION}`}>
-            <span className="text-xs text-muted-foreground">{APP_VERSION}</span>
-          </SettingsRow>
-          <SettingsRow label="University" description={UNIVERSITY_NAME}>
-            <span className="text-xs text-muted-foreground">KTU</span>
-          </SettingsRow>
-          <button
-            onClick={() =>
-              getNotificationProvider().show({
-                kind: "info",
-                title: "KTU One",
-                message: "An independent project. Not affiliated with KTU.",
-              })
-            }
-            className="w-full"
-          >
-            <SettingsRow label="Disclaimer" description="KTU One is an independent student companion." chevron />
-          </button>
-        </SettingsGroup>
-
-        {/* Help & feedback */}
-        <SettingsGroup title="Help & feedback" icon={<MessageSquare className="size-4" />}>
-          <button
-            onClick={() =>
-              getNotificationProvider().show({
-                kind: "info",
-                title: "Feedback form",
-                message: "Coming soon — for now, ping us at hello@ktuone.in",
-              })
-            }
-            className="w-full"
-          >
-            <SettingsRow label="Send feedback" description="Suggest features or report issues." chevron />
-          </button>
-          <button className="w-full">
-            <SettingsRow label="Rate KTU One" description="Help others discover the app." chevron />
-          </button>
-          <button className="w-full">
-            <SettingsRow label="Share with friends" description="Spread the word." chevron />
-          </button>
-        </SettingsGroup>
-
-        {/* Legal */}
-        <SettingsGroup title="Legal" icon={<Shield className="size-4" />}>
-          <button className="w-full">
-            <SettingsRow label="Privacy policy" description="How we handle your data." chevron icon={<FileText className="size-4" />} />
-          </button>
-          <button className="w-full">
-            <SettingsRow label="Terms of service" description="The rules of using KTU One." chevron icon={<FileText className="size-4" />} />
-          </button>
-          <a
-            href="#"
-            className="w-full"
-            onClick={(e) => e.preventDefault()}
-          >
-            <SettingsRow label="Open source" description="Built with open-source tools." chevron icon={<Github className="size-4" />} />
-          </a>
-        </SettingsGroup>
-
-        {!isSupporter && (
-          <BannerAd slot="settings-top" />
-        )}
-
-        {/* Footer — editorial colophon */}
-        <div className="text-center py-6">
-          <div className="flex items-end justify-center gap-1 mb-3">
-            <SketchNotebook size={48} color="plum" />
-            <div className="-ml-1 -mb-0.5">
-              <SketchPencil size={26} color="amber" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[15px] font-semibold">{profile.name}</p>
+              <p className="text-[12px] font-mono text-muted-foreground mt-0.5">
+                {profile.registerNumber}
+              </p>
+              <p className="text-[12px] text-muted-foreground mt-0.5">
+                {profile.branchName} · S{profile.semester}
+              </p>
             </div>
+            {isSupporter && (
+              <span className="tag tag-amber flex items-center gap-1">
+                <Sparkles className="size-3" /> Supporter
+              </span>
+            )}
           </div>
-          <p className="font-handwritten text-base text-muted-foreground">
-            made with 💜 for KTU students
-          </p>
-          <p className="text-[11px] text-muted-foreground/70 mt-1 tracking-wide">
-            {APP_NAME}
-          </p>
-        </div>
+        </motion.div>
+      ) : null}
+
+      {/* ===== APPEARANCE ===== */}
+      <SettingsSection title="Appearance">
+        <SettingsRow
+          icon={<Sun className="size-4" />}
+          label="Theme"
+          description="Switch between light, dark, or system."
+        >
+          <div className="flex items-center gap-0.5 p-1 rounded-lg bg-secondary">
+            {(["light", "dark", "system"] as const).map((m) => {
+              const Icon = m === "light" ? Sun : m === "dark" ? Moon : Monitor;
+              const isActive = mode === m;
+              return (
+                <button
+                  key={m}
+                  onClick={() => {
+                    hapticSync("light");
+                    setMode(m);
+                    getAnalyticsProvider().track({
+                      name: "theme_changed",
+                      props: { theme: m },
+                    });
+                  }}
+                  className={cn(
+                    "px-3 py-1.5 rounded-md text-[12px] font-medium flex items-center gap-1.5 capitalize transition",
+                    isActive
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Icon className="size-3.5" />
+                  {m}
+                </button>
+              );
+            })}
+          </div>
+        </SettingsRow>
+      </SettingsSection>
+
+      {/* ===== PREFERENCES ===== */}
+      <SettingsSection title="Preferences">
+        <SettingsRow
+          icon={<Languages className="size-4" />}
+          label="Language"
+          description="English"
+        >
+          <ChevronRight className="size-4 text-muted-foreground" />
+        </SettingsRow>
+        <SettingsRow
+          icon={<Vibrate className="size-4" />}
+          label="Haptics"
+          description="Vibration feedback on interactions."
+        >
+          <ToggleSwitch
+            defaultChecked
+            onChange={() => hapticSync("light")}
+          />
+        </SettingsRow>
+      </SettingsSection>
+
+      {/* ===== SUPPORT ===== */}
+      {!isSupporter && (
+        <SettingsSection title="Support KTU One">
+          <button
+            onClick={() => {
+              hapticSync("light");
+              setSupportOpen(true);
+            }}
+            className="w-full text-left"
+          >
+            <SettingsRow
+              icon={<Heart className="size-4" />}
+              label="Become a Supporter"
+              description="Remove ads · ₹99 lifetime"
+              chevron
+            />
+          </button>
+        </SettingsSection>
+      )}
+
+      {/* ===== ABOUT ===== */}
+      <SettingsSection title="About">
+        <SettingsRow
+          icon={<Info className="size-4" />}
+          label="App version"
+          description={`KTU One v${APP_VERSION}`}
+        >
+          <span className="text-[12px] font-mono text-muted-foreground">{APP_VERSION}</span>
+        </SettingsRow>
+        <SettingsRow
+          icon={<SettingsIcon className="size-4" />}
+          label="University"
+          description={UNIVERSITY_NAME}
+        >
+          <span className="text-[12px] font-mono text-muted-foreground">KTU</span>
+        </SettingsRow>
+        <button
+          onClick={() =>
+            getNotificationProvider().show({
+              kind: "info",
+              title: "KTU One",
+              message: "An independent project. Not affiliated with KTU.",
+            })
+          }
+          className="w-full text-left"
+        >
+          <SettingsRow
+            icon={<Shield className="size-4" />}
+            label="Disclaimer"
+            description="Independent student companion."
+            chevron
+          />
+        </button>
+      </SettingsSection>
+
+      {/* ===== HELP & FEEDBACK ===== */}
+      <SettingsSection title="Help & feedback">
+        <button
+          onClick={() =>
+            getNotificationProvider().show({
+              kind: "info",
+              title: "Feedback",
+              message: "hello@ktuone.in",
+            })
+          }
+          className="w-full text-left"
+        >
+          <SettingsRow
+            icon={<MessageSquare className="size-4" />}
+            label="Send feedback"
+            description="Suggest features or report issues."
+            chevron
+          />
+        </button>
+        <button className="w-full text-left">
+          <SettingsRow
+            icon={<Heart className="size-4" />}
+            label="Rate KTU One"
+            description="Help others discover the app."
+            chevron
+          />
+        </button>
+      </SettingsSection>
+
+      {/* ===== LEGAL ===== */}
+      <SettingsSection title="Legal">
+        <button className="w-full text-left">
+          <SettingsRow
+            icon={<FileText className="size-4" />}
+            label="Privacy policy"
+            description="How we handle your data."
+            chevron
+          />
+        </button>
+        <button className="w-full text-left">
+          <SettingsRow
+            icon={<FileText className="size-4" />}
+            label="Terms of service"
+            description="The rules of using KTU One."
+            chevron
+          />
+        </button>
+        <a href="#" className="w-full text-left" onClick={(e) => e.preventDefault()}>
+          <SettingsRow
+            icon={<Github className="size-4" />}
+            label="Open source"
+            description="Built with open-source tools."
+            chevron
+          />
+        </a>
+      </SettingsSection>
+
+      {/* ===== SIGN OUT ===== */}
+      {profile && (
+        <SettingsSection title="Account">
+          <button
+            onClick={handleLogout}
+            className="w-full text-left"
+          >
+            <SettingsRow
+              icon={<LogOut className="size-4" />}
+              label="Sign out"
+              description="Sign out of your KTU account."
+            >
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </SettingsRow>
+          </button>
+        </SettingsSection>
+      )}
+
+      {/* ===== AD ===== */}
+      {!isSupporter && <BannerAd slot="settings-top" />}
+
+      {/* ===== FOOTER ===== */}
+      <div className="text-center py-6">
+        <p className="text-[11px] font-mono text-[color:var(--text-faint)]">
+          {APP_NAME} · v{APP_VERSION} · {UNIVERSITY_NAME}
+        </p>
+        <p className="text-[11px] text-[color:var(--text-faint)] mt-1">
+          Built for KTU students · not affiliated with the university
+        </p>
       </div>
     </div>
   );
 }
 
-function SettingsGroup({
-  title,
-  icon,
-  children,
-}: {
-  title: string;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-}) {
+/* ========================================================================== */
+/* SETTINGS COMPONENTS — Apple Settings style                                */
+/* ========================================================================== */
+
+function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <GlassCard className="p-2">
-      <div className="px-3 pt-3 pb-2 flex items-center gap-2">
-        {icon && <span className="text-muted-foreground">{icon}</span>}
-        <h3 className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
-          {title}
-        </h3>
+    <div>
+      <h2 className="section-eyebrow mb-2 px-1">{title}</h2>
+      <div className="card overflow-hidden">
+        <div className="divide-y divide-[var(--hairline-soft)]">{children}</div>
       </div>
-      <div className="divide-y divide-border/40">{children}</div>
-    </GlassCard>
+    </div>
   );
 }
 
 function SettingsRow({
+  icon,
   label,
   description,
   children,
   chevron,
-  icon,
 }: {
+  icon?: React.ReactNode;
   label: string;
   description?: string;
   children?: React.ReactNode;
   chevron?: boolean;
-  icon?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 px-3 py-3 hover:bg-secondary/40 transition rounded-xl">
-      <div className="flex items-start gap-3 min-w-0">
-        {icon && <span className="text-muted-foreground mt-0.5">{icon}</span>}
+    <div className="flex items-center justify-between gap-3 px-4 py-3.5 hover:bg-secondary/40 transition-colors">
+      <div className="flex items-center gap-3 min-w-0">
+        {icon && <span className="text-muted-foreground shrink-0">{icon}</span>}
         <div className="min-w-0">
-          <p className="text-sm font-medium">{label}</p>
+          <p className="text-[14px] font-medium">{label}</p>
           {description && (
-            <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+            <p className="text-[12px] text-muted-foreground mt-0.5">{description}</p>
           )}
         </div>
       </div>
@@ -281,21 +342,30 @@ function SettingsRow({
   );
 }
 
-function ToggleSwitch({ defaultChecked }: { defaultChecked?: boolean }) {
+function ToggleSwitch({
+  defaultChecked,
+  onChange,
+}: {
+  defaultChecked?: boolean;
+  onChange?: () => void;
+}) {
   const [on, setOn] = useState(defaultChecked ?? false);
   return (
     <button
-      onClick={() => setOn(!on)}
+      onClick={() => {
+        setOn(!on);
+        onChange?.();
+      }}
       className={cn(
-        "w-11 h-6 rounded-full transition relative",
-        on ? "bg-primary" : "bg-secondary",
+        "w-11 h-6 rounded-full transition-colors relative",
+        on ? "bg-primary" : "bg-secondary border border-border",
       )}
       role="switch"
       aria-checked={on}
     >
       <span
         className={cn(
-          "absolute top-0.5 size-5 rounded-full bg-white shadow-soft transition-all",
+          "absolute top-0.5 size-5 rounded-full bg-white shadow-sm transition-all",
           on ? "left-[22px]" : "left-0.5",
         )}
       />

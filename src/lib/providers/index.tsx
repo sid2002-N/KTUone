@@ -19,8 +19,20 @@ function ThemeSync() {
     const root = document.documentElement;
 
     const apply = (resolved: "light" | "dark") => {
-      if (resolved === "dark") root.classList.add("dark");
-      else root.classList.remove("dark");
+      // Our CSS: `:root` = dark (default), `.light` = light theme.
+      // So we add `.light` for light mode, remove it for dark mode.
+      if (resolved === "light") {
+        root.classList.add("light");
+        root.classList.remove("dark");
+      } else {
+        root.classList.remove("light");
+        root.classList.add("dark");
+      }
+      // Update meta theme-color for mobile browser chrome
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) {
+        meta.setAttribute("content", resolved === "light" ? "#EDE8E0" : "#111315");
+      }
       useThemeStore.getState().setResolved(resolved);
     };
 

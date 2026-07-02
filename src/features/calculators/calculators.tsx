@@ -22,6 +22,7 @@ import {
 } from "@/lib/utils/calc";
 import { useCalcHistoryStore } from "@/store/calc-history-store";
 import { getNotificationProvider } from "@/lib/providers/notification";
+import { hapticSync } from "@/lib/utils/haptics";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -70,7 +71,10 @@ export function Calculators() {
                   duration: 0.4,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                onClick={() => setActive(c.key)}
+                onClick={() => {
+                  hapticSync("light");
+                  setActive(c.key);
+                }}
                 className="card card-hover p-5 text-left"
               >
                 <div className="icon-box mb-4">
@@ -107,7 +111,10 @@ export function Calculators() {
       {/* Back button */}
       <div className="flex items-center gap-3 mb-5">
         <button
-          onClick={() => setActive(null)}
+          onClick={() => {
+            hapticSync("light");
+            setActive(null);
+          }}
           className="btn-ghost px-3 py-2 rounded-md text-xs font-medium flex items-center gap-1.5"
         >
           <ArrowLeft className="size-3.5" />

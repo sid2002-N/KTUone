@@ -29,6 +29,7 @@ import { formatBytes, formatNumber, formatRelativeTime } from "@/lib/utils/calc"
 import { useBookmarks } from "@/features/bookmarks/use-bookmarks";
 import { getNotificationProvider } from "@/lib/providers/notification";
 import { getAnalyticsProvider } from "@/lib/providers/analytics";
+import { hapticSync } from "@/lib/utils/haptics";
 import type { BranchCode, SemesterNumber } from "@/lib/types";
 
 export function Papers() {
@@ -62,6 +63,7 @@ export function Papers() {
   };
 
   const onDownload = async (paperId: string, title: string) => {
+    hapticSync("light");
     getAnalyticsProvider().track({ name: "paper_downloaded", props: { paperId } });
     getNotificationProvider().show({
       kind: "info",
@@ -80,6 +82,7 @@ export function Papers() {
   };
 
   const onBookmark = (paperId: string, title: string) => {
+    hapticSync("light");
     const added = toggleBookmark({
       kind: "paper",
       refId: paperId,

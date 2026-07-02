@@ -29,6 +29,7 @@ import type { NavKey } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { getAnalyticsProvider } from "@/lib/providers/analytics";
 import { formatRelativeTime } from "@/lib/utils/calc";
+import { hapticSync } from "@/lib/utils/haptics";
 import { SyncDialog } from "@/features/sync/sync-dialog";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -70,6 +71,7 @@ export function AppShell({ children }: AppShellProps) {
   const [mobileMenu, setMobileMenu] = useState(false);
 
   const navigate = (key: NavKey) => {
+    hapticSync("light");
     setActive(key);
     setMobileMenu(false);
     getAnalyticsProvider().track({

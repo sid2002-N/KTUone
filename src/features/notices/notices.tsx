@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui-custom/empty-state";
 import { SketchBooks } from "@/components/ui-custom/sketch-elements";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
 import { getNotices } from "@/features/notices/actions";
+import { hapticSync } from "@/lib/utils/haptics";
 import { formatRelativeTime, formatDate } from "@/lib/utils/calc";
 import type { KTUNotice, NoticeCategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -86,7 +87,10 @@ export function Notices() {
               initial={prefersReduced ? false : { opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(i * 0.04, 0.3), duration: 0.25 }}
-              onClick={() => setSelected(n)}
+              onClick={() => {
+                hapticSync("light");
+                setSelected(n);
+              }}
               className="w-full text-left px-4 py-4 border-t border-border card-hover rounded-md first:border-t-0"
             >
               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
