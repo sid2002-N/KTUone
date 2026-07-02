@@ -134,27 +134,26 @@ export function mapScraperToResults(scraper: ScraperStudentResponse): SemesterRe
 export function mapScraperToCGPA(scraper: ScraperStudentResponse): CGPAResult {
   const semesters = mapScraperToResults(scraper);
 
-  // KTU CGPA = simple average of all semester SGPAs.
-  //   CGPA = (Σ SGPA) / (number of semesters with course data)
+  // KTU CGPA = Σ(Semester Credits × Semester SGPA) / Σ(Semester Credits)
   //
-  // Semesters with arrears (SGPA = 0) are INCLUDED in both numerator and
-  // denominator — they count as 0, they are NOT excluded.
-  //
-  // Semesters the student hasn't reached yet (no S{n} course array) are
-  // excluded entirely — the student hasn't attempted them.
+  // This is a CREDIT-WEIGHTED average, not a simple average.
+  //   - Semesters with arrears (SGPA = 0) ARE included — they contribute
+  //     0 × credits to the numerator, and their credits still count in the
+  //     denominator. This correctly lowers the CGPA.
+  //   - Semesters the student hasn't reached yet (no S{n} course array)
+  //     are excluded entirely.
   const semestersWithCourses = semesters.filter((s) => s.subjects.length > 0);
-  const sumOfSgpas = semestersWithCourses.reduce((sum, s) => sum + s.sgpa, 0);
-  const cgpa =
-    semestersWithCourses.length > 0
-      ? sumOfSgpas / semestersWithCourses.length
-      : 0;
+  let totalCredits = 0;
+  let weighted = 0;
+  for (const s of semestersWithCourses) {
+    totalCredits += s.totalCredits;
+    weighted += s.sgpa * s.totalCredits;
+  }
+  const cgpa = totalCredits > 0 ? weighted / totalCredits : 0;
 
   return {
     cgpa: Number(cgpa.toFixed(2)),
-    totalCredits: semestersWithCourses.reduce(
-      (sum, s) => sum + s.totalCredits,
-      0,
-    ),
+    totalCredits,
     creditsEarned: semestersWithCourses.reduce(
       (sum, s) => sum + s.creditsEarned,
       0,

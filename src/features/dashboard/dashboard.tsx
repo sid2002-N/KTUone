@@ -25,6 +25,7 @@ import { GlassCard } from "@/components/ui-custom/glass-card";
 import { StatCard } from "@/components/ui-custom/stat-card";
 import { AnimatedCounter } from "@/components/ui-custom/animated-counter";
 import { CircularProgress } from "@/components/ui-custom/circular-progress";
+import { AcademicStatusCard } from "@/components/ui-custom/academic-status-card";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
 import { HandwrittenText } from "@/components/ui-custom/handwritten-text";
 import {
@@ -92,6 +93,7 @@ export function Dashboard() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const lastSyncedAt = useAuthStore((s) => s.lastSyncedAt);
   const setSyncOpen = useNavStore((s) => s.setSyncOpen);
+  const setLoginOpen = useNavStore((s) => s.setLoginOpen);
 
   // Stale data check — show a "sync" banner if data is > 24h old (or never synced)
   const isStale =
@@ -138,69 +140,62 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Hero — editorial notebook cover (paper, not gradient) */}
+      {/* ===== PREMIUM MAGAZINE-COVER HERO ===== */}
       <motion.div
-        initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+        initial={prefersReduced ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="magazine-hero relative"
       >
-        <div className="notebook-cover p-7 sm:p-12 pl-12 sm:pl-14 float-subtle">
-          {/* Study desk illustrations cluster — top right */}
-          <motion.div
-            className="absolute top-8 right-8 hidden lg:flex items-end gap-1 pointer-events-none opacity-90"
-            initial={prefersReduced ? false : { opacity: 0, y: -10 }}
-            animate={{ opacity: 0.9, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-          >
-            <SketchBooks size={56} color="amber" />
-            <div className="-ml-2 -mb-1">
-              <SketchCoffeeCup size={36} color="coral" />
-            </div>
-            <div className="-ml-1 -mb-2">
-              <SketchPencil size={28} color="amber" />
-            </div>
-          </motion.div>
-
-          <div className="flex items-start justify-between gap-4 flex-wrap relative">
-            <div className="flex-1 min-w-[200px]">
-              {/* Handwritten annotation above heading */}
-              <motion.div
-                className="mb-3"
-                initial={prefersReduced ? false : { opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-              >
-                <HandwrittenText as="p" color="amber" className="text-2xl rotate-[-3deg] inline-block">
-                  {greeting}, {firstName} 👋
-                </HandwrittenText>
-              </motion.div>
-
-              {/* Serif display headline — embossed into notebook cover */}
-              <h1 className="font-serif-display embossed-title-ink text-4xl sm:text-6xl leading-[1.02]">
-                Your academic day,
-                <br className="hidden sm:block" />
-                <span className="relative inline-block italic">
-                  sorted.
-                  <HandwrittenText
-                    as="span"
-                    color="amber"
-                    className="absolute -top-7 -right-6 text-2xl rotate-[8deg] hidden sm:block not-italic"
-                  >
-                    !
-                  </HandwrittenText>
-                </span>
-              </h1>
-
-              <p className="mt-4 text-sm sm:text-base text-muted-foreground max-w-md leading-relaxed">
-                {profile
-                  ? `${profile.branchName} · Semester ${profile.semester}`
-                  : "Sign in to see your CGPA, attendance and results."}
+        <div className="relative z-10 p-7 sm:p-10 lg:p-14">
+          {/* Top row: greeting + sync indicator */}
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <motion.div
+              initial={prefersReduced ? false : { opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
+              <p className="hero-eyebrow text-xl sm:text-2xl rotate-[-2deg] inline-block mb-2">
+                {greeting}, {firstName}
               </p>
+              <h1 className="hero-headline text-4xl sm:text-5xl lg:text-6xl">
+                Your academic<br />day, <em>sorted.</em>
+              </h1>
+            </motion.div>
+            {/* Sync indicator dot */}
+            {isAuthenticated && lastSyncedAt && (
+              <motion.div
+                initial={prefersReduced ? false : { opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6, duration: 0.4 }}
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[oklch(1_0_0_/_0.06)] border border-[var(--luxury-border)] backdrop-blur-sm"
+                title={`Last synced ${formatRelativeTime(lastSyncedAt)}`}
+              >
+                <span className="size-1.5 rounded-full bg-[var(--luxury-success)] animate-pulse" />
+                <span className="text-[10px] uppercase tracking-wider text-[var(--luxury-text-muted)] font-medium">
+                  Synced {formatRelativeTime(lastSyncedAt)}
+                </span>
+              </motion.div>
+            )}
+          </div>
 
-              <div className="flex flex-wrap items-center gap-2 mt-7">
+          {/* Profile line + CTAs */}
+          <motion.div
+            initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="flex flex-wrap items-end justify-between gap-4"
+          >
+            <div>
+              <p className="text-sm text-[var(--luxury-text-muted)] max-w-md leading-relaxed">
+                {profile
+                  ? `${profile.branchName} · Semester ${profile.semester} · ${profile.registerNumber}`
+                  : "Sign in to sync your CGPA, results and attendance from KTU."}
+              </p>
+              <div className="flex flex-wrap items-center gap-2 mt-5">
                 <button
                   onClick={() => set("calculators")}
-                  className="btn-tactile px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-2 shadow-soft hover:opacity-90"
+                  className="btn-luxury px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2"
                 >
                   <Sparkles className="size-4" />
                   Open a calculator
@@ -208,7 +203,7 @@ export function Dashboard() {
                 {!isSupporter && (
                   <button
                     onClick={() => setSupportOpen(true)}
-                    className="btn-tactile px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold hover:bg-secondary/80 flex items-center gap-2 border border-border/60"
+                    className="btn-luxury-outline px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2"
                   >
                     <Heart className="size-3.5" fill="currentColor" />
                     Go ad-free · ₹99
@@ -216,30 +211,14 @@ export function Dashboard() {
                 )}
               </div>
             </div>
-            {/* Editorial illustration cluster */}
-            <div className="hidden sm:block relative">
-              <motion.div
-                className="flex items-end gap-1"
-                initial={prefersReduced ? false : { opacity: 0, scale: 0.85, rotate: -8 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 16 }}
-              >
-                <SketchNotebook size={120} color="plum" />
-                <div className="-ml-3 -mb-1">
-                  <SketchPencil size={44} color="amber" />
-                </div>
-              </motion.div>
-              {/* Tiny floating sketch arrow accent */}
-              <motion.div
-                className="absolute -top-3 -left-8"
-                initial={prefersReduced ? false : { opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.6 }}
-              >
-                <SketchArrow size={36} color="amber" />
-              </motion.div>
+            {/* Decorative sketch cluster — premium positioned */}
+            <div className="hidden lg:flex items-end gap-1 opacity-60 pointer-events-none">
+              <SketchNotebook size={80} color="plum" />
+              <div className="-ml-2 -mb-1">
+                <SketchPencil size={32} color="amber" />
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </motion.div>
 
@@ -271,44 +250,94 @@ export function Dashboard() {
         </motion.div>
       )}
 
-      {/* Quick stats — index cards pinned to a corkboard */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          label="Current CGPA"
-          value={isAuthenticated && cgpaData ? (<AnimatedCounter value={cgpaData.cgpa} decimals={2} />) : isAuthenticated ? (<span className="text-base text-muted-foreground">Loading…</span>) : (<span className="text-base text-muted-foreground">Login</span>)}
-          icon={<TrendingUp className="size-5" />}
-          accent="plum"
-          variant="index"
-          rotate={-1}
-          hint={isAuthenticated && cgpaData ? `${cgpaData.totalCredits} credits earned` : "Sign in to view"}
+      {/* ===== ASYMMETRIC GRID: Academic Status (large) + Quick Stats (sidebar) ===== */}
+      <div className="grid-asymmetric">
+        {/* LARGE: Unified Academic Status Card — CGPA + Percentage + Credits */}
+        <AcademicStatusCard
+          cgpa={isAuthenticated && cgpaData ? cgpaData.cgpa : null}
+          creditsEarned={isAuthenticated && cgpaData ? cgpaData.creditsEarned : null}
+          totalCredits={isAuthenticated && cgpaData ? cgpaData.totalCredits : null}
+          targetCredits={160}
+          isAuthenticated={isAuthenticated}
+          onLoginClick={() => setLoginOpen(true)}
         />
-        <StatCard
-          label="Attendance"
-          value={<span className="text-base text-muted-foreground">Manual</span>}
-          icon={<CalendarCheck className="size-5" />}
-          accent="amber"
-          variant="index"
-          rotate={1}
-          hint="Use the attendance calculator"
-        />
-        <StatCard
-          label="Papers"
-          value={<AnimatedCounter value={stats?.papers ?? 0} />}
-          icon={<FileText className="size-5" />}
-          accent="mint"
-          variant="index"
-          rotate={-0.5}
-          hint="Available to download"
-        />
-        <StatCard
-          label="Notices"
-          value={<AnimatedCounter value={stats?.notices ?? 0} />}
-          icon={<Bell className="size-5" />}
-          accent="coral"
-          variant="index"
-          rotate={0.5}
-          hint="2 unread this week"
-        />
+
+        {/* SIDEBAR: 2x2 mini stat tiles */}
+        <div className="grid grid-cols-2 gap-3">
+          <motion.div
+            initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="stat-tile-luxury p-4 flex flex-col justify-between"
+          >
+            <div className="size-8 rounded-lg bg-[oklch(0.78_0.13_75_/_0.12)] flex items-center justify-center mb-2">
+              <FileText className="size-4 text-[var(--luxury-amber)]" />
+            </div>
+            <div>
+              <p className="metric-number text-2xl text-[var(--luxury-cream)]">
+                <AnimatedCounter value={stats?.papers ?? 0} />
+              </p>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--luxury-text-muted)] mt-0.5">
+                Papers
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="stat-tile-luxury p-4 flex flex-col justify-between"
+          >
+            <div className="size-8 rounded-lg bg-[oklch(0.68_0.13_45_/_0.12)] flex items-center justify-center mb-2">
+              <Bell className="size-4 text-[var(--luxury-copper)]" />
+            </div>
+            <div>
+              <p className="metric-number text-2xl text-[var(--luxury-cream)]">
+                <AnimatedCounter value={stats?.notices ?? 0} />
+              </p>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--luxury-text-muted)] mt-0.5">
+                Notices
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="stat-tile-luxury p-4 flex flex-col justify-between"
+          >
+            <div className="size-8 rounded-lg bg-[oklch(0.72_0.15_155_/_0.12)] flex items-center justify-center mb-2">
+              <CalendarCheck className="size-4 text-[var(--luxury-success)]" />
+            </div>
+            <div>
+              <p className="metric-number text-2xl text-[var(--luxury-cream)]">Manual</p>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--luxury-text-muted)] mt-0.5">
+                Attendance
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="stat-tile-luxury p-4 flex flex-col justify-between"
+          >
+            <div className="size-8 rounded-lg bg-[oklch(0.62_0.15_340_/_0.12)] flex items-center justify-center mb-2">
+              <CalendarDays className="size-4 text-[var(--luxury-plum)]" />
+            </div>
+            <div>
+              <p className="metric-number text-2xl text-[var(--luxury-cream)]">
+                {upcomingEvent ? new Date(upcomingEvent.startDate).getDate() : "—"}
+              </p>
+              <p className="text-[10px] uppercase tracking-wider text-[var(--luxury-text-muted)] mt-0.5">
+                Next Event
+              </p>
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Quick actions — calculator shortcuts */}

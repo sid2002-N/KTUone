@@ -999,3 +999,86 @@ TEST 2: S5 student, S5 results pending (SGPA=0)
   rows (0 credits AND 0 SGPA) are skipped so users can add rows while typing
   without affecting the result.
 
+
+---
+
+## 2026-07-02 — Task `cgpa-credit-weighted + premium-redesign-phase-1` — Correct CGPA formula + magazine-cover hero + academic status card
+
+**Scope:** Two changes:
+1. Fix CGPA formula to the correct credit-weighted: `CGPA = Σ(credits × sgpa) / Σ(credits)`
+2. Begin premium dark-luxury redesign — dashboard hero + unified academic status card showing CGPA, Percentage, Total credits earned
+
+### CGPA Formula Fix
+
+Previous attempts:
+- **v1 (original bug):** Missing SGPA → 0, credit-weighted → dragged down CGPA (showed 1.8)
+- **v2 (wrong fix):** Excluded missing-SGPA semesters → CGPA too high
+- **v3 (wrong fix):** Simple average (Σ sgpa / count) → not how KTU calculates
+- **v4 (this fix, CORRECT):** Credit-weighted `Σ(credits × sgpa) / Σ(credits)`, missing SGPA = 0 included
+
+**Files modified:**
+- `src/lib/scraper/mapper.ts` — `mapScraperToCGPA` uses credit-weighted formula
+- `src/lib/utils/calc.ts` — `computeCGPA` (manual calculator) also credit-weighted
+- `scripts/test-cgpa-fix.ts` — updated test verifies credit-weighted math
+
+**Test result:**
+```
+S1-S5: SGPA=8.0, credits=24 each → contribution 192 each (total 960)
+S6: arrears, SGPA=0, credits=20 → contribution 0
+S7: SGPA=7.0, credits=15 → contribution 105
+S8: SGPA=9.0, credits=20 → contribution 180
+CGPA = 1245 / 175 = 7.11 ✅
+```
+
+### Premium Redesign — Phase 1 (Dashboard)
+
+**Design tokens added** (`src/app/globals.css`):
+- Dark luxury palette: `--luxury-bg`, `--luxury-surface`, `--luxury-surface-2`, `--luxury-plum`, `--luxury-amber`, `--luxury-copper`, `--luxury-cream`
+- Premium easings: `--ease-premium` (cubic-bezier), `--ease-spring`
+- Component classes: `.magazine-hero`, `.academic-status`, `.stat-tile-luxury`, `.grid-asymmetric`, `.btn-luxury`, `.btn-luxury-outline`, `.hero-headline`, `.metric-number`, `.progress-ring-premium`, `.shimmer-luxury`, `.stagger-item`
+
+**New component** (`src/components/ui-custom/academic-status-card.tsx`):
+- `AcademicStatusCard` — unified card showing 3 metrics:
+  1. **CGPA** (out of 10) with circular progress ring
+  2. **Percentage** (out of 100) = CGPA × 10
+  3. **Credits Earned** (out of 160 target) with progress %
+- Premium dark-luxury surface with plum/amber/copper accent icons
+- Shows login prompt when not authenticated
+
+**Dashboard redesigned** (`src/features/dashboard/dashboard.tsx`):
+- Replaced old notebook-cover hero with **magazine-cover hero**:
+  - Dark luxury gradient background with radial plum/amber glows
+  - Handwritten greeting eyebrow (Caveat font, amber)
+  - Serif headline with gradient italic "sorted." (plum→amber gradient text)
+  - Sync indicator pill (top-right, shows "Synced Xh ago" with pulsing green dot)
+  - Premium luxury buttons (gradient plum + outline glass)
+- Replaced 4-card symmetric quick stats with **asymmetric grid**:
+  - LEFT (large, 3fr): AcademicStatusCard with CGPA/Percentage/Credits
+  - RIGHT (sidebar, 2fr): 2×2 mini stat tiles (Papers, Notices, Attendance, Next Event)
+- Mini tiles use `.stat-tile-luxury` with hover lift effect
+
+### Validation
+
+- `npx tsc --noEmit` → 0 errors
+- `npx eslint src/` → 0 errors, 0 warnings
+- `npx next build` → compiled successfully in 11.1s
+- Dev server → Home 200, Admin 200
+- CGPA test → ✅ PASS (7.11 expected = 7.11 got)
+- Dev log → 0 errors
+
+### Redesign Roadmap (remaining screens — future sessions)
+
+This was Phase 1 (dashboard). The full premium redesign spec covers 10 areas:
+1. ✅ Hero Section (DONE — magazine-cover)
+2. ⏳ Navigation sidebar (reimagine with quick actions, recently used)
+3. ✅ Dashboard Layout (DONE — asymmetric grid)
+4. ✅ Student Overview (DONE — AcademicStatusCard)
+5. ⏳ Calculators → tools marketplace
+6. ⏳ Papers & Syllabus → Netflix-style browsing
+7. ⏳ Notices → modern timeline
+8. ⏳ Calendar → beautiful academic planner
+9. ⏳ Empty States → custom editorial illustrations
+10. ⏳ Motion → page transitions, shared elements
+
+Each remaining screen is a separate session to maintain quality. The design tokens (`.magazine-hero`, `.stat-tile-luxury`, `.btn-luxury`, etc.) are reusable across all screens.
+

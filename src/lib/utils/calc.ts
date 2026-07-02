@@ -64,16 +64,21 @@ export function computeSGPA(courses: CalculatorCourse[]): CalculatorResult {
 export function computeCGPA(
   semesters: { sgpa: number; credits: number }[],
 ): CalculatorResult {
-  // KTU CGPA = simple average of semester SGPAs.
-  //   CGPA = (Σ SGPA) / (number of semesters)
+  // KTU CGPA = Σ(Semester Credits × Semester SGPA) / Σ(Semester Credits)
   //
-  // This is NOT credit-weighted. Semesters with arrears (SGPA = 0) are
-  // included. Empty placeholder rows (0 credits AND 0 SGPA) are skipped
-  // so the user can add rows without affecting the result while typing.
+  // Credit-weighted average. Semesters with arrears (SGPA = 0) are included
+  // — they contribute 0 to the numerator but their credits still count in
+  // the denominator. Empty placeholder rows (0 credits AND 0 SGPA) are
+  // skipped so the user can add rows while typing without affecting the
+  // result.
   const valid = semesters.filter((s) => s.credits > 0 || s.sgpa > 0);
-  const sumOfSgpas = valid.reduce((sum, s) => sum + s.sgpa, 0);
-  const cgpa = valid.length > 0 ? sumOfSgpas / valid.length : 0;
-  const totalCredits = valid.reduce((sum, s) => sum + s.credits, 0);
+  let totalCredits = 0;
+  let weighted = 0;
+  for (const s of valid) {
+    totalCredits += s.credits;
+    weighted += s.sgpa * s.credits;
+  }
+  const cgpa = totalCredits > 0 ? weighted / totalCredits : 0;
   return {
     type: "CGPA",
     value: Number(cgpa.toFixed(2)),
