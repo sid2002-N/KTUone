@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Source_Serif_4, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Source_Serif_4, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
@@ -12,10 +12,10 @@ const sourceSerif = Source_Serif_4({
   style: ["normal", "italic"],
 });
 
-const ibmPlexSans = IBM_Plex_Sans({
+const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -75,7 +75,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${sourceSerif.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} antialiased`}
+        className={`${sourceSerif.variable} ${inter.variable} ${ibmPlexMono.variable} antialiased`}
       >
         <Providers>{children}</Providers>
         <Toaster />

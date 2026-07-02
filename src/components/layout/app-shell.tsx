@@ -81,7 +81,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       {/* ===== TOP BAR (single nav — no sidebar) ===== */}
-      <header className="sticky top-0 z-40 safe-top border-b border-border glass">
+      <header className="sticky top-0 z-40 safe-top border-b glass">
         <div className="max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-16">
           {/* Left: logo */}
           <div className="flex items-center gap-3">
@@ -96,7 +96,7 @@ export function AppShell({ children }: AppShellProps) {
               onClick={() => navigate("dashboard")}
               className="flex items-center gap-2.5 no-tap-highlight"
             >
-              <div className="w-8 h-8 rounded-md flex items-center justify-center font-serif text-[15px] font-semibold bg-primary text-primary-foreground">
+              <div className="w-8 h-8 rounded-[9px] flex items-center justify-center font-serif text-[15px] font-semibold bg-primary text-primary-foreground">
                 K
               </div>
               <div className="leading-tight hidden sm:block">
@@ -254,7 +254,7 @@ export function AppShell({ children }: AppShellProps) {
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-md flex items-center justify-center font-serif text-[15px] font-semibold bg-primary text-primary-foreground">
+                  <div className="w-8 h-8 rounded-[9px] flex items-center justify-center font-serif text-[15px] font-semibold bg-primary text-primary-foreground">
                     K
                   </div>
                   <span className="text-[14px] font-medium">KTU One</span>

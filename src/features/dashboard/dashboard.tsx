@@ -113,15 +113,15 @@ export function Dashboard() {
   });
 
   return (
-    <div className="space-y-8">
-      {/* ===== HEADER — no hero banner, just date + name + branch tag ===== */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div className="space-y-7">
+      {/* ===== HEADER — date + name + branch tag ===== */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <div className="section-eyebrow">
             {today}
             {profile ? ` — S${profile.semester}` : ""}
           </div>
-          <h1 className="section-title text-[30px] md:text-[34px] mt-1">
+          <h1 className="section-title text-[28px] md:text-[32px] mt-2">
             {greeting}, {firstName}
           </h1>
         </div>

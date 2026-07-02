@@ -4,9 +4,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ==========================================================================
-   KTU ONE — "Quiet Competence" Design System
-   One serif (Source Serif 4) + one sans (IBM Plex Sans) + one mono (IBM Plex Mono)
-   Ink/amber palette. No cursive. No commerce language. Information density first.
+   KTU ONE — Apple-Quality Design System
+   "Quiet competence with craftsmanship"
+   Inspired by: Apple Files, Apple Books, Apple Wallet, Things 3, Linear
    ========================================================================== */
 
 @theme inline {
@@ -44,97 +44,109 @@
   --color-glass: var(--glass);
   --color-glass-border: var(--glass-border);
 
-  --radius: 0.625rem;
+  --radius: 1rem;
 }
 
 /* ==========================================================================
-   COLOR TOKENS — Ink/Amber palette (dark-first)
+   COLOR TOKENS — Deep charcoal with warm amber accent
    ========================================================================== */
 
 :root {
-  /* Base surfaces — deep ink, warm-charcoal */
-  --background: #14100F;
-  --foreground: #EDE6DB;
+  /* Base surfaces — deep charcoal, cool-tinted (Apple-like) */
+  --background: #111315;
+  --foreground: #E8E6E1;
 
-  --card: #1B1613;
-  --card-foreground: #EDE6DB;
+  --card: #1A1D20;
+  --card-foreground: #E8E6E1;
 
-  --popover: #1B1613;
-  --popover-foreground: #EDE6DB;
+  --popover: #1A1D20;
+  --popover-foreground: #E8E6E1;
 
   /* Primary — warm amber (the ONE accent color) */
-  --primary: #C98A3A;
-  --primary-foreground: #1B140A;
+  --primary: #D4943A;
+  --primary-foreground: #1A140A;
 
-  /* Secondary — subtle elevated surface */
-  --secondary: #221C18;
-  --secondary-foreground: #EDE6DB;
+  /* Secondary — elevated surface */
+  --secondary: #22262A;
+  --secondary-foreground: #E8E6E1;
 
-  /* Muted — for secondary text */
-  --muted: #221C18;
-  --muted-foreground: #948A7C;
+  /* Muted — for secondary text + surfaces */
+  --muted: #22262A;
+  --muted-foreground: #8B8881;
 
-  /* Accent — same as primary (amber) */
-  --accent: #221C18;
-  --accent-foreground: #EDE6DB;
+  /* Accent — same surface as secondary */
+  --accent: #22262A;
+  --accent-foreground: #E8E6E1;
 
-  /* Destructive — muted brick red, only for alerts/deadlines */
-  --destructive: #A6554A;
-  --destructive-foreground: #EDE6DB;
+  /* Destructive — muted red, only for warnings */
+  --destructive: #C26B5A;
+  --destructive-foreground: #E8E6E1;
 
   /* Semantic */
-  --success: #C98A3A;
-  --warning: #C98A3A;
-  --info: #948A7C;
+  --success: #D4943A;
+  --warning: #D4943A;
+  --info: #8B8881;
 
-  /* Borders — hairline */
-  --border: #332A22;
-  --input: #332A22;
-  --ring: #C98A3A;
+  /* Borders — thin, subtle */
+  --border: #2A2E32;
+  --input: #2A2E32;
+  --ring: #D4943A;
 
-  /* Glass */
-  --glass: rgba(27, 22, 19, 0.85);
-  --glass-border: #332A22;
+  /* Glass — frosted for sticky bars */
+  --glass: rgba(17, 19, 21, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-highlight: rgba(255, 255, 255, 0.04);
 
   /* Text levels */
-  --text-faint: #5E574C;
-  --hairline-soft: #241E19;
+  --text-faint: #5C5A55;
+  --hairline-soft: #1E2124;
 
-  /* Shadows — subtle, warm */
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.3);
+  /* Shadows — soft, layered (Apple-style) */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.18);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.20), 0 1px 2px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.22), 0 1px 3px rgba(0, 0, 0, 0.14);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.16);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.32), 0 4px 12px rgba(0, 0, 0, 0.18);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.24), 0 2px 6px rgba(0, 0, 0, 0.14);
 }
 
-/* Light theme variant — warm cream base with same amber accent */
+/* Light theme — warm cream base */
 .light {
-  --background: #FAF7F2;
-  --foreground: #14100F;
+  --background: #F5F3EF;
+  --foreground: #1A1D20;
   --card: #FFFFFF;
-  --card-foreground: #14100F;
+  --card-foreground: #1A1D20;
   --popover: #FFFFFF;
-  --popover-foreground: #14100F;
+  --popover-foreground: #1A1D20;
   --primary: #B8762E;
   --primary-foreground: #FFFFFF;
-  --secondary: #F0EBE3;
-  --secondary-foreground: #14100F;
-  --muted: #F0EBE3;
-  --muted-foreground: #6B6358;
-  --accent: #F0EBE3;
-  --accent-foreground: #14100F;
-  --destructive: #A6554A;
+  --secondary: #EDEAE4;
+  --secondary-foreground: #1A1D20;
+  --muted: #EDEAE4;
+  --muted-foreground: #6B6862;
+  --accent: #EDEAE4;
+  --accent-foreground: #1A1D20;
+  --destructive: #B85A4A;
   --destructive-foreground: #FFFFFF;
   --success: #B8762E;
   --warning: #B8762E;
-  --info: #6B6358;
-  --border: #E0D9CE;
-  --input: #E0D9CE;
+  --info: #6B6862;
+  --border: #DDD9D2;
+  --input: #DDD9D2;
   --ring: #B8762E;
-  --glass: rgba(255, 255, 255, 0.85);
-  --glass-border: #E0D9CE;
-  --text-faint: #9A9182;
-  --hairline-soft: #F0EBE3;
-  --shadow-soft: 0 1px 2px rgba(20, 16, 15, 0.06);
-  --shadow-elevated: 0 4px 12px rgba(20, 16, 15, 0.08);
+  --glass: rgba(245, 243, 239, 0.72);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-highlight: rgba(0, 0, 0, 0.02);
+  --text-faint: #9A958C;
+  --hairline-soft: #EDEAE4;
+  --shadow-xs: 0 1px 2px rgba(26, 29, 32, 0.04);
+  --shadow-sm: 0 2px 8px rgba(26, 29, 32, 0.06), 0 1px 2px rgba(26, 29, 32, 0.04);
+  --shadow-md: 0 4px 16px rgba(26, 29, 32, 0.08), 0 1px 3px rgba(26, 29, 32, 0.04);
+  --shadow-lg: 0 8px 32px rgba(26, 29, 32, 0.10), 0 2px 6px rgba(26, 29, 32, 0.06);
+  --shadow-xl: 0 16px 48px rgba(26, 29, 32, 0.12), 0 4px 12px rgba(26, 29, 32, 0.06);
+  --shadow-card: 0 1px 3px rgba(26, 29, 32, 0.04), 0 1px 2px rgba(26, 29, 32, 0.02);
+  --shadow-card-hover: 0 8px 24px rgba(26, 29, 32, 0.10), 0 2px 6px rgba(26, 29, 32, 0.04);
 }
 
 /* ==========================================================================
@@ -148,11 +160,12 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), sans-serif;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-y: none;
   -webkit-tap-highlight-color: transparent;
+  letter-spacing: -0.01em;
 }
 
 input, textarea {
@@ -161,103 +174,118 @@ input, textarea {
 }
 
 ::selection {
-  background: rgba(201, 138, 58, 0.2);
+  background: rgba(212, 148, 58, 0.2);
 }
 
 /* Font helpers */
-.font-serif { font-family: var(--font-serif), serif; }
+.font-serif { font-family: var(--font-serif), Georgia, serif; }
 .font-mono { font-family: var(--font-mono), monospace; }
-.font-sans { font-family: var(--font-sans), sans-serif; }
+.font-sans { font-family: var(--font-sans), -apple-system, sans-serif; }
 
 /* ==========================================================================
-   COMPONENT PRIMITIVES — Index card aesthetic
+   CARD SYSTEM — Apple-quality surfaces
    ========================================================================== */
 
-/* Card — the fundamental surface. Hairline border, subtle, no gradients. */
+/* Base card — soft elevated surface, large radius */
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
 }
 
+/* Card with hover elevation — for interactive cards */
 .card-hover {
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.2s ease;
+  will-change: transform;
 }
 .card-hover:hover {
-  border-color: #4a3e30;
-  background: var(--secondary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(212, 148, 58, 0.2);
 }
 .card-hover:active {
-  transform: scale(0.98);
+  transform: translateY(-1px) scale(0.99);
+  transition-duration: 0.1s;
 }
 
-/* Glass — for sticky bars (nav, bottom nav) */
+/* Glass — frosted for sticky bars (Apple-style translucency) */
 .glass {
   background: var(--glass);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-color: var(--glass-border);
 }
 .glass-strong {
   background: var(--glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border-color: var(--glass-border);
 }
 
 /* ==========================================================================
-   TAGS — Mono-font chips for subject codes, semesters, years
+   TAGS — Mono-font chips
    ========================================================================== */
 
 .tag {
   font-family: var(--font-mono), monospace;
   font-size: 11px;
-  letter-spacing: 0.04em;
-  padding: 2px 8px;
-  border-radius: 4px;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 6px;
   border: 1px solid var(--border);
   color: var(--muted-foreground);
   display: inline-flex;
   align-items: center;
   gap: 4px;
   white-space: nowrap;
+  background: transparent;
 }
 
 .tag-amber {
-  border-color: rgba(201, 138, 58, 0.3);
+  border-color: rgba(212, 148, 58, 0.25);
   color: var(--primary);
-  background: rgba(201, 138, 58, 0.08);
+  background: rgba(212, 148, 58, 0.08);
 }
 
 .tag-brick {
-  border-color: rgba(166, 85, 74, 0.3);
+  border-color: rgba(194, 107, 90, 0.25);
   color: var(--destructive);
-  background: rgba(166, 85, 74, 0.08);
+  background: rgba(194, 107, 90, 0.08);
 }
 
 /* ==========================================================================
-   BUTTONS — Restrained, clear
+   BUTTONS — Apple-quality tactile
    ========================================================================== */
 
 .btn-primary {
   background: var(--primary);
   color: var(--primary-foreground);
   font-weight: 600;
-  transition: background 0.15s ease, transform 0.12s ease;
+  border-radius: 10px;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 1px 3px rgba(212, 148, 58, 0.25);
 }
 .btn-primary:hover {
-  background: #D89A4E;
+  background: #E0A44E;
+  box-shadow: 0 2px 8px rgba(212, 148, 58, 0.3);
 }
 .btn-primary:active {
   transform: scale(0.97);
+  box-shadow: 0 1px 2px rgba(212, 148, 58, 0.2);
 }
 
 .btn-ghost {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--foreground);
-  transition: border-color 0.15s ease, background 0.15s ease;
+  border-radius: 10px;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .btn-ghost:hover {
-  border-color: #4a3e30;
+  border-color: rgba(212, 148, 58, 0.3);
   background: var(--secondary);
 }
 .btn-ghost:active {
@@ -284,19 +312,21 @@ input, textarea {
    ========================================================================== */
 
 .icon-box {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   color: var(--muted-foreground);
-  transition: border-color 0.15s ease, color 0.15s ease;
+  background: var(--secondary);
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .card-hover:hover .icon-box {
-  border-color: var(--primary);
+  border-color: rgba(212, 148, 58, 0.3);
   color: var(--primary);
+  background: rgba(212, 148, 58, 0.06);
 }
 
 /* ==========================================================================
@@ -309,7 +339,7 @@ input:focus, select:focus, button:focus-visible, a:focus-visible {
 }
 
 /* ==========================================================================
-   SCROLLBAR — Subtle
+   SCROLLBAR — Subtle, Apple-style
    ========================================================================== */
 
 ::-webkit-scrollbar {
@@ -324,7 +354,7 @@ input:focus, select:focus, button:focus-visible, a:focus-visible {
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4a3e30;
+  background: #3A3E42;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -338,7 +368,7 @@ input:focus, select:focus, button:focus-visible, a:focus-visible {
 .tab-btn {
   color: var(--muted-foreground);
   position: relative;
-  transition: color 0.15s ease;
+  transition: color 0.2s ease;
 }
 .tab-btn:hover {
   color: var(--foreground);
@@ -349,25 +379,25 @@ input:focus, select:focus, button:focus-visible, a:focus-visible {
 .tab-btn .tab-underline {
   height: 2px;
   background: transparent;
-  transition: background 0.15s ease;
+  transition: background 0.2s ease;
 }
 .tab-btn.active .tab-underline {
   background: var(--primary);
 }
 
 /* ==========================================================================
-   BOTTOM NAV — Mobile / Capacitor
+   BOTTOM NAV — Mobile
    ========================================================================== */
 
 .bottom-nav {
   background: var(--glass);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid var(--border);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid var(--glass-border);
 }
 .bottom-nav-btn {
   color: var(--text-faint);
-  transition: color 0.15s ease;
+  transition: color 0.2s ease;
 }
 .bottom-nav-btn.active {
   color: var(--primary);
@@ -377,24 +407,25 @@ input:focus, select:focus, button:focus-visible, a:focus-visible {
 }
 
 /* ==========================================================================
-   SECTION HEADER — Date/eyebrow + serif title
+   SECTION HEADER
    ========================================================================== */
 
 .section-eyebrow {
   font-family: var(--font-mono), monospace;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--text-faint);
 }
 .section-title {
-  font-family: var(--font-serif), serif;
+  font-family: var(--font-serif), Georgia, serif;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 /* ==========================================================================
-   EMPTY STATE — Single clear action, no playful microcopy
+   EMPTY STATE
    ========================================================================== */
 
 .empty-state {
@@ -411,7 +442,7 @@ input:focus, select:focus, button:focus-visible, a:focus-visible {
   to { opacity: 1; transform: translateY(0); }
 }
 .fade-in {
-  animation: fade-in 0.3s ease forwards;
+  animation: fade-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes shimmer-sweep {
@@ -433,50 +464,81 @@ input:focus, select:focus, button:focus-visible, a:focus-visible {
 }
 
 /* ==========================================================================
-   UTILITY — Safe areas for Capacitor / notched devices
+   SAFE AREAS — Capacitor / notched devices
    ========================================================================== */
 
 .safe-top { padding-top: env(safe-area-inset-top, 0px); }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
 /* ==========================================================================
-   SCROLL TO TOP — Floating button
+   SCROLL TO TOP
    ========================================================================== */
 
 .scroll-to-top-btn {
   background: var(--card);
   border: 1px solid var(--border);
   color: var(--muted-foreground);
-  backdrop-filter: blur(8px);
-  transition: border-color 0.15s ease, color 0.15s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .scroll-to-top-btn:hover {
-  border-color: var(--primary);
+  border-color: rgba(212, 148, 58, 0.3);
   color: var(--primary);
 }
 
 /* ==========================================================================
-   INPUTS — Dark surfaces, amber focus
+   INPUTS
    ========================================================================== */
 
 input[type="text"], input[type="password"], input[type="email"], input[type="number"],
 input[type="search"], input[type="date"], textarea, select {
-  background: transparent;
+  background: var(--secondary);
   border: 1px solid var(--border);
   color: var(--foreground);
-  border-radius: 8px;
-  transition: border-color 0.15s ease;
+  border-radius: 10px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 input:focus, textarea:focus, select:focus {
   border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(212, 148, 58, 0.12);
   outline: none;
 }
 input::placeholder {
   color: var(--text-faint);
 }
 
-/* Select dropdown options need explicit styling for dark mode */
 select option {
   background: var(--card);
   color: var(--foreground);
+}
+
+/* ==========================================================================
+   PDF THUMBNAIL — Apple Files-inspired document preview
+   ========================================================================== */
+
+.pdf-thumb {
+  position: relative;
+  background: linear-gradient(135deg, #2A2E32 0%, #22262A 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.pdf-thumb::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+}
+.pdf-thumb-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(212, 148, 58, 0.4);
 }

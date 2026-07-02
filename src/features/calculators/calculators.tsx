@@ -51,8 +51,8 @@ export function Calculators() {
       <div>
         <div className="mb-8">
           <div className="section-eyebrow">Tools</div>
-          <h1 className="section-title text-[30px] mt-1">Calculators</h1>
-          <p className="text-[13.5px] mt-2 max-w-lg text-muted-foreground">
+          <h1 className="section-title text-[28px] md:text-[32px] mt-2">Calculators</h1>
+          <p className="text-[14px] mt-2.5 max-w-lg text-muted-foreground leading-relaxed">
             Five tools, built around KTU's grading scale. Everything runs offline, nothing leaves your device.
           </p>
         </div>
@@ -63,23 +63,29 @@ export function Calculators() {
             return (
               <motion.button
                 key={c.key}
-                initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+                initial={prefersReduced ? false : { opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05, duration: 0.3 }}
+                transition={{
+                  delay: i * 0.06,
+                  duration: 0.4,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
                 onClick={() => setActive(c.key)}
-                className="card card-hover p-6 text-left"
+                className="card card-hover p-5 text-left"
               >
                 <div className="icon-box mb-4">
                   <CIcon className="size-[18px]" />
                 </div>
-                <div className="text-[15px] font-medium mb-1">
+                <div className="text-[15px] font-semibold mb-1">
                   {c.title.replace(" Calculator", "")}
                 </div>
-                <div className="text-[13px] text-muted-foreground">{c.description}</div>
+                <div className="text-[13px] text-muted-foreground leading-relaxed">
+                  {c.description}
+                </div>
               </motion.button>
             );
           })}
-          <div className="card p-6 flex flex-col justify-center items-start" style={{ borderStyle: "dashed" }}>
+          <div className="card p-5 flex flex-col justify-center items-start" style={{ borderStyle: "dashed" }}>
             <div className="text-[13px] text-[color:var(--text-faint)]">
               More tools are added by request —
             </div>
