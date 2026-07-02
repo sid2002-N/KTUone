@@ -2243,3 +2243,106 @@
   border-color: oklch(0.62 0.15 340 / 0.3);
   transform: translateY(-1px);
 }
+
+/* ==========================================================================
+   PREMIUM EMPTY STATES — v4 (editorial illustrations + delightful messaging)
+   ========================================================================== */
+
+.empty-state-premium {
+  position: relative;
+  background:
+    radial-gradient(ellipse at center, oklch(0.62 0.15 340 / 0.06), transparent 70%),
+    linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
+  color: var(--luxury-text);
+  border-radius: 1.5rem;
+  border: 1px solid var(--luxury-border);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.04) inset,
+    0 10px 25px -10px oklch(0 0 0 / 0.3);
+  overflow: hidden;
+}
+
+/* Decorative dotted pattern overlay */
+.empty-state-premium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, oklch(1 0 0 / 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+/* Floating orbs — decorative background */
+.empty-state-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Illustration container — premium */
+.empty-illustration {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* Handwritten accent text */
+.empty-handwritten {
+  font-family: var(--font-caveat);
+  color: var(--luxury-amber);
+  font-size: 1.25rem;
+  rotate: -3deg;
+  display: inline-block;
+}
+
+/* Empty state title — serif */
+.empty-title-premium {
+  font-family: var(--font-lora);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--luxury-cream);
+  line-height: 1.2;
+}
+
+/* Empty state description — muted */
+.empty-desc-premium {
+  color: var(--luxury-text-muted);
+  line-height: 1.6;
+  max-width: 28rem;
+}
+
+/* Empty state buttons — premium */
+.empty-btn-primary {
+  background: linear-gradient(135deg, oklch(0.62 0.15 340), oklch(0.55 0.14 340));
+  color: oklch(0.99 0.008 78);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.2) inset,
+    0 6px 16px -4px oklch(0.50 0.15 340 / 0.4);
+  transition: all 0.3s var(--ease-premium);
+}
+.empty-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.3) inset,
+    0 10px 20px -4px oklch(0.50 0.15 340 / 0.5);
+}
+.empty-btn-secondary {
+  background: oklch(1 0 0 / 0.05);
+  color: var(--luxury-cream);
+  border: 1px solid var(--luxury-border);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s var(--ease-premium);
+}
+.empty-btn-secondary:hover {
+  background: oklch(1 0 0 / 0.1);
+  border-color: oklch(0.62 0.15 340 / 0.3);
+}
+
+/* Compact variant */
+.empty-state-premium.compact {
+  border-radius: 1.25rem;
+}

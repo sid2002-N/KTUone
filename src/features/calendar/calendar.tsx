@@ -153,8 +153,9 @@ function EventsTab() {
         </div>
       ) : sortedEvents.length === 0 ? (
         <EmptyState
+          accent="quiet for now"
           title="No calendar events"
-          description="Check back later for exams, holidays and academic deadlines."
+          description="Check back later for exams, holidays and academic deadlines. Your calendar will fill up as the semester progresses."
           illustration={<SketchNotebook size={120} color="lavender" />}
         />
       ) : (
@@ -284,6 +285,7 @@ function TimetableTab() {
   if (!timetable) {
     return (
       <EmptyState
+        accent="coming soon"
         title="No active timetable"
         description="There's no active exam timetable for your branch and semester yet. Check back once your batch's schedule is published."
         illustration={<SketchNotebook size={120} color="plum" />}

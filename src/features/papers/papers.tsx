@@ -202,8 +202,9 @@ export function Papers() {
         </div>
       ) : papers.length === 0 ? (
         <EmptyState
+          accent="psst…"
           title="No papers found"
-          description="Try changing your filters or searching for a different subject."
+          description="Try changing your filters or searching for a different subject. New papers get added regularly."
           illustration={<SketchBooks size={120} color="lavender" />}
           primaryAction={{ label: "Clear filters", onClick: clearFilters }}
         />

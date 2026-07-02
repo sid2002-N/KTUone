@@ -103,8 +103,9 @@ export function Notices() {
         </div>
       ) : notices.length === 0 ? (
         <EmptyState
+          accent="all caught up!"
           title="No notices in this category"
-          description="Try a different category filter."
+          description="You're all caught up on this category. Try a different filter or check back later for new updates."
           illustration={<SketchBooks size={120} color="amber" />}
         />
       ) : (

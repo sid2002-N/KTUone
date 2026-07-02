@@ -107,8 +107,9 @@ export function Syllabus() {
         </div>
       ) : syllabus.length === 0 ? (
         <EmptyState
+          accent="hmm…"
           title="No syllabus found"
-          description="Try a different search or branch."
+          description="Try a different search term or branch filter. Syllabus documents are added by admins throughout the semester."
           illustration={<SketchNotebook size={120} color="plum" />}
         />
       ) : (

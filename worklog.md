@@ -1471,3 +1471,77 @@ exam countdowns, and a premium timetable card.
 | 9 | Empty states | ⏳ Next |
 | 10 | Motion polish | ⏳ |
 
+
+---
+
+## 2026-07-02 — Task `premium-redesign-phase-7` — Empty states redesign
+
+**Scope:** Phase 7 of the premium dark-luxury redesign. Transformed all empty
+states from flat text cards into premium editorial illustrations with
+delightful messaging and personality.
+
+### Design tokens added (`src/app/globals.css`)
+
+| Class | Purpose |
+|-------|---------|
+| `.empty-state-premium` | Dark luxury surface with radial glow + dotted texture |
+| `.empty-state-premium::before` | Dotted background pattern overlay (subtle texture) |
+| `.empty-state-orb` | Floating decorative blur orbs (plum + amber) for depth |
+| `.empty-illustration` | Illustration container — centered, z-indexed above orbs |
+| `.empty-handwritten` | Caveat font handwritten accent (amber, -3deg rotation) |
+| `.empty-title-premium` | Lora serif title, tight letter-spacing, cream color |
+| `.empty-desc-premium` | Muted description, max-width 28rem, relaxed line-height |
+| `.empty-btn-primary` | Gradient plum primary button with glow |
+| `.empty-btn-secondary` | Glass outline secondary button |
+
+### EmptyState component redesigned (`src/components/ui-custom/empty-state.tsx`)
+
+**New `accent` prop:**
+- Short handwritten phrase shown above the title in Caveat font (amber, rotated -3deg)
+- Examples: "psst…", "all caught up!", "quiet for now", "coming soon", "hmm…"
+
+**Premium visual design:**
+- Dark luxury gradient surface with radial plum glow at center
+- Subtle dotted texture overlay (24px grid) for editorial feel
+- Two floating decorative orbs (plum top-left, amber bottom-right) with 40px blur for depth
+- All content sits above the orbs (z-index 10)
+- Illustration preserved (sketch icons from SketchBooks/SketchNotebook)
+- Serif title (Lora font) in cream color
+- Muted description with relaxed line-height
+- Premium gradient + glass buttons for actions
+
+### Empty states updated across 4 screens
+
+| Screen | Accent | Title | Description updated |
+|--------|--------|-------|---------------------|
+| Papers | "psst…" | "No papers found" | "Try changing your filters or searching for a different subject. New papers get added regularly." |
+| Notices | "all caught up!" | "No notices in this category" | "You're all caught up on this category. Try a different filter or check back later for new updates." |
+| Calendar (events) | "quiet for now" | "No calendar events" | "Check back later for exams, holidays and academic deadlines. Your calendar will fill up as the semester progresses." |
+| Calendar (timetable) | "coming soon" | "No active timetable" | (unchanged description) |
+| Syllabus | "hmm…" | "No syllabus found" | "Try a different search term or branch filter. Syllabus documents are added by admins throughout the semester." |
+
+Each empty state now has personality — the handwritten accent sets the tone (playful for "psst…", reassuring for "all caught up!", patient for "quiet for now", hopeful for "coming soon", curious for "hmm…").
+
+### Validation
+
+- `npx tsc --noEmit` → 0 errors
+- `npx eslint src/` → 0 errors, 0 warnings
+- `npx next build` → compiled successfully in 7.6s
+- Dev server → Home 200, Admin 200
+- Dev log → 0 errors
+
+### Premium redesign progress
+
+| # | Screen | Status |
+|---|--------|--------|
+| 1 | Hero Section | ✅ Done (Phase 1) |
+| 2 | Navigation sidebar | ✅ Done (Phase 2) |
+| 3 | Dashboard Layout | ✅ Done (Phase 1) |
+| 4 | Student Overview | ✅ Done (Phase 1) |
+| 5 | Calculators marketplace | ✅ Done (Phase 3) |
+| 6 | Papers (Netflix-style) | ✅ Done (Phase 4) |
+| 7 | Notices timeline | ✅ Done (Phase 5) |
+| 8 | Calendar planner | ✅ Done (Phase 6) |
+| 9 | Empty states | ✅ Done (Phase 7) |
+| 10 | Motion polish | ⏳ Next |
+
