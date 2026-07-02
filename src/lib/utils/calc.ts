@@ -64,21 +64,21 @@ export function computeSGPA(courses: CalculatorCourse[]): CalculatorResult {
 export function computeCGPA(
   semesters: { sgpa: number; credits: number }[],
 ): CalculatorResult {
-  let totalCredits = 0;
-  let weighted = 0;
-  for (const s of semesters) {
-    // Skip empty/placeholder rows (0 credits or 0 SGPA). This matches the
-    // KTU rule: semesters with no published SGPA don't count toward CGPA.
-    if (s.credits <= 0 || s.sgpa <= 0) continue;
-    totalCredits += s.credits;
-    weighted += s.sgpa * s.credits;
-  }
-  const cgpa = totalCredits > 0 ? weighted / totalCredits : 0;
+  // KTU CGPA = simple average of semester SGPAs.
+  //   CGPA = (Σ SGPA) / (number of semesters)
+  //
+  // This is NOT credit-weighted. Semesters with arrears (SGPA = 0) are
+  // included. Empty placeholder rows (0 credits AND 0 SGPA) are skipped
+  // so the user can add rows without affecting the result while typing.
+  const valid = semesters.filter((s) => s.credits > 0 || s.sgpa > 0);
+  const sumOfSgpas = valid.reduce((sum, s) => sum + s.sgpa, 0);
+  const cgpa = valid.length > 0 ? sumOfSgpas / valid.length : 0;
+  const totalCredits = valid.reduce((sum, s) => sum + s.credits, 0);
   return {
     type: "CGPA",
     value: Number(cgpa.toFixed(2)),
     percentage: Number((cgpa * 10).toFixed(1)),
-    meta: { totalCredits, semesters: semesters.length },
+    meta: { totalCredits, semesters: valid.length },
     computedAt: new Date().toISOString(),
   };
 }

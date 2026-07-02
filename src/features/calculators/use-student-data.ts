@@ -45,10 +45,7 @@ export function semesterResultToCourses(sem: SemesterResult): CalculatorCourse[]
 }
 
 export function cgpaToSemesters(cgpa: CGPAResult): { sgpa: number; credits: number }[] {
-  // Only include semesters where KTU has published an SGPA. Semesters with
-  // supplies (no SGPA) are excluded — the CGPA calculator mirrors the
-  // official KTU calculation which only averages published SGPAs.
-  return cgpa.semesters
-    .filter((s) => s.sgpa !== undefined && s.sgpa !== null)
-    .map((s) => ({ sgpa: s.sgpa as number, credits: s.totalCredits }));
+  // Include all semesters with course data. Semesters with arrears have
+  // sgpa = 0 and are included (KTU counts them as 0 in the CGPA average).
+  return cgpa.semesters.map((s) => ({ sgpa: s.sgpa, credits: s.totalCredits }));
 }

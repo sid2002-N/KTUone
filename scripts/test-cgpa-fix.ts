@@ -1,8 +1,11 @@
 /**
- * Verify the CGPA fix — simulates a student with supplies in some semesters.
+ * Verify the CGPA calculation — uses the ACTUAL scraper data shape.
  *
- * Before the fix: semesters with no SGPA defaulted to 0, dragging down CGPA.
- * After the fix: semesters with no SGPA are excluded from the CGPA calculation.
+ * KTU CGPA = simple average of all semester SGPAs.
+ *   CGPA = (Σ SGPA) / (number of semesters with course data)
+ *
+ * - Semesters with arrears: SGPA = 0, INCLUDED in the average
+ * - Semesters not yet reached (no course array): EXCLUDED
  *
  * Run: npx tsx scripts/test-cgpa-fix.ts
  */
@@ -22,107 +25,105 @@ function makeCourse(code: string, name: string, credit: string, grade: string): 
   earned: string;
 } {
   return {
-    slot: "SLOT1",
+    slot: "A",
     course: `${code} - ${name}`,
     credit,
-    type: "CORE",
-    completed: "completed",
-    grade: "Yes",
+    type: "Valuation by university",
+    completed: "Yes",
+    grade: "No",
     earned: grade,
   };
 }
 
-// Simulate a student:
-//   S1: cleared, SGPA = 8.5 (24 credits)
-//   S2: cleared, SGPA = 7.8 (24 credits)
-//   S3: has supply → NO SGPA published (24 credits, all courses present)
-//   S4: cleared, SGPA = 8.0 (24 credits)
-//   S5: current semester, results not out → NO SGPA (24 credits present)
-//   S6-S8: not yet reached → no courses
-//
-// Expected CGPA (KTU official): (8.5*24 + 7.8*24 + 8.0*24) / 72 = 583.2 / 72 = 8.10
-// Buggy CGPA (old):             (8.5*24 + 7.8*24 + 0*24 + 8.0*24 + 0*24) / 120 = 583.2 / 120 = 4.86
-const scraper: ScraperStudentResponse = {
-  username: "TEST STUDENT",
-  userid: "TVE21CS001",
-  AdmittedBranch: "Computer Science & Engineering",
-  AdmittedScheme: "2019 Scheme",
-  CurrentSemester: "S5",
-  DateofAdmission: "08/2021",
-  Email: "test@example.com",
-  Mobile: "+91 9999999999",
-  S1: [
-    makeCourse("MAT101", "Linear Algebra", "4", "A+"),
-    makeCourse("PHT100", "Physics", "3", "A"),
-    makeCourse("CST101", "Programming", "4", "O"),
-    makeCourse("EST100", "Engineering Graphics", "3", "B+"),
+// Test 1: Student who completed all 8 semesters, some with arrears (SGPA=0)
+// S1-S5: SGPA = 7.0 each
+// S6: has arrears → SGPA = 0 (missing from scraper)
+// S7: SGPA = 8.0
+// S8: SGPA = 7.5
+// Expected CGPA = (7+7+7+7+7+0+8+7.5) / 8 = 50.5 / 8 = 6.31
+const scraper1: ScraperStudentResponse = {
+  username: "TEST STUDENT 1",
+  userid: "TVE20CS001",
+  AdmittedBranch: "COMPUTER SCIENCE & ENGINEERING",
+  AdmittedScheme: "B.Tech Full Time 2019 Scheme",
+  CurrentSemester: "S8",
+  S1: [makeCourse("MAT101", "Math 1", "4", "A")],
+  S1sgpa: "7.0",
+  S2: [makeCourse("MAT102", "Math 2", "4", "A")],
+  S2sgpa: "7.0",
+  S3: [makeCourse("CST301", "DS", "4", "A")],
+  S3sgpa: "7.0",
+  S4: [makeCourse("CST401", "OS", "4", "A")],
+  S4sgpa: "7.0",
+  S5: [makeCourse("CST501", "FLAT", "4", "A")],
+  S5sgpa: "7.0",
+  S6: [
+    // Has arrears — SGPA missing from scraper
+    makeCourse("CST302", "Course", "4", "F"),
+    makeCourse("CST303", "Course", "3", "A"),
   ],
-  S1sgpa: "8.5",
-  S2: [
-    makeCourse("MAT102", "Calculus", "4", "A"),
-    makeCourse("CST203", "Data Structures", "4", "A+"),
-    makeCourse("ECT201", "Electronics", "3", "B+"),
-  ],
-  S2sgpa: "7.8",
-  S3: [
-    // Has a supply — F grade in one subject
-    makeCourse("CST301", "Discrete Math", "4", "A"),
-    makeCourse("CST303", "OOP Java", "4", "F"), // ← supply
-    makeCourse("CST305", "Data Structures 2", "3", "A"),
-    makeCourse("CSL331", "DS Lab", "2", "A+"),
-  ],
-  // S3sgpa is MISSING — KTU doesn't publish SGPA when there's a supply
-  S4: [
-    makeCourse("CST401", "Operating Systems", "4", "A"),
-    makeCourse("CST403", "Computer Networks", "4", "A+"),
-    makeCourse("CST405", "Microprocessors", "3", "A"),
-  ],
-  S4sgpa: "8.0",
-  S5: [
-    // Current semester — results not out yet
-    makeCourse("CST501", "Formal Languages", "4", "No"),
-    makeCourse("CST503", "Computer Graphics", "3", "No"),
-    makeCourse("CST505", "Machine Learning", "3", "No"),
-  ],
-  // S5sgpa is MISSING — results not published yet
+  // S6sgpa intentionally MISSING — student has arrears
+  S7: [makeCourse("CST401", "AI", "3", "A+")],
+  S7sgpa: "8.0",
+  S8: [makeCourse("CST402", "DC", "3", "A")],
+  S8sgpa: "7.5",
 };
 
-console.log("=".repeat(60));
-console.log("CGPA FIX VERIFICATION");
-console.log("=".repeat(60));
+// Test 2: Student in S5 (hasn't reached S6-S8)
+// S1-S4: SGPA = 8.0 each, S5: current (no results yet, SGPA missing)
+// Expected CGPA = (8+8+8+8+0) / 5 = 32 / 5 = 6.40
+const scraper2: ScraperStudentResponse = {
+  username: "TEST STUDENT 2",
+  userid: "TVE22CS001",
+  AdmittedBranch: "COMPUTER SCIENCE & ENGINEERING",
+  AdmittedScheme: "B.Tech Full Time 2019 Scheme",
+  CurrentSemester: "S5",
+  S1: [makeCourse("MAT101", "Math 1", "4", "A+")],
+  S1sgpa: "8.0",
+  S2: [makeCourse("MAT102", "Math 2", "4", "A+")],
+  S2sgpa: "8.0",
+  S3: [makeCourse("CST301", "DS", "4", "A+")],
+  S3sgpa: "8.0",
+  S4: [makeCourse("CST401", "OS", "4", "A+")],
+  S4sgpa: "8.0",
+  S5: [
+    // Current semester — results not out
+    makeCourse("CST501", "FLAT", "4", "No"),
+  ],
+  // S5sgpa missing — results not published
+};
 
-const semesters = mapScraperToResults(scraper);
-console.log("\nSemesters parsed:");
-for (const s of semesters) {
-  const sgpaDisplay = s.sgpa !== undefined ? s.sgpa.toFixed(2) : "N/A (supply/not published)";
-  console.log(
-    `  S${s.semester}: SGPA=${sgpaDisplay}, credits=${s.totalCredits}, earned=${s.creditsEarned}, subjects=${s.subjects.length}`,
-  );
-}
+function test(name: string, scraper: ScraperStudentResponse, expected: number) {
+  console.log("=".repeat(60));
+  console.log(`TEST: ${name}`);
+  console.log("=".repeat(60));
 
-const cgpa = mapScraperToCGPA(scraper);
-console.log("\nCGPA result:");
-console.log(`  CGPA:          ${cgpa.cgpa}`);
-console.log(`  Total credits: ${cgpa.totalCredits} (only from semesters with SGPA)`);
-console.log(`  Credits earned: ${cgpa.creditsEarned}`);
-
-const expected = 8.1;
-const tolerance = 0.05;
-const pass = Math.abs(cgpa.cgpa - expected) < tolerance;
-console.log("\n" + "─".repeat(60));
-console.log(`Expected CGPA: ~${expected} (average of 8.5, 7.8, 8.0)`);
-console.log(`Got CGPA:      ${cgpa.cgpa}`);
-console.log(
-  pass ? "✅ PASS — fix works correctly" : "❌ FAIL — CGPA is still wrong",
-);
-
-if (!pass) {
-  console.log("\nDebug:");
-  console.log("  Semesters with SGPA included in CGPA:");
-  for (const s of cgpa.semesters) {
-    if (s.sgpa !== undefined) {
-      console.log(`    S${s.semester}: ${s.sgpa} × ${s.totalCredits} = ${s.sgpa * s.totalCredits}`);
-    }
+  const semesters = mapScraperToResults(scraper);
+  console.log("\nSemesters parsed:");
+  for (const s of semesters) {
+    console.log(
+      `  S${s.semester}: SGPA=${s.sgpa}, credits=${s.totalCredits}, subjects=${s.subjects.length}`,
+    );
   }
-  process.exit(1);
+
+  const cgpa = mapScraperToCGPA(scraper);
+  console.log(`\nCGPA: ${cgpa.cgpa}`);
+  console.log(`Total credits: ${cgpa.totalCredits}`);
+
+  const tolerance = 0.05;
+  const pass = Math.abs(cgpa.cgpa - expected) < tolerance;
+  console.log(`\nExpected: ${expected}`);
+  console.log(`Got:      ${cgpa.cgpa}`);
+  console.log(pass ? "✅ PASS" : "❌ FAIL");
+  console.log("");
+  return pass;
 }
+
+let allPass = true;
+allPass = test("8 semesters, S6 has arrears (SGPA=0)", scraper1, 6.31) && allPass;
+allPass = test("S5 student, S5 results pending (SGPA=0)", scraper2, 6.4) && allPass;
+
+console.log("=".repeat(60));
+console.log(allPass ? "🎉 ALL TESTS PASSED" : "💥 SOME TESTS FAILED");
+console.log("=".repeat(60));
+process.exit(allPass ? 0 : 1);

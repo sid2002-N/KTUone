@@ -918,3 +918,84 @@ would have produced by including 0×credits for S3 and S5).
   down the average while the user is typing.
 - The `scripts/test-cgpa-fix.ts` script is kept for regression testing.
 
+
+---
+
+## 2026-07-02 — Task `cgpa-formula-fix` — Correct KTU CGPA formula (simple average, not credit-weighted)
+
+**Scope:** User clarified the actual KTU CGPA formula and scraper data shape.
+The previous "fix" (excluding missing-SGPA semesters) was WRONG. The correct
+formula is a **simple average of all semester SGPAs**, where semesters with
+arrears count as 0.
+
+### User-provided scraper data shape
+
+```json
+{
+  "S1": [...], "S1sgpa": "7.0",
+  "S2": [...], "S2sgpa": "7.0",
+  ...
+  "S6": [...],  // has arrears → S6sgpa may be MISSING
+  "S7": [...], "S7sgpa": "8.0",
+  "S8": [...], "S8sgpa": "7.5"
+}
+```
+
+### Correct KTU CGPA formula
+
+```
+CGPA = (S1sgpa + S2sgpa + ... + S8sgpa) / (number of semesters with course data)
+```
+
+- Each SGPA is out of 10
+- If a semester has courses but no SGPA (arrears), SGPA = **0** (INCLUDED, not excluded)
+- Semesters the student hasn't reached (no course array) are excluded entirely
+
+### What was wrong before
+
+1. **Original bug:** Missing SGPA → defaulted to 0 → credit-weighted average dragged down CGPA
+2. **First fix (wrong):** Excluded missing-SGPA semesters entirely → CGPA too high (only averaged cleared semesters)
+3. **This fix (correct):** Missing SGPA = 0, simple average (not credit-weighted), all semesters with courses count
+
+### Files modified
+
+| # | Path | What changed |
+|---|------|--------------|
+| 1 | `src/lib/types/index.ts` | `SemesterResult.sgpa` back to required `number` (0 when missing, not undefined) |
+| 2 | `src/lib/scraper/mapper.ts` | `mapScraperToResults`: SGPA defaults to 0 if missing. `mapScraperToCGPA`: **simple average** (sum of SGPAs / count of semesters with courses), NOT credit-weighted |
+| 3 | `src/features/calculators/use-student-data.ts` | `cgpaToSemesters`: includes all semesters (no filtering) |
+| 4 | `src/lib/utils/calc.ts` | `computeCGPA`: simple average (sum of SGPAs / count), only skips truly empty rows (0 credits AND 0 SGPA) |
+| 5 | `scripts/test-cgpa-fix.ts` | Rewritten with 2 test cases: (1) 8 semesters with S6 arrears, (2) S5 student with pending results |
+
+### Test results
+
+```
+TEST 1: 8 semesters, S6 has arrears (SGPA=0)
+  S1-S5: 7.0, S6: 0 (arrears), S7: 8.0, S8: 7.5
+  CGPA = (7+7+7+7+7+0+8+7.5) / 8 = 50.5 / 8 = 6.31
+  ✅ PASS
+
+TEST 2: S5 student, S5 results pending (SGPA=0)
+  S1-S4: 8.0, S5: 0 (pending)
+  CGPA = (8+8+8+8+0) / 5 = 32 / 5 = 6.40
+  ✅ PASS
+
+🎉 ALL TESTS PASSED
+```
+
+### Validation
+
+- `npx tsc --noEmit` → 0 errors
+- `npx eslint src/` → 0 errors, 0 warnings
+- Dev server → Home 200
+
+### Notes for future agents
+
+- KTU CGPA is a **simple average** of semester SGPAs, NOT credit-weighted.
+- Semesters with arrears have SGPA = 0 and ARE included in the average.
+- Only semesters the student hasn't reached yet (no S{n} course array from
+  scraper) are excluded.
+- The manual CGPA calculator also uses simple average. Empty placeholder
+  rows (0 credits AND 0 SGPA) are skipped so users can add rows while typing
+  without affecting the result.
+
