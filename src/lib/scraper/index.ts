@@ -148,6 +148,12 @@ export async function fetchStudentFromScraper(
     );
   }
 
+  // Defensive JSON parsing — the scraper or Railway proxy may return
+  // SSE-formatted data ("data: {...}") instead of plain JSON when the
+  // KTU portal is slow or the response is streamed. Parse the raw text
+  // first, strip any SSE "data: " prefixes, then JSON.parse.
+  const rawBody = await res.text();
+
   if (res.status === 403 || res.status === 401) {
     // Scraper returns 403 for BOTH wrong credentials AND scraper failures
     // (KTU site down, HTML changed, CSRF broken, timeout). Surface the real
@@ -155,7 +161,7 @@ export async function fetchStudentFromScraper(
     let scraperMessage = "Invalid credentials";
     let code: ScraperError["code"] = "AUTH_FAILED";
     try {
-      const body = (await res.json()) as { status?: string; message?: string };
+      const body = safeJsonParse(rawBody) as { status?: string; message?: string } | null;
       if (body?.message) {
         scraperMessage = body.message;
         // If the message indicates a scrape failure (not auth), use SCRAPE_FAILED
@@ -180,7 +186,7 @@ export async function fetchStudentFromScraper(
     // Read the body for a better error message if possible
     let scraperMessage = `Scraper returned ${res.status}`;
     try {
-      const body = (await res.json()) as { message?: string };
+      const body = safeJsonParse(rawBody) as { message?: string } | null;
       if (body?.message) scraperMessage = body.message;
     } catch {
       // ignore
@@ -188,7 +194,14 @@ export async function fetchStudentFromScraper(
     throw new ScraperError("SCRAPE_FAILED", scraperMessage, 502);
   }
 
-  const data = (await res.json()) as ScraperStudentResponse;
+  const data = safeJsonParse(rawBody) as ScraperStudentResponse | null;
+  if (!data) {
+    throw new ScraperError(
+      "BAD_RESPONSE",
+      "Scraper returned a non-JSON response (possibly SSE stream). Raw: " + rawBody.slice(0, 100),
+      502,
+    );
+  }
   if (!data.userid || !data.username) {
     throw new ScraperError("BAD_RESPONSE", "Scraper response missing required fields", 502);
   }
@@ -209,6 +222,65 @@ export async function fetchNotificationsFromScraper(): Promise<ScraperNotificati
   if (!res.ok) {
     throw new ScraperError("SCRAPER_UNAVAILABLE", `Status ${res.status}`, 502);
   }
-  const data = (await res.json()) as { notifications: ScraperNotification[] };
+  const rawBody = await res.text();
+  const data = safeJsonParse(rawBody) as { notifications: ScraperNotification[] } | null;
+  if (!data) {
+    throw new ScraperError("SCRAPER_UNAVAILABLE", "Non-JSON response from scraper", 502);
+  }
   return data.notifications ?? [];
+}
+
+/**
+ * Safely parse a response body that might be:
+ *   1. Plain JSON: `{"key": "value"}`
+ *   2. SSE format: `data: {"key": "value"}\n\n`
+ *   3. Multiple SSE lines: `data: {"part1": ...}\ndata: {"part2": ...}\n\n`
+ *
+ * Strips "data: " prefixes, joins multi-line SSE, then JSON.parses.
+ * Returns null if the body cannot be parsed as JSON.
+ */
+function safeJsonParse(raw: string): unknown | null {
+  if (!raw || raw.trim() === "") return null;
+
+  // Check if this is SSE format (starts with "data: ")
+  if (raw.trimStart().startsWith("data: ")) {
+    // Split into lines, extract data: lines, join
+    const lines = raw.split("\n");
+    const dataLines = lines
+      .filter((line) => line.trimStart().startsWith("data: "))
+      .map((line) => line.trimStart().slice(6).trim()); // remove "data: " prefix
+
+    if (dataLines.length === 0) return null;
+
+    // Single line — parse directly
+    if (dataLines.length === 1) {
+      try {
+        return JSON.parse(dataLines[0]!);
+      } catch {
+        return null;
+      }
+    }
+
+    // Multiple lines — join and parse (some SSE implementations split JSON across lines)
+    try {
+      return JSON.parse(dataLines.join(""));
+    } catch {
+      // Try parsing each line individually and return the first valid one
+      for (const line of dataLines) {
+        try {
+          return JSON.parse(line);
+        } catch {
+          // continue
+        }
+      }
+      return null;
+    }
+  }
+
+  // Plain JSON
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }

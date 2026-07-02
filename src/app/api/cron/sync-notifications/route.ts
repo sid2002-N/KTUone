@@ -48,14 +48,37 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const data = (await res.json()) as {
-      notifications: Array<{
-        date: string;
-        heading: string;
-        key: string;
-        data: string;
-      }>;
-    };
+    // Defensive parsing — scraper may return SSE format ("data: {...}")
+    // instead of plain JSON when the KTU portal is slow.
+    const rawBody = await res.text();
+    let parsed: { notifications: Array<{ date: string; heading: string; key: string; data: string }> } | null = null;
+
+    if (rawBody.trimStart().startsWith("data: ")) {
+      // SSE format — strip "data: " prefix and parse
+      const dataLine = rawBody.split("\n").find((l) => l.trimStart().startsWith("data: "));
+      if (dataLine) {
+        try {
+          parsed = JSON.parse(dataLine.trimStart().slice(6).trim());
+        } catch {
+          /* not JSON */
+        }
+      }
+    } else {
+      try {
+        parsed = JSON.parse(rawBody);
+      } catch {
+        /* not JSON */
+      }
+    }
+
+    if (!parsed) {
+      return NextResponse.json(
+        { error: { code: "BAD_RESPONSE", message: "Invalid response from scraper" } },
+        { status: 502 },
+      );
+    }
+
+    const data = parsed;
 
     if (!data.notifications || !Array.isArray(data.notifications)) {
       return NextResponse.json(
