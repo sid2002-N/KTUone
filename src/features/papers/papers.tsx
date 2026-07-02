@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   FileText,
@@ -27,7 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MOCK_PAPERS } from "@/data/mock-data";
+import { getPapers, getPaperYears, type PaperFilters } from "@/features/papers/actions";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BRANCHES, SEMESTERS } from "@/lib/constants";
 import { formatBytes, formatNumber, formatRelativeTime } from "@/lib/utils/calc";
 import { useBookmarkStore } from "@/store/bookmark-store";
@@ -45,27 +47,18 @@ export function Papers() {
   const toggleBookmark = useBookmarkStore((s) => s.toggle);
   const hasBookmark = useBookmarkStore((s) => s.has);
 
-  const years = useMemo(
-    () => Array.from(new Set(MOCK_PAPERS.map((p) => p.year))).sort((a, b) => b - a),
-    [],
-  );
+  const { data: years = [] } = useQuery({
+    queryKey: ["papers", "years"],
+    queryFn: () => getPaperYears(),
+    staleTime: 60 * 1000,
+  });
 
-  const filtered = useMemo(() => {
-    return MOCK_PAPERS.filter((p) => {
-      if (search) {
-        const q = search.toLowerCase();
-        const match =
-          p.title.toLowerCase().includes(q) ||
-          p.subjectName.toLowerCase().includes(q) ||
-          p.subjectCode.toLowerCase().includes(q);
-        if (!match) return false;
-      }
-      if (branch !== "ALL" && p.branchCode !== branch) return false;
-      if (semester !== "ALL" && p.semester !== semester) return false;
-      if (year !== "ALL" && p.year !== year) return false;
-      return true;
-    });
-  }, [search, branch, semester, year]);
+  const filters: PaperFilters = { search, branch, semester, year };
+  const { data: papers = [], isLoading } = useQuery({
+    queryKey: ["papers", filters],
+    queryFn: () => getPapers(filters),
+    staleTime: 60 * 1000,
+  });
 
   const hasFilters = search || branch !== "ALL" || semester !== "ALL" || year !== "ALL";
 
@@ -174,14 +167,20 @@ export function Papers() {
 
       <div className="flex items-center justify-between mb-3 px-1">
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{filtered.length}</span> paper{filtered.length !== 1 ? "s" : ""} found
+          <span className="font-medium text-foreground">{papers.length}</span> paper{papers.length !== 1 ? "s" : ""} found
         </p>
         <Badge variant="secondary" className="gap-1">
           <Filter className="size-3" /> Filtered
         </Badge>
       </div>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-48 rounded-2xl" />
+          ))}
+        </div>
+      ) : papers.length === 0 ? (
         <EmptyState
           title="No papers found"
           description="Try changing your filters or searching for a different subject."
@@ -190,7 +189,7 @@ export function Papers() {
         />
       ) : (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3">
-          {filtered.map((p, i) => {
+          {papers.map((p, i) => {
             const bookmarked = hasBookmark("paper", p.id);
             return (
               <motion.div

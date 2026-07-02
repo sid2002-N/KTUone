@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
 import { BookOpen, Search, Download, Bookmark, BookmarkCheck, FileText } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
@@ -18,7 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MOCK_SYLLABUS } from "@/data/mock-data";
+import { getSyllabus, type SyllabusFilters } from "@/features/syllabus/actions";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BRANCHES, SEMESTERS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils/calc";
 import { useBookmarkStore } from "@/store/bookmark-store";
@@ -33,18 +35,12 @@ export function Syllabus() {
   const toggleBookmark = useBookmarkStore((s) => s.toggle);
   const hasBookmark = useBookmarkStore((s) => s.has);
 
-  const filtered = useMemo(() => {
-    return MOCK_SYLLABUS.filter((s) => {
-      if (search) {
-        const q = search.toLowerCase();
-        if (!s.subjectName.toLowerCase().includes(q) && !s.subjectCode.toLowerCase().includes(q))
-          return false;
-      }
-      if (branch !== "ALL" && s.branchCode !== branch) return false;
-      if (semester !== "ALL" && s.semester !== semester) return false;
-      return true;
-    });
-  }, [search, branch, semester]);
+  const filters: SyllabusFilters = { search, branch, semester };
+  const { data: syllabus = [], isLoading } = useQuery({
+    queryKey: ["syllabus", filters],
+    queryFn: () => getSyllabus(filters),
+    staleTime: 60 * 1000,
+  });
 
   return (
     <div>
@@ -100,10 +96,16 @@ export function Syllabus() {
       </GlassCard>
 
       <p className="text-sm text-muted-foreground mb-3 px-1">
-        <span className="font-medium text-foreground">{filtered.length}</span> syllabus documents
+        <span className="font-medium text-foreground">{syllabus.length}</span> syllabus documents
       </p>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="grid sm:grid-cols-2 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 rounded-2xl" />
+          ))}
+        </div>
+      ) : syllabus.length === 0 ? (
         <EmptyState
           title="No syllabus found"
           description="Try a different search or branch."
@@ -111,7 +113,7 @@ export function Syllabus() {
         />
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">
-          {filtered.map((s, i) => {
+          {syllabus.map((s, i) => {
             const bookmarked = hasBookmark("syllabus", s.id);
             return (
               <motion.div

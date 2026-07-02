@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Bell, Pin, ExternalLink, FileText, ChevronLeft, X } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
@@ -9,7 +10,8 @@ import { EmptyState } from "@/components/ui-custom/empty-state";
 import { SketchBooks } from "@/components/ui-custom/sketch-elements";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
 import { Badge } from "@/components/ui/badge";
-import { MOCK_NOTICES } from "@/data/mock-data";
+import { getNotices } from "@/features/notices/actions";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatRelativeTime, formatDate } from "@/lib/utils/calc";
 import type { KTUNotice, NoticeCategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -38,15 +40,11 @@ export function Notices() {
   const [selected, setSelected] = useState<KTUNotice | null>(null);
   const prefersReduced = useReducedMotion();
 
-  const filtered = useMemo(() => {
-    const list = filter === "All" ? MOCK_NOTICES : MOCK_NOTICES.filter((n) => n.category === filter);
-    return [...list].sort((a, b) => {
-      // Pinned first, then by date desc
-      if (a.pinned && !b.pinned) return -1;
-      if (!a.pinned && b.pinned) return 1;
-      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
-    });
-  }, [filter]);
+  const { data: notices = [], isLoading } = useQuery({
+    queryKey: ["notices", filter],
+    queryFn: () => getNotices(filter),
+    staleTime: 60 * 1000,
+  });
 
   return (
     <div>
@@ -74,7 +72,13 @@ export function Notices() {
         ))}
       </div>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-2xl" />
+          ))}
+        </div>
+      ) : notices.length === 0 ? (
         <EmptyState
           title="No notices in this category"
           description="Try a different category filter."
@@ -82,7 +86,7 @@ export function Notices() {
         />
       ) : (
         <div className="space-y-3">
-          {filtered.map((n, i) => (
+          {notices.map((n, i) => (
             <motion.button
               key={n.id}
               initial={prefersReduced ? false : { opacity: 0, y: 8 }}

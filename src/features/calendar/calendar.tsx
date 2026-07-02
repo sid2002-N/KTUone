@@ -1,11 +1,13 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
 import { CalendarDays, Clock, Bell } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { GlassCard } from "@/components/ui-custom/glass-card";
 import { Badge } from "@/components/ui/badge";
-import { MOCK_CALENDAR } from "@/data/mock-data";
+import { getCalendarEvents } from "@/features/calendar/actions";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/utils/calc";
 import type { CalendarEventType } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -22,7 +24,13 @@ const eventTypeMeta: Record<CalendarEventType, { label: string; bg: string }> = 
 
 export function Calendar() {
   const prefersReduced = useReducedMotion();
-  const events = [...MOCK_CALENDAR].sort(
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ["calendar"],
+    queryFn: () => getCalendarEvents(),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const sortedEvents = [...events].sort(
     (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
   );
 
@@ -36,7 +44,11 @@ export function Calendar() {
 
       {/* Month blocks */}
       <div className="space-y-6">
-        {events.map((e, i) => {
+        {isLoading
+          ? Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 rounded-2xl" />
+            ))
+          : sortedEvents.map((e, i) => {
           const meta = eventTypeMeta[e.type];
           const startDate = new Date(e.startDate);
           const endDate = new Date(e.endDate);

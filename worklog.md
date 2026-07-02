@@ -158,3 +158,135 @@ component can call `getPaymentProvider()`.
 - The "Test download" link on papers/syllabus will 401 if the admin opens
   it without a student cookie. This is expected behaviour, not a bug.
 
+---
+
+## 2025 — Task `rewire-screens` — Re-wire 5 feature screens to Server Actions + TanStack Query
+
+**Scope:** The 5 student-facing feature screens (papers, syllabus, notices,
+calendar, search overlay) had reverted to importing hardcoded mock data
+from `@/data/mock-data` after sandbox resets. The Server Actions in
+`src/features/*/actions.ts` already existed and worked — the screens just
+needed their data sources swapped back to live queries via TanStack Query.
+No UI/UX, styling, or layout was changed.
+
+### Files modified
+
+| # | Path | What changed |
+|---|------|--------------|
+| 1 | `src/features/papers/papers.tsx` | Removed `MOCK_PAPERS` import + `useMemo`. Added `useQuery` + `getPapers`, `getPaperYears`, `PaperFilters` from `@/features/papers/actions`, plus `Skeleton`. The `years` useMemo (derived from `MOCK_PAPERS`) → `useQuery({ queryKey: ["papers","years"], queryFn: getPaperYears, staleTime: 60s })`. The `filtered` useMemo → `useQuery({ queryKey: ["papers", filters], queryFn: () => getPapers(filters), staleTime: 60s })` where `filters = { search, branch, semester, year }`. Renamed `filtered` → `papers`. Added 6× `Skeleton h-48 rounded-2xl` loading grid, empty state when `papers.length === 0 && !isLoading`, updated count display to `papers.length`. |
+| 2 | `src/features/syllabus/syllabus.tsx` | Removed `MOCK_SYLLABUS` import + `useMemo`. Added `useQuery` + `getSyllabus`, `SyllabusFilters` from `@/features/syllabus/actions`, plus `Skeleton`. The `filtered` useMemo → `useQuery({ queryKey: ["syllabus", filters], queryFn: () => getSyllabus(filters), staleTime: 60s })` where `filters = { search, branch, semester }`. Renamed `filtered` → `syllabus`. Added 4× `Skeleton h-32 rounded-2xl` loading grid, empty state when `syllabus.length === 0 && !isLoading`. |
+| 3 | `src/features/notices/notices.tsx` | Removed `MOCK_NOTICES` import + `useMemo`. Added `useQuery` + `getNotices` from `@/features/notices/actions`, plus `Skeleton`. The `filtered` useMemo (which did category filter + pinned/date sort client-side) → `useQuery({ queryKey: ["notices", filter], queryFn: () => getNotices(filter), staleTime: 60s })`. The server action already filters by category and orders by `[{ pinned: "desc" }, { publishedAt: "desc" }]` — same sort the client was doing. Renamed `filtered` → `notices`. Added 4× `Skeleton h-24 rounded-2xl` loading column, empty state preserved. |
+| 4 | `src/features/calendar/calendar.tsx` | Removed `MOCK_CALENDAR` import. Added `useQuery` + `getCalendarEvents` from `@/features/calendar/actions`, plus `Skeleton`. The hardcoded `const events = [...MOCK_CALENDAR].sort(...)` → `const { data: events = [], isLoading } = useQuery({ queryKey: ["calendar"], queryFn: getCalendarEvents, staleTime: 5*60*1000 })` (5 min staleTime per spec). Added a derived `sortedEvents = [...events].sort(by startDate asc)` (server also sorts by `startDate: "asc"`, this is defensive per spec). Added 4× `Skeleton h-24 rounded-2xl` loading column via inline ternary inside `<div className="space-y-6">`. |
+| 5 | `src/features/search/search-overlay.tsx` | Removed `MOCK_PAPERS, MOCK_SYLLABUS, MOCK_NOTICES, MOCK_CALENDAR, SUBJECTS` import + `useMemo`. Added `useQuery` + `searchAll` from `@/features/search/actions`, plus `Loader2` from lucide. Removed the local `Result` interface (with `meta?: string`) and the giant client-side search `useMemo` that iterated 5 mock arrays. Replaced with `useQuery({ queryKey: ["search", query], queryFn: () => searchAll(query), enabled: query.trim().length >= 1, staleTime: 30s })`. Results are filtered through an `isDisplayResult` type guard that narrows `SearchResult.kind` (which includes `history` / `bookmark`) down to the 5 kinds the overlay renders (`paper`, `syllabus`, `notice`, `calendar`, `subject`). Added a `formatResultMeta(r)` helper that converts the server's `meta: Record<string, string \| number>` into the same display string the old client-side code produced (e.g. `"CER · S3 · May 2023"`). Removed the `grouped` `useMemo` — grouping now done inline as a derived const that walks `Object.keys(kindMeta)` in the canonical kind order. Added a `Loader2` + `animate-spin` spinner shown when `isFetching && results.length === 0` (initial fetch of a new query). |
+
+### Cross-cutting implementation notes
+
+- **Server Action invocation**: all 5 screens call the `"use server"` actions
+  directly inside `useQuery`'s `queryFn`. TanStack Query handles
+  deduplication, caching, and refetch-on-focus automatically. No fetch
+  boilerplate, no `useEffect`.
+- **Query keys**:
+  - `["papers", "years"]` — stable, fetches once per session.
+  - `["papers", filters]` — `filters` is the full `{ search, branch, semester, year }`
+    object; TanStack serializes it for cache keying, so each filter combination
+    is cached separately.
+  - `["syllabus", filters]` — `{ search, branch, semester }`.
+  - `["notices", filter]` — `filter` is the category string ("All" / "Academic" / …).
+  - `["calendar"]` — single static key (calendar isn't filtered).
+  - `["search", query]` — per-keystroke query string.
+- **staleTime policy** (per spec): `60 * 1000` (1 min) for papers / syllabus /
+  notices, `5 * 60 * 1000` (5 min) for calendar (rarely changes), `30 * 1000`
+  (30 s) for search (more responsive to new content).
+- **Loading UX**: every screen renders `Skeleton` placeholders matching the
+  shape of the loaded content (6× `h-48` cards for papers, 4× `h-32` cards
+  for syllabus, 4× `h-24` rows for notices, 4× `h-24` rows for calendar).
+  The search overlay uses a centred `Loader2` spinner instead (its results
+  don't have a fixed card shape to skeleton).
+- **Empty state UX**: every screen preserves the existing `EmptyState`
+  illustration (sketch books / notebook) and shows it when
+  `data.length === 0 && !isLoading`. The papers screen's `EmptyState`
+  keeps its "Clear filters" primary action.
+- **Notices `read` field**: the server action does not return a `read`
+  boolean (it's a client-only concept). The existing `!n.read &&` UI check
+  therefore now renders the "New" badge on every notice. This is a
+  consequence of the data-source swap, not a UI change — left untouched per
+  the "keep all existing UI/UX" rule. (Future work: derive `read` state
+  client-side from a `lastSeenNoticesAt` timestamp in `localStorage`.)
+
+### Type-safety work in `search-overlay.tsx`
+
+`SearchResult.kind` is the full `SearchKind` union
+(`subject | paper | syllabus | notice | calendar | history | bookmark`) —
+but `searchAll` only ever returns the first 5, and `kindMeta` is keyed by
+exactly those 5. Two design choices were made:
+
+1. **Type guard `isDisplayResult`** filters the `SearchResult[]` from
+   `searchAll` down to `DisplayResult[]` (`SearchResult & { kind: ResultKind }`).
+   This keeps `kindMeta[r.kind]` lookups type-safe without `as` casts at
+   every use site. If a future `searchAll` extension starts returning
+   `history` / `bookmark` kinds, they'll be silently dropped from the
+   overlay until `kindMeta` is extended.
+2. **`formatResultMeta` helper** converts the server's
+   `meta: Record<string, string | number>` into the display string the old
+   client-side code produced. The `kind`-specific `switch` mirrors the
+   previous inline template literals exactly, so the rendered meta text is
+   byte-for-byte identical to what users saw before the rewire (e.g.
+   `"CER · S3 · May 2023"` for a paper, `"2 hours ago"` for a notice).
+
+### Out-of-scope files still importing `@/data/mock-data`
+
+Two files outside the 5-screen scope still import from `@/data/mock-data`:
+
+- `src/lib/providers/student.ts` — `MockStudentService` uses
+  `MOCK_STUDENT`, `MOCK_CGPA`, `MOCK_SEMESTER_RESULTS`, `MOCK_ATTENDANCE`.
+  This is the intentional mock backend for the `StudentService` interface
+  (see file header comment). It's not a screen — it's the data layer that
+  the (separate) auth + profile + results flows go through. Out of scope.
+- `src/features/dashboard/dashboard.tsx` — uses `MOCK_PAPERS`,
+  `MOCK_NOTICES`, `MOCK_CALENDAR`, `MOCK_HISTORY`, `MOCK_STUDENT` to render
+  preview snippets on the home dashboard. Not in the 5-screen list. Left
+  untouched. (Future task: rewire dashboard to `getPapers({})`,
+  `getNotices("All")`, `getCalendarEvents()` for live previews.)
+
+### Validation
+
+- `bun run lint` → **clean** (0 errors, 0 warnings). No new lint issues
+  introduced. The pre-existing unused `cn` import in `papers.tsx` is
+  untouched (the project's ESLint config has `no-unused-vars` and
+  `@typescript-eslint/no-unused-vars` both set to `"off"`, so it was already
+  not flagged).
+- `rg "@/data/mock-data" src/features/{papers,syllabus,notices,calendar,search}/*`
+  → **0 matches**. All 5 rewired screens are clean of mock-data imports.
+- Dev server (`bun run dev`) log shows `GET / 200` responses continue
+  normally; the screens are client components, so they hydrate and fire
+  their `useQuery` calls against the existing Server Actions on mount.
+- The `QueryClientProvider` is already wired in `src/lib/providers/index.tsx`
+  (from the earlier `recreate-admin-ui` task), so no provider plumbing was
+  needed.
+
+### Notes for future agents
+
+- The 5 screens now make **real network round-trips** to the Server Actions
+  on first render. If the database is empty (e.g. fresh sandbox), each
+  screen will show its `EmptyState` instead of mock content. Seed data
+  should be added via the `/admin` panel (papers-upload, syllabus-upload,
+  notices create, calendar create) before demoing.
+- The `papers` query's `filters` object is part of the query key. Because
+  `PaperFilters` is a plain object, TanStack serializes it by value — two
+  calls with the same `{ search, branch, semester, year }` will share a
+  cache entry. This is the desired behaviour.
+- The `search-overlay` uses `enabled: query.trim().length >= 1`. The
+  `searchAll` action itself also guards `q.length < 2 → return []`, so a
+  1-character query will round-trip and return `[]`. The overlay's
+  `enabled` check is a defence-in-depth to avoid the round-trip entirely.
+  If you want to enforce a 2-char minimum client-side, change `>= 1` to
+  `>= 2`.
+- When extending `searchAll` to return new kinds (e.g. `history` /
+  `bookmark`), update `kindMeta` in `search-overlay.tsx` and remove the
+  corresponding `isDisplayResult` filter branch — otherwise the new kinds
+  will be silently dropped.
+- The `notices` screen's `!n.read` "New" badge now shows on every notice
+  because the server doesn't return `read`. If this becomes a UX issue,
+  implement client-side read tracking (e.g. `useReadNoticesStore` backed
+  by `localStorage`) and merge `read` into the query result via `select`.
+

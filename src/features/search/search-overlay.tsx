@@ -1,22 +1,52 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Search, X, Clock, FileText, BookOpen, Bell, CalendarDays, TrendingUp } from "lucide-react";
+import { Search, X, Clock, FileText, BookOpen, Bell, CalendarDays, TrendingUp, Loader2 } from "lucide-react";
 import { useNavStore } from "@/store/nav-store";
-import { MOCK_PAPERS, MOCK_SYLLABUS, MOCK_NOTICES, MOCK_CALENDAR, SUBJECTS } from "@/data/mock-data";
+import { searchAll } from "@/features/search/actions";
 import { getAnalyticsProvider } from "@/lib/providers/analytics";
 import type { NavKey } from "@/lib/constants";
+import type { SearchResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/utils/calc";
 
 type ResultKind = "paper" | "syllabus" | "notice" | "calendar" | "subject";
-interface Result {
-  id: string;
-  kind: ResultKind;
-  title: string;
-  subtitle?: string;
-  meta?: string;
+
+type DisplayResult = SearchResult & { kind: ResultKind };
+
+function isDisplayResult(r: SearchResult): r is DisplayResult {
+  return (
+    r.kind === "paper" ||
+    r.kind === "syllabus" ||
+    r.kind === "notice" ||
+    r.kind === "calendar" ||
+    r.kind === "subject"
+  );
+}
+
+/** Formats a SearchResult's Record<string, string|number> meta into the display
+ * string the search overlay expects (matches the previous client-side format). */
+function formatResultMeta(r: SearchResult): string {
+  if (!r.meta) return "";
+  const m = r.meta;
+  switch (r.kind) {
+    case "subject":
+      return `${m.branch} · S${m.semester} · ${m.credits} credits`;
+    case "paper": {
+      const monthLabel = m.month === 5 ? "May" : "Nov";
+      return `${m.branch} · S${m.semester} · ${monthLabel} ${m.year}`;
+    }
+    case "syllabus":
+      return `${m.branch} · S${m.semester}`;
+    case "notice":
+      return formatRelativeTime(String(m.publishedAt));
+    case "calendar":
+      return formatRelativeTime(String(m.startDate));
+    default:
+      return "";
+  }
 }
 
 const kindMeta: Record<ResultKind, { label: string; icon: React.ComponentType<{ className?: string }>; color: string }> = {
@@ -65,82 +95,14 @@ export function SearchOverlay() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, setOpen]);
 
-  const results = useMemo<Result[]>(() => {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase();
-    const out: Result[] = [];
+  const { data: rawResults = [], isFetching } = useQuery({
+    queryKey: ["search", query],
+    queryFn: () => searchAll(query),
+    enabled: query.trim().length >= 1,
+    staleTime: 30 * 1000,
+  });
 
-    for (const s of SUBJECTS.slice(0, 10)) {
-      if (
-        s.name.toLowerCase().includes(q) ||
-        s.code.toLowerCase().includes(q)
-      ) {
-        out.push({
-          id: s.id,
-          kind: "subject",
-          title: s.name,
-          subtitle: s.code,
-          meta: `${s.branchCode} · S${s.semester} · ${s.credits} credits`,
-        });
-      }
-    }
-    for (const p of MOCK_PAPERS) {
-      if (out.length > 20) break;
-      if (
-        p.subjectName.toLowerCase().includes(q) ||
-        p.subjectCode.toLowerCase().includes(q) ||
-        p.title.toLowerCase().includes(q)
-      ) {
-        out.push({
-          id: p.id,
-          kind: "paper",
-          title: p.subjectName,
-          subtitle: p.subjectCode,
-          meta: `${p.branchCode} · S${p.semester} · ${p.month === 5 ? "May" : "Nov"} ${p.year}`,
-        });
-      }
-    }
-    for (const s of MOCK_SYLLABUS) {
-      if (out.length > 30) break;
-      if (
-        s.subjectName.toLowerCase().includes(q) ||
-        s.subjectCode.toLowerCase().includes(q)
-      ) {
-        out.push({
-          id: s.id,
-          kind: "syllabus",
-          title: s.subjectName,
-          subtitle: s.subjectCode,
-          meta: `${s.branchCode} · S${s.semester}`,
-        });
-      }
-    }
-    for (const n of MOCK_NOTICES) {
-      if (out.length > 40) break;
-      if (n.title.toLowerCase().includes(q) || n.description.toLowerCase().includes(q)) {
-        out.push({
-          id: n.id,
-          kind: "notice",
-          title: n.title,
-          subtitle: n.category,
-          meta: formatRelativeTime(n.publishedAt),
-        });
-      }
-    }
-    for (const c of MOCK_CALENDAR) {
-      if (out.length > 50) break;
-      if (c.title.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)) {
-        out.push({
-          id: c.id,
-          kind: "calendar",
-          title: c.title,
-          subtitle: c.type,
-          meta: formatRelativeTime(c.startDate),
-        });
-      }
-    }
-    return out;
-  }, [query]);
+  const results = rawResults.filter(isDisplayResult);
 
   const saveRecent = (q: string) => {
     const next = [q, ...recent.filter((r) => r !== q)].slice(0, 6);
@@ -148,7 +110,7 @@ export function SearchOverlay() {
     try { localStorage.setItem(RECENT_KEY, JSON.stringify(next)); } catch { /* ignore */ }
   };
 
-  const handleResultClick = (r: Result) => {
+  const handleResultClick = (r: DisplayResult) => {
     saveRecent(query);
     getAnalyticsProvider().track({
       name: "search_performed",
@@ -165,15 +127,10 @@ export function SearchOverlay() {
     setOpen(false);
   };
 
-  const grouped = useMemo(() => {
-    const map = new Map<ResultKind, Result[]>();
-    for (const r of results) {
-      const arr = map.get(r.kind) ?? [];
-      arr.push(r);
-      map.set(r.kind, arr);
-    }
-    return Array.from(map.entries());
-  }, [results]);
+  // Group results inline (preserves kindMeta ordering) — no useMemo needed.
+  const grouped = (Object.keys(kindMeta) as ResultKind[])
+    .map((k): [ResultKind, DisplayResult[]] => [k, results.filter((r) => r.kind === k)])
+    .filter(([, items]) => items.length > 0);
 
   return (
     <AnimatePresence>
@@ -243,6 +200,11 @@ export function SearchOverlay() {
                       </div>
                     )}
                   </div>
+                ) : isFetching && results.length === 0 ? (
+                  <div className="p-8 flex flex-col items-center justify-center gap-3">
+                    <Loader2 className="size-6 text-muted-foreground animate-spin" />
+                    <p className="text-sm text-muted-foreground">Searching…</p>
+                  </div>
                 ) : results.length === 0 ? (
                   <div className="p-8 text-center">
                     <p className="text-sm text-muted-foreground">
@@ -260,6 +222,7 @@ export function SearchOverlay() {
                         </p>
                         {items.map((r) => {
                           const RIcon = kindMeta[r.kind].icon;
+                          const metaStr = formatResultMeta(r);
                           return (
                             <button
                               key={`${r.kind}_${r.id}`}
@@ -275,9 +238,9 @@ export function SearchOverlay() {
                                   <p className="text-xs text-muted-foreground">{r.subtitle}</p>
                                 )}
                               </div>
-                              {r.meta && (
+                              {metaStr && (
                                 <span className="text-xs text-muted-foreground shrink-0">
-                                  {r.meta}
+                                  {metaStr}
                                 </span>
                               )}
                             </button>
