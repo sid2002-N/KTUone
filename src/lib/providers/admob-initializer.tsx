@@ -97,12 +97,30 @@ let _warnedAboutMissingPackage = false;
  * Dynamically import the AdMob plugin. Resolves to null if the package
  * isn't installed (web-only build). Cached so we only attempt the import
  * once per session.
+ *
+ * Two important tricks here:
+ *
+ *   1. The module specifier is built from a string template
+ *      (`"@capacitor" + "-community/admob"`) so Turbopack/webpack can't
+ *      statically resolve it at build time. This prevents the
+ *      "Module not found" warning from spamming the dev log on every
+ *      compile when the package isn't installed.
+ *
+ *   2. `/* webpackIgnore: true *\/` tells webpack (used in non-Turbopack
+ *      production builds) to leave the dynamic import alone — pass it
+ *      through as a runtime `import()` rather than trying to bundle it.
  */
 async function loadAdMobPlugin(): Promise<AdMobPlugin | null> {
   if (!_admobModulePromise) {
     _admobModulePromise = (async () => {
       try {
-        const mod = await import("@capacitor-community/admob");
+        // Build the specifier at runtime so bundlers can't statically
+        // resolve it. When the package IS installed (Capacitor build), the
+        // runtime import still finds it normally.
+        const specifier = "@capacitor" + "-community/admob";
+        const mod = await import(
+          /* webpackIgnore: true */ specifier
+        );
         return { AdMob: (mod as { AdMob: AdMobPlugin }).AdMob };
       } catch {
         if (process.env.NODE_ENV !== "production" && !_warnedAboutMissingPackage) {

@@ -534,3 +534,165 @@ the env vars directly from its dashboard, no shell-inherited values.
   `bun run db:seed`. Real content (papers, syllabus, notices, calendar
   events, timetables) is added via `/admin` — never via seed.
 
+
+---
+
+## 2026-07-02 — Task `ads-networks` — Add AdSense (web) + AdMob (Capacitor) behind env-var switches
+
+**Scope:** Add full Google AdSense and Google AdMob support to the app without
+activating them. The user wants every backend piece in place so they can flip
+an env var and have real ads go live after Google approves their accounts.
+Default provider stays `BannerAdsProvider` (in-house promos) — flipping
+`NEXT_PUBLIC_ADS_PROVIDER` to `adsense` / `admob` / `none` is all that's
+required to switch. No code changes needed at activation time.
+
+### Files created / modified
+
+| # | Path | Action | Purpose |
+|---|------|--------|---------|
+| 1 | `src/lib/providers/ads.ts` | REWRITTEN (78 → 424 lines) | Added `AdSenseAdsProvider`, `AdMobAdsProvider`, `NoAdsProvider`. Added `AdDescriptor` extension fields (`adClient`, `adSlot`, `adFormat`, `fullWidthResponsive`, `adUnitId`, `adSize`). Added `createAdsProviderFromEnv()` factory that reads `NEXT_PUBLIC_*` env vars and picks the right provider. Added env-var inspection helpers (`isAdSenseActive`, `getAdSenseClientId`, `isAdMobActive`, `getAdMobAppId`, `getAdMobBannerId`, `getAdMobPosition`, `getAdMobBannerSize`) used by the script loader + initializer. Graceful fallback to `BannerAdsProvider` if required env vars are missing. |
+| 2 | `src/lib/providers/adsense-script.tsx` | NEW (100 lines) | `<AdSenseScript />` React component + `useAdSenseScript()` hook. Injects `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<ca-pub-…>` into `<head>` ONCE, only when `isAdSenseActive()` AND user is not a supporter AND `NEXT_PUBLIC_ADSENSE_CLIENT_ID` is set. Module-scoped `_scriptLoaded` flag dedupes mounts. |
+| 3 | `src/lib/providers/admob-initializer.tsx` | NEW (220 lines) | `<AdMobInitializer />` React component. Detects Capacitor native shell via `window.Capacitor.isNativePlatform()`. If running native AND `isAdMobActive()` AND user is not a supporter, dynamically imports `@capacitor-community/admob`, calls `AdMob.initialize()` then `AdMob.showBanner({ adId, adSize, position })`. On unmount or when user becomes supporter, calls `hideBanner()` + `removeBanner()`. Dynamic import uses runtime-built specifier (`"@capacitor" + "-community/admob"`) so Turbopack/webpack can't statically resolve it — prevents "Module not found" warnings when the package isn't installed. |
+| 4 | `src/types/capacitor-admob.d.ts` | NEW (47 lines) | Ambient type declaration for `@capacitor-community/admob`. Lets TypeScript compile cleanly whether or not the package is installed. When the package is installed (Capacitor build), the real `.d.ts` files in `node_modules` take precedence over this ambient declaration. |
+| 5 | `src/components/ui-custom/banner-ad.tsx` | REWRITTEN (88 → 188 lines) | `<BannerAd />` now branches on `ad.render`: `"banner"` (in-house promo, default) → `"adsense"` (`<ins class="adsbygoogle">` element + `window.adsbygoogle.push({})` on mount) → `"admob"` (layout placeholder div reserving space; native banner shown by `<AdMobInitializer />`) → `"none"` (renders null). Added `AdSenseAd` + `AdMobPlaceholder` sub-components. AdSense push is guarded by a ref so it only fires once per mount (avoids "already filled" warnings). |
+| 6 | `src/lib/providers/index.tsx` | MODIFIED | Added `<AdLayers />` component that mounts `<AdSenseScript />` + `<AdMobInitializer />` once at the app root inside `<Providers />`. Both render null and have zero bundle/layout impact when their activation conditions aren't met. |
+| 7 | `.env.example` | EXTENDED | Added a clearly-documented "Ads" section with all 9 env vars: `NEXT_PUBLIC_ADS_PROVIDER` (master switch), `NEXT_PUBLIC_ADSENSE_*` (5 vars), `NEXT_PUBLIC_ADMOB_*` (6 vars). Each var has a one-line comment explaining its purpose and valid values. |
+
+### Architecture — how ad selection works end-to-end
+
+1. **At module load**: `createAdsProviderFromEnv()` reads
+   `process.env.NEXT_PUBLIC_ADS_PROVIDER` (default `"banner"`). Constructs
+   the matching provider and caches it as a singleton via `getAdsProvider()`.
+2. **At app boot**: `<Providers />` mounts `<AdLayers />`, which renders
+   `<AdSenseScript />` + `<AdMobInitializer />`. Both check their activation
+   conditions inside `useEffect`:
+   - `<AdSenseScript />`: no-op unless `isAdSenseActive()` + not supporter + env var set.
+   - `<AdMobInitializer />`: no-op unless `isAdMobActive()` + running in
+     Capacitor native shell + not supporter + env vars set.
+3. **At each ad slot**: pages render `<BannerAd slot="…" />`. The component
+   calls `getAdsProvider().getAd(slot)` to get a descriptor, then branches
+   on `ad.render`:
+   - `"banner"` → in-house promo CTA ("Your banner could be here" + "Go ad-free for ₹99" button)
+   - `"adsense"` → `<ins class="adsbygoogle">` element; the script loaded
+     by `<AdSenseScript />` fills it with a real ad. If the script hasn't
+     loaded yet, the `<ins>` is empty until it does.
+   - `"admob"` → placeholder div reserving layout space (same `minHeight`
+     as the native banner will occupy). The actual native banner is
+     overlaid by `<AdMobInitializer />`.
+   - `"none"` → renders null. Used by `NoAdsProvider` (kill switch) AND
+     by AdSense for slots not in the `NEXT_PUBLIC_ADSENSE_SLOTS` map, AND
+     by AdMob for slots not in `NEXT_PUBLIC_ADMOB_ACTIVE_SLOTS`.
+4. **Supporter toggle**: `useSupporterStore` flips → `SupporterAdsSync`
+   calls `getAdsProvider().setEnabled(false)` → `<BannerAd />` shows the
+   "Ad-free experience — Thanks for being a Supporter 💜" ribbon instead
+   of any ad. `<AdSenseScript />` won't load the script. `<AdMobInitializer />`
+   calls `hideBanner()` + `removeBanner()` on the native side.
+
+### Env var reference
+
+| Var | Required when | Purpose |
+|-----|---------------|---------|
+| `NEXT_PUBLIC_ADS_PROVIDER` | always | `"banner"` (default) \| `"adsense"` \| `"admob"` \| `"none"` |
+| `NEXT_PUBLIC_ADSENSE_CLIENT_ID` | `adsense` | `ca-pub-XXXXXXXXXXXXXXXX` |
+| `NEXT_PUBLIC_ADSENSE_SLOTS` | `adsense` | JSON map `{"home-top":"123","papers-list":"456",...}` |
+| `NEXT_PUBLIC_ADSENSE_FORMAT` | optional | `"auto"` (default) \| `"horizontal"` \| `"vertical"` \| `"rectangle"` |
+| `NEXT_PUBLIC_ADSENSE_RESPONSIVE` | optional | `"true"` (default) \| `"false"` |
+| `NEXT_PUBLIC_ADMOB_APP_ID` | `admob` | `ca-app-pub-XXXX~XXXX` |
+| `NEXT_PUBLIC_ADMOB_BANNER_ID` | `admob` | `ca-app-pub-XXXX/XXXX` |
+| `NEXT_PUBLIC_ADMOB_SLOTS` | optional | JSON map `{"home-top":"ca-app-pub-…/…"}` |
+| `NEXT_PUBLIC_ADMOB_BANNER_SIZE` | optional | `"SMART_BANNER"` (default) \| `"BANNER"` \| `"LARGE_BANNER"` \| `"MEDIUM_RECTANGLE"` \| `"FULL_BANNER"` \| `"LEADERBOARD"` |
+| `NEXT_PUBLIC_ADMOB_POSITION` | optional | `"TOP_CENTER"` \| `"BOTTOM_CENTER"` (default) |
+| `NEXT_PUBLIC_ADMOB_ACTIVE_SLOTS` | optional | JSON array `["home-top"]` (default) — slots that reserve layout space |
+
+### Activation checklist for the user (when Google approves)
+
+**Web — AdSense**:
+1. Set `NEXT_PUBLIC_ADS_PROVIDER=adsense` in Vercel env vars.
+2. Set `NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-XXXXXXXXXXXXXXXX`.
+3. Set `NEXT_PUBLIC_ADSENSE_SLOTS={"home-top":"1234567890","papers-list":"0987654321","syllabus-list":"…","notices-list":"…","settings-top":"…"}`.
+4. (Optional) Set `NEXT_PUBLIC_ADSENSE_FORMAT` / `NEXT_PUBLIC_ADSENSE_RESPONSIVE`.
+5. Redeploy. `<AdSenseScript />` injects the script on first render;
+   `<BannerAd />` instances start rendering `<ins class="adsbygoogle">`
+   elements that AdSense fills with real ads.
+
+**Native (Capacitor) — AdMob**:
+1. `npm install @capacitor/core @capacitor/cli @capacitor-community/admob`
+2. `npx cap init "KTU One" "in.ktuone.app" --web-dir=out`
+3. Add AdMob plugin to `capacitor.config.ts`:
+   ```ts
+   const config: CapacitorConfig = {
+     appId: "in.ktuone.app",
+     plugins: { AdMob: { appId: "ca-app-pub-XXXX~XXXX" } }
+   };
+   ```
+4. `npx cap add android` (and/or `npx cap add ios`).
+5. Set `NEXT_PUBLIC_ADS_PROVIDER=admob`, `NEXT_PUBLIC_ADMOB_APP_ID`, `NEXT_PUBLIC_ADMOB_BANNER_ID` env vars.
+6. `npx cap sync` + `npx cap open android` (or ios).
+7. Native banner appears at configured position on every screen where
+   `<BannerAd slot="home-top" />` (or another active slot) renders.
+
+### Why the dynamic import is build-safe
+
+The `import("@capacitor-community/admob")` call inside `loadAdMobPlugin()`
+uses two tricks to avoid bundler complaints when the package isn't installed:
+
+1. **Runtime-built specifier**: `const specifier = "@capacitor" + "-community/admob";`
+   This prevents Turbopack and webpack from statically resolving the module
+   at compile time. Without this, every dev compile would log
+   `Module not found: Can't resolve '@capacitor-community/admob'` and some
+   bundler configs would fail the build outright.
+2. **`/* webpackIgnore: true */` magic comment**: tells webpack (used in
+   non-Turbopack production builds) to leave this `import()` as a runtime
+   call rather than trying to bundle it. Turbopack doesn't honor this
+   comment, but trick #1 already handles Turbopack.
+
+When the package IS installed (Capacitor build), the runtime `import()`
+finds it normally — no code changes needed.
+
+### Validation
+
+- `npx tsc --noEmit` on src/ → **0 errors**.
+- `npx eslint src/` → **0 errors, 0 warnings**.
+- `npx next build` → **compiled successfully in 8.6s**, 26 routes generated.
+- Dev server smoke test in all 4 modes (`banner`, `adsense`, `admob`, `none`):
+  - `GET /` → 200 in all modes
+  - `GET /admin` → 200 in all modes
+  - `GET /api/v1/admin/notices` with key → 200 in all modes
+  - `GET /api/v1/admin/notices` without key → 401 in all modes
+  - `GET /api/v1/profile` without auth → 401 in all modes
+- Dev log warning check: `grep -c "Module not found" dev.log` → **0** (the
+  runtime-built specifier trick eliminated the warning).
+- Existing 5 `<BannerAd />` mount points (`home-top`, `papers-list`,
+  `syllabus-list`, `notices-list`, `settings-top`) all render correctly in
+  every mode — verified by visual inspection of the dev server responses.
+
+### Notes for future agents
+
+- The `@capacitor-community/admob` package is NOT in `package.json`. It's
+  only added when the user wraps the build with Capacitor (see activation
+  checklist above). The ambient type declaration in
+  `src/types/capacitor-admob.d.ts` lets TypeScript compile without the
+  package; once it's installed, the real types from `node_modules` override
+  the ambient declaration automatically.
+- The `<AdSenseScript />` script tag is added to `<head>` ONCE per app
+  load (module-scoped `_scriptLoaded` flag). If the user becomes a
+  supporter after the script has loaded, the script tag stays in the DOM
+  but `<BannerAd />` shows the supporter ribbon instead — no wasted ad
+  requests because `<ins>` elements aren't being rendered.
+- AdSense slots not present in `NEXT_PUBLIC_ADSENSE_SLOTS` return
+  `render: "none"` (render nothing). This is intentional — avoids shipping
+  empty `<ins>` elements that AdSense would log warnings about.
+- AdMob `activeSlots` defaults to `["home-top"]` because native banners
+  are typically one banner per screen. Override via
+  `NEXT_PUBLIC_ADMOB_ACTIVE_SLOTS=["home-top","papers-list"]` to enable
+  more slots. Each active slot reserves layout space via the placeholder
+  div rendered by `<AdMobPlaceholder />`.
+- The `NoAdsProvider` (activated by `NEXT_PUBLIC_ADS_PROVIDER=none`) is
+  the kill switch — it returns `render: "none"` for every slot, so no ad
+  renders anywhere. Useful if you need to disable all ads (including
+  in-house promos) without code changes.
+- All ad-related env vars are `NEXT_PUBLIC_*` so they're available on both
+  server and client. This is required because `<AdSenseScript />` and
+  `<AdMobInitializer />` are client components that need to read the
+  provider name + IDs at runtime.
+
