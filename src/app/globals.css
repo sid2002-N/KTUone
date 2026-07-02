@@ -1706,3 +1706,158 @@
 .calc-panel label {
   color: var(--luxury-text-muted) !important;
 }
+
+/* ==========================================================================
+   PREMIUM PAPERS — v4 (Netflix-style browsing)
+   ========================================================================== */
+
+/* Papers hero — premium gradient header */
+.papers-hero {
+  background:
+    radial-gradient(ellipse at top right, oklch(0.30 0.08 340 / 0.4), transparent 60%),
+    radial-gradient(ellipse at bottom left, oklch(0.25 0.06 75 / 0.25), transparent 50%),
+    linear-gradient(135deg, var(--luxury-bg) 0%, var(--luxury-surface) 100%);
+  color: var(--luxury-text);
+  border-radius: 1.5rem;
+  border: 1px solid var(--luxury-border);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.05) inset,
+    0 20px 40px -15px oklch(0 0 0 / 0.4);
+}
+
+/* Premium filter bar — dark luxury */
+.papers-filter-bar {
+  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
+  color: var(--luxury-text);
+  border-radius: 1.25rem;
+  border: 1px solid var(--luxury-border);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.04) inset,
+    0 10px 25px -10px oklch(0 0 0 / 0.3);
+}
+
+.papers-filter-bar input,
+.papers-filter-bar select {
+  background: oklch(0 0 0 / 0.2) !important;
+  border-color: var(--luxury-border) !important;
+  color: var(--luxury-text) !important;
+}
+.papers-filter-bar input::placeholder {
+  color: var(--luxury-text-muted) !important;
+}
+.papers-filter-bar input:focus,
+.papers-filter-bar select:focus {
+  border-color: oklch(0.62 0.15 340 / 0.5) !important;
+  box-shadow: 0 0 0 3px oklch(0.62 0.15 340 / 0.15) !important;
+}
+
+/* Paper card — premium dark luxury tile */
+.paper-tile {
+  position: relative;
+  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
+  color: var(--luxury-text);
+  border-radius: 1.25rem;
+  border: 1px solid var(--luxury-border);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.04) inset,
+    0 10px 25px -10px oklch(0 0 0 / 0.3);
+  transition: all 0.4s var(--ease-premium);
+  overflow: hidden;
+}
+
+.paper-tile::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, oklch(0.62 0.15 340), oklch(0.78 0.13 75));
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-premium);
+}
+
+.paper-tile:hover {
+  transform: translateY(-4px);
+  border-color: oklch(0.62 0.15 340 / 0.3);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.06) inset,
+    0 20px 40px -15px oklch(0 0 0 / 0.4),
+    0 0 0 1px oklch(0.62 0.15 340 / 0.15);
+}
+
+.paper-tile:hover::before {
+  opacity: 1;
+}
+
+/* Paper thumbnail — premium gradient with subject initial */
+.paper-thumbnail {
+  position: relative;
+  background: linear-gradient(135deg, oklch(0.50 0.12 340 / 0.15), oklch(0.45 0.10 340 / 0.05));
+  border-bottom: 1px solid var(--luxury-border);
+  overflow: hidden;
+}
+
+.paper-thumbnail::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 30%, oklch(0.62 0.15 340 / 0.1), transparent 50%),
+    radial-gradient(circle at 70% 70%, oklch(0.78 0.13 75 / 0.08), transparent 50%);
+  pointer-events: none;
+}
+
+/* Premium badge — for exam type */
+.badge-premium {
+  background: oklch(0 0 0 / 0.25);
+  border: 1px solid var(--luxury-border);
+  color: var(--luxury-text-muted);
+  backdrop-filter: blur(8px);
+}
+.badge-premium-accent {
+  background: oklch(0.62 0.15 340 / 0.15);
+  border: 1px solid oklch(0.62 0.15 340 / 0.25);
+  color: oklch(0.78 0.15 340);
+  backdrop-filter: blur(8px);
+}
+
+/* Paper action buttons — premium */
+.paper-btn-primary {
+  background: linear-gradient(135deg, oklch(0.62 0.15 340), oklch(0.55 0.14 340));
+  color: oklch(0.99 0.008 78);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.2) inset,
+    0 4px 12px -2px oklch(0.50 0.15 340 / 0.4);
+  transition: all 0.25s var(--ease-premium);
+}
+.paper-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.3) inset,
+    0 6px 16px -2px oklch(0.50 0.15 340 / 0.5);
+}
+.paper-btn-secondary {
+  background: oklch(1 0 0 / 0.05);
+  color: var(--luxury-cream);
+  border: 1px solid var(--luxury-border);
+  transition: all 0.25s var(--ease-premium);
+}
+.paper-btn-secondary:hover {
+  background: oklch(1 0 0 / 0.1);
+  border-color: oklch(0.62 0.15 340 / 0.3);
+}
+
+/* Count badge — premium */
+.count-badge-premium {
+  background: oklch(0.62 0.15 340 / 0.12);
+  border: 1px solid oklch(0.62 0.15 340 / 0.2);
+  color: oklch(0.78 0.15 340);
+}
+
+/* Premium skeleton */
+.skeleton-luxury-paper {
+  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
+  border-radius: 1.25rem;
+  border: 1px solid var(--luxury-border);
+}

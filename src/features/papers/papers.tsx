@@ -4,23 +4,17 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  FileText,
   Search,
   Download,
   Bookmark,
   BookmarkCheck,
   Eye,
-  Filter,
   X,
 } from "lucide-react";
-import { PageHeader } from "@/components/layout/page-header";
-import { GlassCard } from "@/components/ui-custom/glass-card";
 import { EmptyState } from "@/components/ui-custom/empty-state";
 import { SketchBooks } from "@/components/ui-custom/sketch-elements";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -29,14 +23,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getPapers, getPaperYears, type PaperFilters } from "@/features/papers/actions";
-import { Skeleton } from "@/components/ui/skeleton";
 import { BRANCHES, SEMESTERS } from "@/lib/constants";
 import { formatBytes, formatNumber, formatRelativeTime } from "@/lib/utils/calc";
 import { useBookmarks } from "@/features/bookmarks/use-bookmarks";
 import { getNotificationProvider } from "@/lib/providers/notification";
 import { getAnalyticsProvider } from "@/lib/providers/analytics";
 import type { BranchCode, SemesterNumber } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 export function Papers() {
   const [search, setSearch] = useState("");
@@ -108,28 +100,50 @@ export function Papers() {
   };
 
   return (
-    <div>
-      <PageHeader
-        title="Question Papers"
-        description="Browse, search and download KTU question papers across all branches and years."
-        icon={<FileText className="size-5" />}
-      />
+    <div className="space-y-5">
+      {/* ===== PREMIUM HERO ===== */}
+      <motion.div
+        initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="papers-hero p-6 sm:p-8"
+      >
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex-1 min-w-[200px]">
+            <p className="hero-eyebrow text-lg sm:text-xl rotate-[-2deg] inline-block mb-1">
+              Library
+            </p>
+            <h1 className="hero-headline text-3xl sm:text-4xl lg:text-5xl">
+              Question <em>papers.</em>
+            </h1>
+            <p className="text-sm text-[var(--luxury-text-muted)] max-w-md leading-relaxed mt-2">
+              Browse, search and download KTU question papers across all branches and years.
+            </p>
+          </div>
+          {/* Stats badge */}
+          <div className="flex items-center gap-2">
+            <div className="count-badge-premium px-3 py-1.5 rounded-full text-xs font-semibold">
+              {papers.length} paper{papers.length !== 1 ? "s" : ""}
+            </div>
+          </div>
+        </div>
+      </motion.div>
 
-      {/* Filter bar */}
-      <GlassCard className="p-4 mb-4">
+      {/* ===== PREMIUM FILTER BAR ===== */}
+      <div className="papers-filter-bar p-4">
         <div className="flex flex-col lg:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[var(--luxury-text-muted)] pointer-events-none" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by subject, code or title..."
-              className="pl-10 h-11 bg-background"
+              className="pl-10 h-11"
             />
           </div>
           <div className="grid grid-cols-3 gap-2 lg:flex">
             <Select value={branch} onValueChange={(v) => setBranch(v as BranchCode | "ALL")}>
-              <SelectTrigger className="h-11 bg-background lg:w-[140px]">
+              <SelectTrigger className="h-11 lg:w-[140px]">
                 <SelectValue placeholder="Branch" />
               </SelectTrigger>
               <SelectContent>
@@ -142,7 +156,7 @@ export function Papers() {
               </SelectContent>
             </Select>
             <Select value={String(semester)} onValueChange={(v) => setSemester(v === "ALL" ? "ALL" : (Number(v) as SemesterNumber))}>
-              <SelectTrigger className="h-11 bg-background lg:w-[110px]">
+              <SelectTrigger className="h-11 lg:w-[110px]">
                 <SelectValue placeholder="Sem" />
               </SelectTrigger>
               <SelectContent>
@@ -155,7 +169,7 @@ export function Papers() {
               </SelectContent>
             </Select>
             <Select value={String(year)} onValueChange={(v) => setYear(v === "ALL" ? "ALL" : Number(v))}>
-              <SelectTrigger className="h-11 bg-background lg:w-[110px]">
+              <SelectTrigger className="h-11 lg:w-[110px]">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>
               <SelectContent>
@@ -169,26 +183,21 @@ export function Papers() {
             </Select>
           </div>
           {hasFilters && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="h-11 px-3">
-              <X className="size-4 mr-1" /> Clear
-            </Button>
+            <button
+              onClick={clearFilters}
+              className="paper-btn-secondary h-11 px-4 rounded-full text-sm font-medium flex items-center gap-1.5"
+            >
+              <X className="size-4" /> Clear
+            </button>
           )}
         </div>
-      </GlassCard>
-
-      <div className="flex items-center justify-between mb-3 px-1">
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{papers.length}</span> paper{papers.length !== 1 ? "s" : ""} found
-        </p>
-        <Badge variant="secondary" className="gap-1">
-          <Filter className="size-3" /> Filtered
-        </Badge>
       </div>
 
+      {/* ===== PAPERS GRID ===== */}
       {isLoading ? (
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 rounded-2xl" />
+            <div key={i} className="skeleton-luxury-paper h-56 shimmer-luxury" />
           ))}
         </div>
       ) : papers.length === 0 ? (
@@ -199,86 +208,88 @@ export function Papers() {
           primaryAction={{ label: "Clear filters", onClick: clearFilters }}
         />
       ) : (
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {papers.map((p, i) => {
             const bookmarked = hasBookmark("paper", p.id);
+            const subjectInitial = p.subjectName.charAt(0).toUpperCase();
             return (
               <motion.div
                 key={p.id}
-                initial={prefersReduced ? false : { opacity: 0, y: 10 }}
+                initial={prefersReduced ? false : { opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(i * 0.03, 0.4), duration: 0.4 }}
+                transition={{ delay: Math.min(i * 0.06, 0.5), duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="paper-tile flex flex-col"
               >
-                <GlassCard hover className="p-4 h-full flex flex-col">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="size-11 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-                      <FileText className="size-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold leading-snug line-clamp-2">
-                        {p.subjectName}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {p.subjectCode} · {p.branchCode} · S{p.semester}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onBookmark(p.id, p.subjectName)}
-                      className="size-8 rounded-lg hover:bg-secondary flex items-center justify-center transition shrink-0"
-                      aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
-                    >
-                      {bookmarked ? (
-                        <BookmarkCheck className="size-4 text-primary" fill="currentColor" />
-                      ) : (
-                        <Bookmark className="size-4 text-muted-foreground" />
-                      )}
-                    </button>
-                  </div>
+                {/* Thumbnail — Netflix-style with subject initial */}
+                <div className="paper-thumbnail h-24 flex items-center justify-center relative">
+                  <span className="font-serif text-5xl font-bold text-[var(--luxury-plum)] opacity-80 select-none">
+                    {subjectInitial}
+                  </span>
+                  {/* Bookmark button — top right */}
+                  <button
+                    onClick={() => onBookmark(p.id, p.subjectName)}
+                    className="absolute top-2.5 right-2.5 size-8 rounded-lg bg-[oklch(0_0_0_/_0.3)] backdrop-blur-sm flex items-center justify-center transition hover:bg-[oklch(0_0_0_/_0.5)]"
+                    aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
+                  >
+                    {bookmarked ? (
+                      <BookmarkCheck className="size-4 text-[var(--luxury-amber)]" fill="currentColor" />
+                    ) : (
+                      <Bookmark className="size-4 text-[var(--luxury-text-muted)]" />
+                    )}
+                  </button>
+                  {/* Exam type badge — bottom left */}
+                  <span className="absolute bottom-2.5 left-2.5 badge-premium-accent px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider">
+                    {p.examType.replace("_", " ")}
+                  </span>
+                </div>
 
-                  <div className="flex items-center gap-2 mb-3 flex-wrap">
-                    <Badge variant="secondary" className="text-[10px]">
-                      {p.examType.replace("_", " ")}
-                    </Badge>
-                    <Badge variant="outline" className="text-[10px]">
-                      {p.month === 5 ? "May" : "Nov"} {p.year}
-                    </Badge>
-                    <Badge variant="outline" className="text-[10px]">
-                      {p.pageCount}p · {formatBytes(p.fileSizeBytes)}
-                    </Badge>
-                  </div>
+                {/* Body */}
+                <div className="p-4 flex flex-col flex-1">
+                  <p className="text-sm font-semibold leading-snug line-clamp-2 text-[var(--luxury-cream)]">
+                    {p.subjectName}
+                  </p>
+                  <p className="text-xs text-[var(--luxury-text-muted)] mt-1">
+                    {p.subjectCode} · {p.branchCode} · S{p.semester}
+                  </p>
 
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
+                  {/* Meta row */}
+                  <div className="flex items-center gap-3 text-[11px] text-[var(--luxury-text-muted)] mt-3 mb-3">
                     <span className="flex items-center gap-1">
                       <Eye className="size-3" /> {formatNumber(p.views)}
                     </span>
                     <span className="flex items-center gap-1">
                       <Download className="size-3" /> {formatNumber(p.downloads)}
                     </span>
-                    <span className="ml-auto">{formatRelativeTime(p.uploadedAt)}</span>
+                    <span className="ml-auto badge-premium px-2 py-0.5 rounded-md">
+                      {p.month === 5 ? "May" : "Nov"} {p.year}
+                    </span>
                   </div>
 
+                  {/* File info */}
+                  <p className="text-[10px] text-[var(--luxury-text-muted)] mb-3">
+                    {p.pageCount} pages · {formatBytes(p.fileSizeBytes)} · {formatRelativeTime(p.uploadedAt)}
+                  </p>
+
+                  {/* Actions */}
                   <div className="mt-auto flex gap-2">
-                    <Button
-                      size="sm"
-                      className="h-9 flex-1 rounded-full"
+                    <button
                       onClick={() => onDownload(p.id, p.title)}
+                      className="paper-btn-primary h-9 flex-1 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5"
                     >
-                      <Download className="size-3.5 mr-1.5" /> Download
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="h-9 rounded-full"
+                      <Download className="size-3.5" /> Download
+                    </button>
+                    <button
                       onClick={() => {
-                        // View = same download URL (browser renders the PDF inline)
                         getAnalyticsProvider().track({ name: "paper_viewed", props: { paperId: p.id } });
                         window.open(`/api/v1/papers/${p.id}/download`, "_blank", "noopener,noreferrer");
                       }}
+                      className="paper-btn-secondary h-9 w-9 rounded-full flex items-center justify-center"
+                      aria-label="View PDF"
                     >
                       <Eye className="size-3.5" />
-                    </Button>
+                    </button>
                   </div>
-                </GlassCard>
+                </div>
               </motion.div>
             );
           })}

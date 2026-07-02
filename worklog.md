@@ -1228,3 +1228,79 @@ Only the outer shell was redesigned.
 | 9 | Empty states | ⏳ |
 | 10 | Motion polish | ⏳ |
 
+
+---
+
+## 2026-07-02 — Task `premium-redesign-phase-4` — Papers Netflix-style browsing
+
+**Scope:** Phase 4 of the premium dark-luxury redesign. Transformed the
+Papers page from flat cards into Netflix-style browsing tiles with a
+thumbnail hero per paper.
+
+### Design tokens added (`src/app/globals.css`)
+
+| Class | Purpose |
+|-------|---------|
+| `.papers-hero` | Premium gradient header (dark luxury, radial glows) |
+| `.papers-filter-bar` | Dark luxury filter bar with premium input overrides |
+| `.paper-tile` | Netflix-style card — hover lift, top gradient bar, border glow |
+| `.paper-thumbnail` | Thumbnail area with radial accent glows + bottom border |
+| `.badge-premium` | Glass badge with backdrop blur |
+| `.badge-premium-accent` | Plum-tinted glass badge for exam type |
+| `.paper-btn-primary` | Gradient plum download button with glow |
+| `.paper-btn-secondary` | Glass outline button (View, Clear) |
+| `.count-badge-premium` | Plum-tinted count badge |
+| `.skeleton-luxury-paper` | Premium skeleton with shimmer |
+
+### Papers page redesigned (`src/features/papers/papers.tsx`)
+
+**Premium hero:**
+- Dark-luxury gradient card with handwritten "Library" eyebrow + serif "Question papers." headline
+- Live count badge showing paper count
+
+**Premium filter bar:**
+- Dark-luxury surface with premium input overrides (dark bg, plum focus ring)
+- Search input + Branch/Semester/Year selects + Clear button
+- All inputs styled to match the dark theme
+
+**Netflix-style paper cards:**
+- Each card has a **thumbnail area** (h-24) with:
+  - Large subject initial (serif font, plum color) as the "cover art"
+  - Bookmark button (top-right, glass overlay)
+  - Exam type badge (bottom-left, plum-tinted glass)
+- Body section with:
+  - Subject name (2-line clamp)
+  - Subject code · Branch · Semester
+  - View count, download count, month/year badge
+  - File info (pages, size, relative time)
+- Action buttons: Download (gradient plum) + View (glass outline)
+
+**Animations:**
+- Hero slides in on mount
+- Cards stagger in (60ms per card, max 0.5s delay)
+- Hover: card lifts 4px, top gradient bar appears, border glows plum
+- Premium easing throughout (cubic-bezier)
+
+### Validation
+
+- `npx tsc --noEmit` → 0 errors
+- `npx eslint src/` → 0 errors, 0 warnings
+- `npx next build` → compiled successfully in 9.2s
+- Dev server → Home 200, Admin 200
+- Dev log → 0 errors
+
+### Premium redesign progress
+
+| # | Screen | Status |
+|---|--------|--------|
+| 1 | Hero Section | ✅ Done (Phase 1) |
+| 2 | Navigation sidebar | ✅ Done (Phase 2) |
+| 3 | Dashboard Layout | ✅ Done (Phase 1) |
+| 4 | Student Overview | ✅ Done (Phase 1) |
+| 5 | Calculators marketplace | ✅ Done (Phase 3) |
+| 6 | Papers (Netflix-style) | ✅ Done (Phase 4) |
+| 7 | Notices timeline | ⏳ Next |
+| 8 | Calendar planner | ⏳ |
+| 9 | Empty states | ⏳ |
+| 10 | Motion polish | ⏳ |
+
