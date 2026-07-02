@@ -68,10 +68,6 @@ export function Papers() {
       message: title,
     });
     try {
-      // The download route authenticates via httpOnly cookie, generates a
-      // 2-minute signed R2 URL, increments the download counter, and 302-
-      // redirects. Opening in a new tab lets the browser handle the redirect
-      // + PDF display without navigating the student away from the papers list.
       window.open(`/api/v1/papers/${paperId}/download`, "_blank", "noopener,noreferrer");
     } catch {
       getNotificationProvider().show({
@@ -100,204 +96,207 @@ export function Papers() {
   };
 
   return (
-    <div className="space-y-5">
-      {/* ===== PREMIUM HERO ===== */}
-      <motion.div
-        initial={prefersReduced ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="papers-hero p-6 sm:p-8"
-      >
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex-1 min-w-[200px]">
-            <p className="hero-eyebrow text-lg sm:text-xl rotate-[-2deg] inline-block mb-1">
-              Library
-            </p>
-            <h1 className="hero-headline text-3xl sm:text-4xl lg:text-5xl">
-              Question <em>papers.</em>
-            </h1>
-            <p className="text-sm text-[var(--luxury-text-muted)] max-w-md leading-relaxed mt-2">
-              Browse, search and download KTU question papers across all branches and years.
-            </p>
-          </div>
-          {/* Stats badge */}
-          <div className="flex items-center gap-2">
-            <div className="count-badge-premium px-3 py-1.5 rounded-full text-xs font-semibold">
-              {papers.length} paper{papers.length !== 1 ? "s" : ""}
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ===== PREMIUM FILTER BAR ===== */}
-      <div className="papers-filter-bar p-4">
-        <div className="flex flex-col lg:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[var(--luxury-text-muted)] pointer-events-none" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by subject, code or title..."
-              className="pl-10 h-11"
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-2 lg:flex">
-            <Select value={branch} onValueChange={(v) => setBranch(v as BranchCode | "ALL")}>
-              <SelectTrigger className="h-11 lg:w-[140px]">
-                <SelectValue placeholder="Branch" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All branches</SelectItem>
-                {BRANCHES.map((b) => (
-                  <SelectItem key={b.code} value={b.code}>
-                    {b.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={String(semester)} onValueChange={(v) => setSemester(v === "ALL" ? "ALL" : (Number(v) as SemesterNumber))}>
-              <SelectTrigger className="h-11 lg:w-[110px]">
-                <SelectValue placeholder="Sem" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All sems</SelectItem>
-                {SEMESTERS.map((s) => (
-                  <SelectItem key={s} value={String(s)}>
-                    S{s}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={String(year)} onValueChange={(v) => setYear(v === "ALL" ? "ALL" : Number(v))}>
-              <SelectTrigger className="h-11 lg:w-[110px]">
-                <SelectValue placeholder="Year" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All years</SelectItem>
-                {years.map((y) => (
-                  <SelectItem key={y} value={String(y)}>
-                    {y}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {hasFilters && (
-            <button
-              onClick={clearFilters}
-              className="paper-btn-secondary h-11 px-4 rounded-full text-sm font-medium flex items-center gap-1.5"
-            >
-              <X className="size-4" /> Clear
-            </button>
-          )}
-        </div>
+    <div className="space-y-6">
+      {/* ===== HEADER ===== */}
+      <div className="mb-2">
+        <div className="section-eyebrow">Library</div>
+        <h1 className="section-title text-[30px] mt-1">Question papers</h1>
+        <p className="text-[13.5px] mt-2 max-w-lg text-muted-foreground">
+          Browse previous KTU question papers by branch, semester and year.
+        </p>
       </div>
 
-      {/* ===== PAPERS GRID ===== */}
+      {/* ===== FILTER BAR ===== */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-md border border-border">
+          <Search className="size-[15px] text-[color:var(--text-faint)]" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by subject, code or title…"
+            className="bg-transparent outline-none text-[13.5px] w-full placeholder:text-[color:var(--text-faint)]"
+          />
+        </div>
+        <Select value={branch} onValueChange={(v) => setBranch(v as BranchCode | "ALL")}>
+          <SelectTrigger className="h-[42px] sm:w-[150px] text-[13px]">
+            <SelectValue placeholder="Branch" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All branches</SelectItem>
+            {BRANCHES.map((b) => (
+              <SelectItem key={b.code} value={b.code}>
+                {b.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={String(semester)} onValueChange={(v) => setSemester(v === "ALL" ? "ALL" : (Number(v) as SemesterNumber))}>
+          <SelectTrigger className="h-[42px] sm:w-[120px] text-[13px]">
+            <SelectValue placeholder="Sem" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All sems</SelectItem>
+            {SEMESTERS.map((s) => (
+              <SelectItem key={s} value={String(s)}>
+                S{s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={String(year)} onValueChange={(v) => setYear(v === "ALL" ? "ALL" : Number(v))}>
+          <SelectTrigger className="h-[42px] sm:w-[120px] text-[13px]">
+            <SelectValue placeholder="Year" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All years</SelectItem>
+            {years.map((y) => (
+              <SelectItem key={y} value={String(y)}>
+                {y}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {hasFilters && (
+          <button
+            onClick={clearFilters}
+            className="btn-ghost h-[42px] px-4 rounded-md text-[13px] font-medium flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <X className="size-4" /> Clear
+          </button>
+        )}
+      </div>
+
+      {/* ===== PAPERS TABLE ===== */}
       {isLoading ? (
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="skeleton-luxury-paper h-56 shimmer-luxury" />
+        <div className="card p-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="px-4 py-3.5 border-t border-border">
+              <div className="h-4 w-2/3 shimmer rounded" />
+            </div>
           ))}
         </div>
       ) : papers.length === 0 ? (
         <EmptyState
-          accent="psst…"
           title="No papers found"
-          description="Try changing your filters or searching for a different subject. New papers get added regularly."
-          illustration={<SketchBooks size={120} color="lavender" />}
+          description="Try changing your filters or searching for a different subject."
+          illustration={<SketchBooks size={96} color="lavender" />}
           primaryAction={{ label: "Clear filters", onClick: clearFilters }}
         />
       ) : (
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <motion.div
+          initial={prefersReduced ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="card p-2"
+        >
+          {/* Table header — desktop only */}
+          <div className="hidden md:grid grid-cols-12 px-4 py-2.5 text-[11px] font-mono uppercase tracking-wide text-[color:var(--text-faint)]">
+            <div className="col-span-5">Subject</div>
+            <div className="col-span-2">Code</div>
+            <div className="col-span-2">Semester</div>
+            <div className="col-span-2">Year</div>
+            <div className="col-span-1 text-right">Action</div>
+          </div>
+
+          {/* Rows */}
           {papers.map((p, i) => {
             const bookmarked = hasBookmark("paper", p.id);
-            const subjectInitial = p.subjectName.charAt(0).toUpperCase();
             return (
               <motion.div
                 key={p.id}
-                initial={prefersReduced ? false : { opacity: 0, y: 16 }}
+                initial={prefersReduced ? false : { opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(i * 0.06, 0.5), duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="paper-tile flex flex-col"
+                transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.25 }}
+                className="px-4 py-3.5 border-t border-border card-hover rounded-md
+                           md:grid md:grid-cols-12 md:items-center group"
               >
-                {/* Thumbnail — Netflix-style with subject initial */}
-                <div className="paper-thumbnail h-24 flex items-center justify-center relative">
-                  <span className="font-serif text-5xl font-bold text-[var(--luxury-plum)] opacity-80 select-none">
-                    {subjectInitial}
-                  </span>
-                  {/* Bookmark button — top right */}
+                {/* Subject name + mobile meta */}
+                <div className="text-[14px] md:text-[13.5px] md:col-span-5 flex items-center gap-2">
                   <button
                     onClick={() => onBookmark(p.id, p.subjectName)}
-                    className="absolute top-2.5 right-2.5 size-8 rounded-lg bg-[oklch(0_0_0_/_0.3)] backdrop-blur-sm flex items-center justify-center transition hover:bg-[oklch(0_0_0_/_0.5)]"
+                    className="md:hidden size-7 rounded flex items-center justify-center hover:bg-secondary shrink-0"
                     aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
                   >
                     {bookmarked ? (
-                      <BookmarkCheck className="size-4 text-[var(--luxury-amber)]" fill="currentColor" />
+                      <BookmarkCheck className="size-4 text-primary" fill="currentColor" />
                     ) : (
-                      <Bookmark className="size-4 text-[var(--luxury-text-muted)]" />
+                      <Bookmark className="size-4 text-muted-foreground" />
                     )}
                   </button>
-                  {/* Exam type badge — bottom left */}
-                  <span className="absolute bottom-2.5 left-2.5 badge-premium-accent px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider">
-                    {p.examType.replace("_", " ")}
-                  </span>
+                  <span className="line-clamp-1">{p.subjectName}</span>
                 </div>
 
-                {/* Body */}
-                <div className="p-4 flex flex-col flex-1">
-                  <p className="text-sm font-semibold leading-snug line-clamp-2 text-[var(--luxury-cream)]">
-                    {p.subjectName}
-                  </p>
-                  <p className="text-xs text-[var(--luxury-text-muted)] mt-1">
-                    {p.subjectCode} · {p.branchCode} · S{p.semester}
-                  </p>
+                {/* Mobile: meta row */}
+                <div className="flex items-center justify-between mt-1.5 md:mt-0 md:contents">
+                  <span className="font-mono text-[12px] md:text-[12.5px] md:col-span-2 text-muted-foreground">
+                    {p.subjectCode}
+                  </span>
+                  <span className="text-[12px] md:text-[12.5px] md:col-span-2 text-muted-foreground">
+                    S{p.semester} · {p.branchCode}
+                  </span>
+                  <span className="font-mono text-[12px] md:text-[12.5px] md:col-span-2 text-muted-foreground">
+                    {p.month === 5 ? "May" : "Nov"} {p.year}
+                  </span>
 
-                  {/* Meta row */}
-                  <div className="flex items-center gap-3 text-[11px] text-[var(--luxury-text-muted)] mt-3 mb-3">
-                    <span className="flex items-center gap-1">
-                      <Eye className="size-3" /> {formatNumber(p.views)}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Download className="size-3" /> {formatNumber(p.downloads)}
-                    </span>
-                    <span className="ml-auto badge-premium px-2 py-0.5 rounded-md">
-                      {p.month === 5 ? "May" : "Nov"} {p.year}
-                    </span>
-                  </div>
-
-                  {/* File info */}
-                  <p className="text-[10px] text-[var(--luxury-text-muted)] mb-3">
-                    {p.pageCount} pages · {formatBytes(p.fileSizeBytes)} · {formatRelativeTime(p.uploadedAt)}
-                  </p>
-
-                  {/* Actions */}
-                  <div className="mt-auto flex gap-2">
+                  {/* Desktop: action buttons */}
+                  <div className="hidden md:flex md:col-span-1 justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => onBookmark(p.id, p.subjectName)}
+                      className="size-7 rounded flex items-center justify-center hover:bg-secondary"
+                      aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
+                    >
+                      {bookmarked ? (
+                        <BookmarkCheck className="size-4 text-primary" fill="currentColor" />
+                      ) : (
+                        <Bookmark className="size-4 text-muted-foreground" />
+                      )}
+                    </button>
                     <button
                       onClick={() => onDownload(p.id, p.title)}
-                      className="paper-btn-primary h-9 flex-1 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5"
+                      className="size-7 rounded flex items-center justify-center hover:bg-secondary"
+                      aria-label="Download"
                     >
-                      <Download className="size-3.5" /> Download
-                    </button>
-                    <button
-                      onClick={() => {
-                        getAnalyticsProvider().track({ name: "paper_viewed", props: { paperId: p.id } });
-                        window.open(`/api/v1/papers/${p.id}/download`, "_blank", "noopener,noreferrer");
-                      }}
-                      className="paper-btn-secondary h-9 w-9 rounded-full flex items-center justify-center"
-                      aria-label="View PDF"
-                    >
-                      <Eye className="size-3.5" />
+                      <Download className="size-4 text-muted-foreground" />
                     </button>
                   </div>
+                </div>
+
+                {/* Mobile: action buttons */}
+                <div className="flex items-center gap-2 mt-2 md:hidden">
+                  <button
+                    onClick={() => onDownload(p.id, p.title)}
+                    className="btn-primary flex-1 h-9 rounded-md text-xs font-medium flex items-center justify-center gap-1.5"
+                  >
+                    <Download className="size-3.5" /> Download
+                  </button>
+                  <button
+                    onClick={() => {
+                      getAnalyticsProvider().track({ name: "paper_viewed", props: { paperId: p.id } });
+                      window.open(`/api/v1/papers/${p.id}/download`, "_blank", "noopener,noreferrer");
+                    }}
+                    className="btn-ghost h-9 w-9 rounded-md flex items-center justify-center"
+                    aria-label="View PDF"
+                  >
+                    <Eye className="size-3.5" />
+                  </button>
                 </div>
               </motion.div>
             );
           })}
-        </div>
+
+          {/* Empty filter result footer */}
+          <div className="border-t border-border py-6 flex flex-col items-center text-center">
+            <div className="text-[13px] text-muted-foreground">
+              That's every paper we have for your filters.
+            </div>
+            <button className="text-[12.5px] mt-2 underline decoration-dotted text-muted-foreground hover:text-foreground">
+              Request a missing paper
+            </button>
+          </div>
+        </motion.div>
       )}
 
-      {/* Ad after papers list */}
+      {/* Ad */}
       <div className="mt-6">
         <BannerAd slot="papers-list" />
       </div>

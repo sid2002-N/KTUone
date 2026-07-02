@@ -13,17 +13,14 @@ import { formatDate } from "@/lib/utils/calc";
 import type { CalendarEventType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const eventTypeMeta: Record<
-  CalendarEventType,
-  { label: string; badgeClass: string }
-> = {
-  EXAM: { label: "Exam", badgeClass: "cal-badge-exam" },
-  HOLIDAY: { label: "Holiday", badgeClass: "cal-badge-holiday" },
-  RESULT: { label: "Result", badgeClass: "cal-badge-result" },
-  REGISTRATION: { label: "Registration", badgeClass: "cal-badge-registration" },
-  WORKSHOP: { label: "Workshop", badgeClass: "cal-badge-workshop" },
-  DEADLINE: { label: "Deadline", badgeClass: "cal-badge-deadline" },
-  EVENT: { label: "Event", badgeClass: "cal-badge-event" },
+const eventTypeLabel: Record<CalendarEventType, string> = {
+  EXAM: "Exam",
+  HOLIDAY: "Holiday",
+  RESULT: "Result",
+  REGISTRATION: "Registration",
+  WORKSHOP: "Workshop",
+  DEADLINE: "Deadline",
+  EVENT: "Event",
 };
 
 export function Calendar() {
@@ -31,39 +28,40 @@ export function Calendar() {
   const prefersReduced = useReducedMotion();
 
   return (
-    <div className="space-y-5">
-      {/* ===== PREMIUM HERO ===== */}
-      <motion.div
-        initial={prefersReduced ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="calendar-hero p-6 sm:p-8"
-      >
-        <p className="hero-eyebrow text-lg sm:text-xl rotate-[-2deg] inline-block mb-1">
-          Planner
+    <div className="space-y-6">
+      {/* ===== HEADER ===== */}
+      <div>
+        <div className="section-eyebrow">Planner</div>
+        <h1 className="section-title text-[30px] mt-1">Academic calendar</h1>
+        <p className="text-[13.5px] mt-2 max-w-lg text-muted-foreground">
+          Exams, deadlines, holidays and your exam timetable.
         </p>
-        <h1 className="hero-headline text-3xl sm:text-4xl lg:text-5xl">
-          Academic <em>calendar.</em>
-        </h1>
-        <p className="text-sm text-[var(--luxury-text-muted)] max-w-md leading-relaxed mt-2">
-          Stay on top of exams, deadlines, holidays, key academic events and your exam timetable.
-        </p>
-      </motion.div>
+      </div>
 
-      {/* ===== PREMIUM TAB SWITCHER ===== */}
-      <div className="cal-tab-switcher inline-flex gap-1">
+      {/* ===== TAB SWITCHER ===== */}
+      <div className="flex gap-1 border-b border-border">
         <button
           onClick={() => setTab("events")}
-          className={cn("cal-tab px-4 py-2 text-sm font-medium flex items-center gap-1.5", tab === "events" && "active")}
+          className={cn(
+            "pb-2 pr-4 text-[13.5px] font-medium border-b-2 -mb-px transition-colors",
+            tab === "events"
+              ? "border-primary text-foreground"
+              : "border-transparent text-muted-foreground hover:text-foreground",
+          )}
         >
-          <CalendarDays className="size-3.5" />
+          <CalendarDays className="size-3.5 inline mr-1.5" />
           Academic Calendar
         </button>
         <button
           onClick={() => setTab("timetable")}
-          className={cn("cal-tab px-4 py-2 text-sm font-medium flex items-center gap-1.5", tab === "timetable" && "active")}
+          className={cn(
+            "pb-2 px-4 text-[13.5px] font-medium border-b-2 -mb-px transition-colors",
+            tab === "timetable"
+              ? "border-primary text-foreground"
+              : "border-transparent text-muted-foreground hover:text-foreground",
+          )}
         >
-          <GraduationCap className="size-3.5" />
+          <GraduationCap className="size-3.5 inline mr-1.5" />
           Exam Timetable
         </button>
       </div>
@@ -72,10 +70,10 @@ export function Calendar() {
       <AnimatePresence mode="wait">
         <motion.div
           key={tab}
-          initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+          initial={prefersReduced ? false : { opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
-          transition={{ duration: 0.3 }}
+          exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -6 }}
+          transition={{ duration: 0.25 }}
         >
           {tab === "events" ? <EventsTab /> : <TimetableTab />}
         </motion.div>
@@ -85,7 +83,7 @@ export function Calendar() {
 }
 
 /* ====================================================================== */
-/* TAB 1 — Academic Calendar events (premium)                             */
+/* TAB 1 — Academic Calendar events                                       */
 /* ====================================================================== */
 
 function EventsTab() {
@@ -100,141 +98,93 @@ function EventsTab() {
     (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
   );
 
-  // Split into upcoming + past for the milestone strip
   const now = Date.now();
-  const upcoming = sortedEvents.filter(
-    (e) => new Date(e.startDate).getTime() >= now,
-  );
-  const past = sortedEvents.filter(
-    (e) => new Date(e.endDate).getTime() < now,
-  );
 
   return (
-    <div className="space-y-5">
-      {/* Upcoming milestones strip — premium */}
-      {upcoming.length > 0 && (
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold mb-2 px-1">
-            Upcoming milestones
-          </p>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {upcoming.slice(0, 5).map((e) => {
-              const startDate = new Date(e.startDate);
-              const daysUntil = Math.ceil(
-                (startDate.getTime() - now) / (1000 * 60 * 60 * 24),
-              );
-              return (
-                <div key={e.id} className="cal-milestone shrink-0 min-w-[120px]">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                    {startDate.toLocaleString("en-IN", { month: "short" })}
-                  </p>
-                  <p className="text-xl font-bold leading-none mt-0.5 text-foreground">
-                    {startDate.getDate()}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1">
-                    {e.title}
-                  </p>
-                  <p className="text-[10px] text-primary font-semibold mt-1">
-                    {daysUntil === 0 ? "Today" : `${daysUntil}d`}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Events list */}
+    <div>
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="card p-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="skeleton-luxury-paper h-28 shimmer-luxury" />
+            <div key={i} className="px-4 py-4 border-t border-border">
+              <div className="h-4 w-2/3 shimmer rounded mb-2" />
+              <div className="h-3 w-1/3 shimmer rounded" />
+            </div>
           ))}
         </div>
       ) : sortedEvents.length === 0 ? (
         <EmptyState
-          accent="quiet for now"
           title="No calendar events"
-          description="Check back later for exams, holidays and academic deadlines. Your calendar will fill up as the semester progresses."
-          illustration={<SketchNotebook size={120} color="lavender" />}
+          description="Check back later for exams, holidays and academic deadlines."
+          illustration={<SketchNotebook size={96} color="lavender" />}
         />
       ) : (
-        <div className="space-y-3">
+        <div className="card p-2">
           {sortedEvents.map((e, i) => {
-            const meta = eventTypeMeta[e.type];
             const startDate = new Date(e.startDate);
             const endDate = new Date(e.endDate);
-            const isMultiDay =
-              startDate.toDateString() !== endDate.toDateString();
+            const isMultiDay = startDate.toDateString() !== endDate.toDateString();
             const daysUntil = Math.ceil(
               (startDate.getTime() - now) / (1000 * 60 * 60 * 24),
             );
             const isPast = endDate.getTime() < now;
+            const isDeadline = e.type === "DEADLINE" || e.type === "EXAM";
+
             return (
               <motion.div
                 key={e.id}
-                initial={prefersReduced ? false : { opacity: 0, y: 10 }}
+                initial={prefersReduced ? false : { opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(i * 0.05, 0.4), duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ delay: Math.min(i * 0.04, 0.3), duration: 0.25 }}
+                className="px-4 py-4 border-t border-border card-hover rounded-md first:border-t-0 relative"
               >
-                <div className="cal-event-card p-4 sm:p-5 relative">
-                  {/* Color stripe */}
-                  <div
-                    className="absolute left-0 top-0 bottom-0 w-1.5"
-                    style={{ background: e.color }}
-                  />
-                  <div className="flex items-start gap-4 pl-2">
-                    {/* Date block */}
-                    <div className="cal-date-block">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
-                        {startDate.toLocaleString("en-IN", { month: "short" })}
-                      </p>
-                      <p className="text-2xl font-bold leading-none mt-0.5 text-foreground">
-                        {startDate.getDate()}
-                      </p>
-                      {isMultiDay && (
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          → {endDate.getDate()}
-                        </p>
-                      )}
+                <div
+                  className="absolute left-0 top-0 bottom-0 w-1 rounded-l-md"
+                  style={{ background: e.color }}
+                />
+                <div className="flex items-start gap-4 pl-2">
+                  {/* Date block */}
+                  <div className="text-center shrink-0 min-w-[56px]">
+                    <div className="text-[10px] font-mono uppercase tracking-wide text-[color:var(--text-faint)]">
+                      {startDate.toLocaleString("en-IN", { month: "short" })}
                     </div>
+                    <div className="text-2xl font-semibold leading-none mt-0.5 section-title">
+                      {startDate.getDate()}
+                    </div>
+                    {isMultiDay && (
+                      <div className="text-[10px] font-mono mt-1 text-[color:var(--text-faint)]">
+                        → {endDate.getDate()}
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 flex-wrap">
-                        <h3 className="font-semibold text-foreground">
-                          {e.title}
-                        </h3>
-                        <span className={cn("cal-badge-type", meta.badgeClass)}>
-                          {meta.label}
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2 flex-wrap">
+                      <h3 className="text-[13.5px] font-medium">{e.title}</h3>
+                      <span className="tag">{eventTypeLabel[e.type]}</span>
+                    </div>
+                    <p className="text-[13px] text-muted-foreground mt-1">{e.description}</p>
+                    <div className="flex items-center gap-3 mt-2 text-[11.5px] font-mono text-[color:var(--text-faint)] flex-wrap">
+                      <span className="flex items-center gap-1">
+                        <Clock className="size-3" />
+                        {isMultiDay
+                          ? `${formatDate(e.startDate)} → ${formatDate(e.endDate)}`
+                          : formatDate(e.startDate)}
+                      </span>
+                      {e.reminderEnabled && (
+                        <span className="flex items-center gap-1 text-primary">
+                          <Bell className="size-3" /> Reminder
                         </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                        {e.description}
-                      </p>
-                      <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <Clock className="size-3" />
-                          {isMultiDay
-                            ? `${formatDate(e.startDate)} → ${formatDate(e.endDate)}`
-                            : formatDate(e.startDate)}
+                      )}
+                      {isPast ? (
+                        <span className="ml-auto tag">Past</span>
+                      ) : daysUntil > 0 ? (
+                        <span className={cn("ml-auto tag", isDeadline && "tag-brick")}>
+                          in {daysUntil} day{daysUntil !== 1 ? "s" : ""}
                         </span>
-                        {e.reminderEnabled && (
-                          <span className="flex items-center gap-1 text-primary">
-                            <Bell className="size-3" /> Reminder
-                          </span>
-                        )}
-                        {/* Countdown */}
-                        {isPast ? (
-                          <span className="cal-countdown-past ml-auto">Past</span>
-                        ) : daysUntil > 0 ? (
-                          <span className="cal-countdown ml-auto">
-                            in {daysUntil} day{daysUntil !== 1 ? "s" : ""}
-                          </span>
-                        ) : (
-                          <span className="cal-countdown-today ml-auto">Today</span>
-                        )}
-                      </div>
+                      ) : (
+                        <span className="ml-auto tag tag-brick">Today</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -248,7 +198,7 @@ function EventsTab() {
 }
 
 /* ====================================================================== */
-/* TAB 2 — Exam Timetable (premium)                                       */
+/* TAB 2 — Exam Timetable                                                 */
 /* ====================================================================== */
 
 function TimetableTab() {
@@ -269,15 +219,18 @@ function TimetableTab() {
       <EmptyState
         title="Log in to see your timetable"
         description="Sign in with your KTU register number to view the exam timetable for your branch and semester."
-        illustration={<LogIn className="size-16 text-muted-foreground/60" />}
+        illustration={<LogIn className="size-12 text-muted-foreground/40" />}
       />
     );
   }
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
-        <div className="skeleton-luxury-paper h-32 shimmer-luxury" />
+      <div className="card p-2">
+        <div className="px-4 py-6 border-t border-border">
+          <div className="h-5 w-1/2 shimmer rounded mb-3" />
+          <div className="h-4 w-1/3 shimmer rounded" />
+        </div>
       </div>
     );
   }
@@ -285,10 +238,9 @@ function TimetableTab() {
   if (!timetable) {
     return (
       <EmptyState
-        accent="coming soon"
         title="No active timetable"
         description="There's no active exam timetable for your branch and semester yet. Check back once your batch's schedule is published."
-        illustration={<SketchNotebook size={120} color="plum" />}
+        illustration={<SketchNotebook size={96} color="plum" />}
       />
     );
   }
@@ -297,44 +249,37 @@ function TimetableTab() {
 
   return (
     <motion.div
-      initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+      initial={prefersReduced ? false : { opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="cal-timetable-card p-5 sm:p-6">
-        <div className="flex items-start gap-4">
-          {/* Date block */}
-          <div className="cal-date-block">
-            <p className="text-[10px] uppercase tracking-widest text-[var(--luxury-text-muted)] font-semibold">
+      <div className="card p-5 relative overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
+        <div className="flex items-start gap-4 pl-2">
+          <div className="text-center shrink-0 min-w-[56px]">
+            <div className="text-[10px] font-mono uppercase tracking-wide text-[color:var(--text-faint)]">
               {updatedDate.toLocaleString("en-IN", { month: "short" })}
-            </p>
-            <p className="text-2xl font-bold leading-none mt-0.5 text-[var(--luxury-cream)]">
+            </div>
+            <div className="text-2xl font-semibold leading-none mt-0.5 section-title">
               {updatedDate.getDate()}
-            </p>
-            <p className="text-[10px] text-[var(--luxury-text-muted)] mt-1">
+            </div>
+            <div className="text-[10px] font-mono mt-1 text-[color:var(--text-faint)]">
               {updatedDate.getFullYear()}
-            </p>
+            </div>
           </div>
 
-          {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 flex-wrap">
-              <h3 className="font-serif text-lg text-[var(--luxury-cream)]">
-                {timetable.title}
-              </h3>
-              <span className="cal-badge-type cal-badge-exam">Active</span>
+              <h3 className="section-title text-lg">{timetable.title}</h3>
+              <span className="tag tag-amber">Active</span>
             </div>
-            <p className="text-sm text-[var(--luxury-text-muted)] mt-1 leading-relaxed">
+            <p className="text-[13px] text-muted-foreground mt-1">
               Exam timetable for semester{" "}
-              <span className="font-medium text-[var(--luxury-cream)]">
-                S{timetable.semester}
-              </span>{" "}
+              <span className="font-medium text-foreground">S{timetable.semester}</span>{" "}
               · branch{" "}
-              <span className="font-medium text-[var(--luxury-cream)]">
-                {timetable.branchCode}
-              </span>
+              <span className="font-medium text-foreground">{timetable.branchCode}</span>
             </p>
-            <div className="flex items-center gap-3 mt-3 text-xs text-[var(--luxury-text-muted)] flex-wrap">
+            <div className="flex items-center gap-3 mt-2 text-[11.5px] font-mono text-[color:var(--text-faint)] flex-wrap">
               <span className="flex items-center gap-1">
                 <Clock className="size-3" />
                 Updated {formatDate(timetable.updatedAt)}

@@ -3,15 +3,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
-import { BookOpen, Search, Download, Bookmark, BookmarkCheck, FileText } from "lucide-react";
-import { PageHeader } from "@/components/layout/page-header";
-import { GlassCard } from "@/components/ui-custom/glass-card";
+import { BookOpen, Search, Download, Bookmark, BookmarkCheck, Eye, FileText } from "lucide-react";
 import { EmptyState } from "@/components/ui-custom/empty-state";
 import { SketchNotebook } from "@/components/ui-custom/sketch-elements";
 import { BannerAd } from "@/components/ui-custom/banner-ad";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -20,7 +15,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getSyllabus, type SyllabusFilters } from "@/features/syllabus/actions";
-import { Skeleton } from "@/components/ui/skeleton";
 import { BRANCHES, SEMESTERS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils/calc";
 import { useBookmarks } from "@/features/bookmarks/use-bookmarks";
@@ -43,150 +37,153 @@ export function Syllabus() {
   });
 
   return (
-    <div>
-      <PageHeader
-        title="Syllabus"
-        description="Official KTU syllabus documents for every subject, branch and semester."
-        icon={<BookOpen className="size-5" />}
-      />
+    <div className="space-y-6">
+      {/* ===== HEADER ===== */}
+      <div>
+        <div className="section-eyebrow">Library</div>
+        <h1 className="section-title text-[30px] mt-1">Syllabus</h1>
+        <p className="text-[13.5px] mt-2 max-w-lg text-muted-foreground">
+          Official KTU syllabus documents for every subject, branch and semester.
+        </p>
+      </div>
 
-      <GlassCard className="p-4 mb-4">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by subject name or code..."
-              className="pl-10 h-11 bg-background"
-            />
-          </div>
-          <Select value={branch} onValueChange={(v) => setBranch(v as BranchCode | "ALL")}>
-            <SelectTrigger className="h-11 bg-background sm:w-[140px]">
-              <SelectValue placeholder="Branch" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All branches</SelectItem>
-              {BRANCHES.map((b) => (
-                <SelectItem key={b.code} value={b.code}>
-                  {b.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={String(semester)}
-            onValueChange={(v) =>
-              setSemester(v === "ALL" ? "ALL" : (Number(v) as SemesterNumber))
-            }
-          >
-            <SelectTrigger className="h-11 bg-background sm:w-[110px]">
-              <SelectValue placeholder="Sem" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All sems</SelectItem>
-              {SEMESTERS.map((s) => (
-                <SelectItem key={s} value={String(s)}>
-                  S{s}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* ===== FILTER BAR ===== */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-md border border-border">
+          <Search className="size-[15px] text-[color:var(--text-faint)]" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by subject name or code…"
+            className="bg-transparent outline-none text-[13.5px] w-full placeholder:text-[color:var(--text-faint)]"
+          />
         </div>
-      </GlassCard>
+        <Select value={branch} onValueChange={(v) => setBranch(v as BranchCode | "ALL")}>
+          <SelectTrigger className="h-[42px] sm:w-[150px] text-[13px]">
+            <SelectValue placeholder="Branch" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All branches</SelectItem>
+            {BRANCHES.map((b) => (
+              <SelectItem key={b.code} value={b.code}>
+                {b.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={String(semester)}
+          onValueChange={(v) =>
+            setSemester(v === "ALL" ? "ALL" : (Number(v) as SemesterNumber))
+          }
+        >
+          <SelectTrigger className="h-[42px] sm:w-[120px] text-[13px]">
+            <SelectValue placeholder="Sem" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All sems</SelectItem>
+            {SEMESTERS.map((s) => (
+              <SelectItem key={s} value={String(s)}>
+                S{s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-      <p className="text-sm text-muted-foreground mb-3 px-1">
-        <span className="font-medium text-foreground">{syllabus.length}</span> syllabus documents
-      </p>
-
+      {/* ===== SYLLABUS LIST ===== */}
       {isLoading ? (
-        <div className="grid sm:grid-cols-2 gap-3">
+        <div className="card p-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-2xl" />
+            <div key={i} className="px-4 py-4 border-t border-border">
+              <div className="h-4 w-2/3 shimmer rounded mb-2" />
+              <div className="h-3 w-1/3 shimmer rounded" />
+            </div>
           ))}
         </div>
       ) : syllabus.length === 0 ? (
         <EmptyState
-          accent="hmm…"
           title="No syllabus found"
-          description="Try a different search term or branch filter. Syllabus documents are added by admins throughout the semester."
-          illustration={<SketchNotebook size={120} color="plum" />}
+          description="Try a different search term or branch filter."
+          illustration={<SketchNotebook size={96} color="plum" />}
         />
       ) : (
-        <div className="grid sm:grid-cols-2 gap-3">
+        <div className="card p-2">
           {syllabus.map((s, i) => {
             const bookmarked = hasBookmark("syllabus", s.id);
             return (
               <motion.div
                 key={s.id}
-                initial={prefersReduced ? false : { opacity: 0, y: 10 }}
+                initial={prefersReduced ? false : { opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.4 }}
+                transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.25 }}
+                className="px-4 py-4 border-t border-border card-hover rounded-md first:border-t-0 group"
               >
-                <GlassCard hover className="p-4 flex items-start gap-3">
-                  <div className="size-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <FileText className="size-5" />
+                <div className="flex items-start gap-3">
+                  <div className="icon-box shrink-0">
+                    <FileText className="size-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold leading-snug line-clamp-2">
+                    <p className="text-[13.5px] font-medium leading-snug line-clamp-2">
                       {s.subjectName}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-[12px] font-mono mt-1 text-muted-foreground">
                       {s.subjectCode} · {s.branchCode} · S{s.semester}
                     </p>
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
-                      <Badge variant="secondary" className="text-[10px]">
-                        {s.modules} modules
-                      </Badge>
-                      <Badge variant="outline" className="text-[10px]">
-                        {s.version}
-                      </Badge>
-                      <span className="text-[10px] text-muted-foreground ml-auto">
+                      <span className="tag">{s.modules} modules</span>
+                      <span className="tag">{s.version}</span>
+                      <span className="text-[10px] font-mono text-[color:var(--text-faint)] ml-auto">
                         Updated {formatDate(s.lastUpdated)}
                       </span>
                     </div>
-                    <div className="flex gap-2 mt-3">
-                      <Button
-                        size="sm"
-                        className="h-8 flex-1 rounded-full"
-                        onClick={() => {
-                          getAnalyticsProvider().track({ name: "paper_downloaded", props: { paperId: s.id } });
-                          getNotificationProvider().show({
-                            kind: "info",
-                            title: "Preparing download…",
-                            message: s.title,
-                          });
-                          window.open(`/api/v1/syllabus/${s.id}/download`, "_blank", "noopener,noreferrer");
-                        }}
-                      >
-                        <Download className="size-3.5 mr-1" /> Download
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        className="h-8 rounded-full"
-                        onClick={() => {
-                          toggleBookmark({
-                            kind: "syllabus",
-                            refId: s.id,
-                            title: s.subjectName,
-                          });
-                          getNotificationProvider().show({
-                            kind: bookmarked ? "info" : "success",
-                            title: bookmarked ? "Removed bookmark" : "Bookmarked",
-                            message: s.subjectName,
-                          });
-                        }}
-                      >
-                        {bookmarked ? (
-                          <BookmarkCheck className="size-3.5 text-primary" fill="currentColor" />
-                        ) : (
-                          <Bookmark className="size-3.5" />
-                        )}
-                      </Button>
-                    </div>
                   </div>
-                </GlassCard>
+                  <button
+                    onClick={() => {
+                      const added = toggleBookmark({
+                        kind: "syllabus",
+                        refId: s.id,
+                        title: s.title,
+                      });
+                      getNotificationProvider().show({
+                        kind: added ? "success" : "info",
+                        title: added ? "Bookmarked" : "Removed bookmark",
+                        message: s.title,
+                      });
+                    }}
+                    className="size-8 rounded flex items-center justify-center hover:bg-secondary shrink-0"
+                    aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
+                  >
+                    {bookmarked ? (
+                      <BookmarkCheck className="size-4 text-primary" fill="currentColor" />
+                    ) : (
+                      <Bookmark className="size-4 text-muted-foreground" />
+                    )}
+                  </button>
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => {
+                      getAnalyticsProvider().track({ name: "paper_downloaded", props: { paperId: s.id } });
+                      getNotificationProvider().show({
+                        kind: "info",
+                        title: "Preparing download…",
+                        message: s.title,
+                      });
+                      window.open(`/api/v1/syllabus/${s.id}/download`, "_blank", "noopener,noreferrer");
+                    }}
+                    className="btn-primary flex-1 h-9 rounded-md text-xs font-semibold flex items-center justify-center gap-1.5"
+                  >
+                    <Download className="size-3.5" /> Download
+                  </button>
+                  <button
+                    onClick={() => window.open(`/api/v1/syllabus/${s.id}/download`, "_blank", "noopener,noreferrer")}
+                    className="btn-ghost h-9 w-9 rounded-md flex items-center justify-center"
+                    aria-label="View PDF"
+                  >
+                    <Eye className="size-3.5" />
+                  </button>
+                </div>
               </motion.div>
             );
           })}

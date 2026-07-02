@@ -45,67 +45,48 @@ export function Calculators() {
   const [active, setActive] = useState<CalculatorKey | null>(null);
   const prefersReduced = useReducedMotion();
 
-  // ===== MARKETPLACE VIEW (no calculator selected) =====
+  // ===== GRID VIEW (no calculator selected) =====
   if (active === null) {
     return (
       <div>
-        {/* Premium marketplace hero */}
-        <motion.div
-          initial={prefersReduced ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="calc-marketplace-hero p-7 sm:p-10 mb-6"
-        >
-          <p className="hero-eyebrow text-lg sm:text-xl rotate-[-2deg] inline-block mb-2">
-            Tools
+        <div className="mb-8">
+          <div className="section-eyebrow">Tools</div>
+          <h1 className="section-title text-[30px] mt-1">Calculators</h1>
+          <p className="text-[13.5px] mt-2 max-w-lg text-muted-foreground">
+            Five tools, built around KTU's grading scale. Everything runs offline, nothing leaves your device.
           </p>
-          <h1 className="hero-headline text-3xl sm:text-4xl lg:text-5xl">
-            Calculator <em>marketplace.</em>
-          </h1>
-          <p className="text-sm text-[var(--luxury-text-muted)] max-w-md leading-relaxed mt-3">
-            Premium, fast and offline-ready calculators for every KTU scenario.
-            Pick a tool to get started.
-          </p>
-        </motion.div>
+        </div>
 
-        {/* Featured calculator grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-3 gap-4">
           {CALCULATORS.map((c, i) => {
             const CIcon = calcIcons[c.key];
-            const accentClass =
-              c.accent === "plum"
-                ? "calc-icon-plum"
-                : c.accent === "amber"
-                  ? "calc-icon-amber"
-                  : c.accent === "mint"
-                    ? "calc-icon-mint"
-                    : "calc-icon-coral";
             return (
               <motion.button
                 key={c.key}
-                initial={prefersReduced ? false : { opacity: 0, y: 16 }}
+                initial={prefersReduced ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ delay: i * 0.05, duration: 0.3 }}
                 onClick={() => setActive(c.key)}
-                className="calc-tile p-5 text-left group"
+                className="card card-hover p-6 text-left"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`calc-icon-badge size-12 ${accentClass}`}>
-                    <CIcon className="size-6" />
-                  </div>
-                  <span className="text-[10px] uppercase tracking-[0.15em] text-[var(--luxury-text-muted)] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                    Open →
-                  </span>
+                <div className="icon-box mb-4">
+                  <CIcon className="size-[18px]" />
                 </div>
-                <h3 className="font-serif text-lg text-[var(--luxury-cream)] mb-1">
+                <div className="text-[15px] font-medium mb-1">
                   {c.title.replace(" Calculator", "")}
-                </h3>
-                <p className="text-xs text-[var(--luxury-text-muted)] leading-relaxed line-clamp-2">
-                  {c.description}
-                </p>
+                </div>
+                <div className="text-[13px] text-muted-foreground">{c.description}</div>
               </motion.button>
             );
           })}
+          <div className="card p-6 flex flex-col justify-center items-start" style={{ borderStyle: "dashed" }}>
+            <div className="text-[13px] text-[color:var(--text-faint)]">
+              More tools are added by request —
+            </div>
+            <button className="text-[12.5px] mt-2 underline decoration-dotted text-muted-foreground hover:text-foreground">
+              suggest a calculator
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -117,51 +98,37 @@ export function Calculators() {
 
   return (
     <div>
-      {/* Back button + title */}
+      {/* Back button */}
       <div className="flex items-center gap-3 mb-5">
         <button
           onClick={() => setActive(null)}
-          className="calc-back-btn px-3 py-2 rounded-full text-xs font-medium flex items-center gap-1.5"
+          className="btn-ghost px-3 py-2 rounded-md text-xs font-medium flex items-center gap-1.5"
         >
           <ArrowLeft className="size-3.5" />
           All calculators
         </button>
       </div>
 
-      {/* Premium calculator panel */}
-      <div className="calc-panel p-5 sm:p-7">
-        {/* Calculator header */}
-        <div className="flex items-center gap-3 mb-5 pb-5 border-b border-[var(--luxury-border)]">
-          <div
-            className={`calc-icon-badge size-11 ${
-              calc.accent === "plum"
-                ? "calc-icon-plum"
-                : calc.accent === "amber"
-                  ? "calc-icon-amber"
-                  : calc.accent === "mint"
-                    ? "calc-icon-mint"
-                    : "calc-icon-coral"
-            }`}
-          >
+      {/* Calculator panel */}
+      <div className="card p-5 sm:p-7">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-5 pb-5 border-b border-border">
+          <div className="icon-box">
             <Icon className="size-5" />
           </div>
           <div>
-            <h2 className="font-serif text-xl text-[var(--luxury-cream)]">
-              {calc.title}
-            </h2>
-            <p className="text-xs text-[var(--luxury-text-muted)] mt-0.5">
-              {calc.description}
-            </p>
+            <h2 className="section-title text-xl">{calc.title}</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">{calc.description}</p>
           </div>
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div
             key={active}
-            initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+            initial={prefersReduced ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -12 }}
-            transition={{ duration: 0.3 }}
+            exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
           >
             {active === "sgpa" && <SgpaCalculator />}
             {active === "cgpa" && <CgpaCalculator />}

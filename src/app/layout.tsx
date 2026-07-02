@@ -1,37 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Caveat, Lora } from "next/font/google";
+import { Source_Serif_4, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { Providers } from "@/lib/providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sourceSerif = Source_Serif_4({
+  variable: "--font-serif",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const caveat = Caveat({
-  variable: "--font-caveat",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const lora = Lora({
-  variable: "--font-lora",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
 });
 
+const ibmPlexSans = IBM_Plex_Sans({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+});
+
 export const metadata: Metadata = {
-  title: "KTU One — Everything a KTU Student Needs.",
+  title: "KTU One — Student Companion",
   description:
-    "The ultimate academic companion for APJ Abdul Kalam Technological University students. SGPA/CGPA calculators, question papers, syllabus, notices, calendar — all in one premium app.",
+    "A student companion for APJ Abdul Kalam Technological University. Calculators, question papers, syllabus, calendar — built for clarity under exam stress.",
   keywords: [
     "KTU",
     "KTU One",
@@ -51,23 +47,20 @@ export const metadata: Metadata = {
     title: "KTU One",
   },
   openGraph: {
-    title: "KTU One — Everything a KTU Student Needs.",
-    description: "Premium academic companion for KTU students.",
+    title: "KTU One — Student Companion",
+    description: "A student companion for KTU students.",
     type: "website",
     siteName: "KTU One",
   },
   twitter: {
     card: "summary_large_image",
     title: "KTU One",
-    description: "Premium academic companion for KTU students.",
+    description: "A student companion for KTU students.",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FCFBF8" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a1620" },
-  ],
+  themeColor: "#14100F",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -82,15 +75,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${lora.variable} antialiased`}
+        className={`${sourceSerif.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} antialiased`}
       >
-        {/* Ambient background blobs — fixed, behind everything */}
-        <div className="ambient-blobs" aria-hidden="true">
-          <div className="ambient-blob-3" />
-        </div>
-        <div className="relative z-10">
-          <Providers>{children}</Providers>
-        </div>
+        <Providers>{children}</Providers>
         <Toaster />
         <SonnerToaster position="top-center" />
       </body>

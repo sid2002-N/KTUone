@@ -4,2483 +4,479 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ==========================================================================
-   KTU ONE — VISUAL LANGUAGE v3
-   "Student Notebook + Editorial Sketchbook"
-   - Paper-textured cards as the DEFAULT surface (no more glass as default)
-   - Hand-drawn borders via offset double-stroke + irregular radius
-   - Mixed typography: serif display + sans body + handwritten accents
-   - Magazine-style composition: drop caps, editorial rules, ornaments
-   - Stationery-card variants: index card, kraft, lined page, magazine
-   - Warm cream / plum / coral / amber palette — never corporate
+   KTU ONE — "Quiet Competence" Design System
+   One serif (Source Serif 4) + one sans (IBM Plex Sans) + one mono (IBM Plex Mono)
+   Ink/amber palette. No cursive. No commerce language. Information density first.
    ========================================================================== */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-display-sans);
-  --font-hand: var(--font-caveat);
-  --font-serif: var(--font-lora);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+  --font-display: var(--font-serif);
+  --font-hand: var(--font-sans);
 
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-
-  --color-ring: var(--ring);
-  --color-input: var(--input);
   --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-info: var(--info);
-  --color-info-foreground: var(--info-foreground);
-
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
+  --color-popover-foreground: var(--popover-foreground);
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
 
   --color-glass: var(--glass);
   --color-glass-border: var(--glass-border);
-  --color-glass-highlight: var(--glass-highlight);
-  --color-glass-tinted: var(--glass-tinted);
-  --color-glass-warm: var(--glass-warm);
 
-  --color-gradient-1: var(--gradient-1);
-  --color-gradient-2: var(--gradient-2);
-  --color-gradient-3: var(--gradient-3);
-  --color-gradient-4: var(--gradient-4);
-
-  --color-rose: var(--rose);
-  --color-coral: var(--coral);
-  --color-peach: var(--peach);
-  --color-lavender: var(--lavender);
-  --color-olive: var(--olive);
-  --color-mint: var(--mint);
-
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 10px);
-  --radius-3xl: calc(var(--radius) + 20px);
-
-  --shadow-soft: var(--shadow-soft);
-  --shadow-elevated: var(--shadow-elevated);
-  --shadow-floating: var(--shadow-floating);
-  --shadow-glass: var(--shadow-glass);
-  --shadow-paper: var(--shadow-paper);
-}
-
-:root {
-  --radius: 1.125rem;
-
-  /* Surfaces — warmer paper tones (more cream/beige) */
-  --background: oklch(0.978 0.014 78);              /* warm cream paper */
-  --foreground: oklch(0.25 0.018 50);               /* warm dark brown ink (not plum) */
-  --card: oklch(0.992 0.008 78);                    /* warm white card */
-  --card-foreground: oklch(0.25 0.018 50);
-  --popover: oklch(0.992 0.008 78);
-  --popover-foreground: oklch(0.25 0.018 50);
-
-  /* Primary — desaturated plum (chroma 0.18 → 0.12, ~33% reduction) */
-  --primary: oklch(0.50 0.12 340);
-  --primary-foreground: oklch(0.99 0.008 78);
-
-  /* Secondary — warm cream */
-  --secondary: oklch(0.94 0.018 75);
-  --secondary-foreground: oklch(0.32 0.025 50);
-
-  /* Muted — warm pebble */
-  --muted: oklch(0.94 0.012 75);
-  --muted-foreground: oklch(0.50 0.018 65);
-
-  /* Accent — Warm Amber (kept warm, slightly more saturated) */
-  --accent: oklch(0.91 0.055 70);
-  --accent-foreground: oklch(0.35 0.09 65);
-
-  /* Status (desaturated, never neon) */
-  --destructive: oklch(0.55 0.13 25);               /* reduced from 0.18 → 0.13 */
-  --destructive-foreground: oklch(0.99 0.008 78);
-  --success: oklch(0.58 0.09 155);
-  --success-foreground: oklch(0.99 0.008 78);
-  --warning: oklch(0.74 0.11 70);
-  --warning-foreground: oklch(0.28 0.04 65);
-  --info: oklch(0.58 0.08 220);
-  --info-foreground: oklch(0.99 0.008 78);
-
-  /* Lines — warm translucent */
-  --border: oklch(0.82 0.018 65 / 0.60);
-  --input: oklch(0.82 0.018 65 / 0.60);
-  --ring: oklch(0.50 0.12 340);
-
-  /* Charts — desaturated */
-  --chart-1: oklch(0.52 0.12 340);                    /* plum (reduced) */
-  --chart-2: oklch(0.68 0.13 70);                     /* amber */
-  --chart-3: oklch(0.62 0.10 155);                    /* mint */
-  --chart-4: oklch(0.58 0.12 25);                     /* coral (reduced) */
-  --chart-5: oklch(0.58 0.08 280);                    /* lavender (reduced) */
-
-  /* Glass — warmer, frosted, low transparency */
-  --glass: oklch(0.99 0.008 78 / 0.55);
-  --glass-border: oklch(1 0 0 / 0.45);
-  --glass-highlight: oklch(1 0 0 / 0.7);
-  --glass-tinted: oklch(0.95 0.018 75 / 0.6);
-  --glass-warm: oklch(0.96 0.025 70 / 0.65);
-
-  /* Signature Gradients — desaturated */
-  --gradient-1: oklch(0.52 0.12 340);                 /* plum (reduced) */
-  --gradient-2: oklch(0.62 0.12 20);                  /* coral (reduced) */
-  --gradient-3: oklch(0.68 0.13 70);                  /* amber */
-  --gradient-4: oklch(0.58 0.08 280);                 /* lavender (reduced) */
-
-  /* Editorial palette — pinks/corals reduced ~30% */
-  --rose: oklch(0.62 0.09 15);                        /* chroma 0.13 → 0.09 */
-  --coral: oklch(0.65 0.10 25);                       /* chroma 0.15 → 0.10 */
-  --peach: oklch(0.85 0.06 60);
-  --lavender: oklch(0.66 0.055 300);                  /* chroma 0.08 → 0.055 */
-  --olive: oklch(0.60 0.07 110);
-  --mint: oklch(0.68 0.07 155);
-
-  /* Sidebar */
-  --sidebar: oklch(0.96 0.012 75);
-  --sidebar-foreground: oklch(0.25 0.018 50);
-  --sidebar-primary: oklch(0.50 0.12 340);
-  --sidebar-primary-foreground: oklch(0.99 0.008 78);
-  --sidebar-accent: oklch(0.92 0.018 75);
-  --sidebar-accent-foreground: oklch(0.32 0.025 50);
-  --sidebar-border: oklch(0.82 0.018 65 / 0.5);
-  --sidebar-ring: oklch(0.50 0.12 340);
-
-  /* Shadows — Apple-like, large blur, very low opacity, warm brown-tinted */
-  --shadow-soft:
-    0 1px 2px -1px oklch(0.30 0.04 50 / 0.05),
-    0 4px 12px -4px oklch(0.30 0.04 50 / 0.07),
-    0 8px 24px -8px oklch(0.30 0.04 50 / 0.05);
-  --shadow-elevated:
-    0 2px 4px -2px oklch(0.30 0.04 50 / 0.06),
-    0 12px 28px -8px oklch(0.30 0.04 50 / 0.11),
-    0 24px 56px -16px oklch(0.30 0.04 50 / 0.09);
-  --shadow-floating:
-    0 4px 8px -4px oklch(0.30 0.04 50 / 0.09),
-    0 20px 48px -12px oklch(0.30 0.04 50 / 0.17),
-    0 40px 96px -24px oklch(0.30 0.04 50 / 0.13);
-  --shadow-glass:
-    0 2px 8px -2px oklch(0.30 0.04 50 / 0.07),
-    inset 0 1px 0 0 oklch(1 0 0 / 0.5);
-  --shadow-paper:
-    0 1px 0 oklch(1 0 0 / 0.8) inset,
-    0 1px 2px oklch(0.30 0.04 50 / 0.05),
-    0 4px 12px -4px oklch(0.30 0.04 50 / 0.06);
-}
-
-.dark {
-  --background: oklch(0.19 0.012 50);                 /* warm dark brown ink */
-  --foreground: oklch(0.95 0.008 78);
-  --card: oklch(0.24 0.014 50);
-  --card-foreground: oklch(0.95 0.008 78);
-  --popover: oklch(0.24 0.014 50);
-  --popover-foreground: oklch(0.95 0.008 78);
-
-  --primary: oklch(0.72 0.11 340);                    /* reduced from 0.16 */
-  --primary-foreground: oklch(0.19 0.012 50);
-
-  --secondary: oklch(0.28 0.018 60);
-  --secondary-foreground: oklch(0.95 0.008 78);
-
-  --muted: oklch(0.26 0.014 60);
-  --muted-foreground: oklch(0.70 0.014 65);
-
-  --accent: oklch(0.36 0.05 70);
-  --accent-foreground: oklch(0.90 0.07 70);
-
-  --destructive: oklch(0.70 0.13 25);                 /* reduced from 0.18 */
-  --destructive-foreground: oklch(0.99 0.008 78);
-  --success: oklch(0.72 0.10 155);
-  --success-foreground: oklch(0.19 0.012 50);
-  --warning: oklch(0.78 0.11 70);
-  --warning-foreground: oklch(0.22 0.04 70);
-  --info: oklch(0.70 0.08 220);
-  --info-foreground: oklch(0.19 0.012 50);
-
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 13%);
-  --ring: oklch(0.72 0.11 340);
-
-  --chart-1: oklch(0.72 0.11 340);
-  --chart-2: oklch(0.78 0.12 70);
-  --chart-3: oklch(0.72 0.10 155);
-  --chart-4: oklch(0.72 0.12 25);
-  --chart-5: oklch(0.70 0.08 280);
-
-  --glass: oklch(0.24 0.014 50 / 0.5);
-  --glass-border: oklch(1 0 0 / 0.08);
-  --glass-highlight: oklch(1 0 0 / 0.12);
-  --glass-tinted: oklch(0.28 0.018 60 / 0.55);
-  --glass-warm: oklch(0.30 0.022 65 / 0.55);
-
-  --gradient-1: oklch(0.72 0.11 340);
-  --gradient-2: oklch(0.72 0.12 20);
-  --gradient-3: oklch(0.78 0.12 70);
-  --gradient-4: oklch(0.70 0.08 280);
-
-  --rose: oklch(0.72 0.09 15);
-  --coral: oklch(0.74 0.10 25);
-  --peach: oklch(0.45 0.05 60);
-  --lavender: oklch(0.72 0.06 300);
-  --olive: oklch(0.68 0.07 110);
-  --mint: oklch(0.72 0.08 155);
-
-  --sidebar: oklch(0.21 0.012 50);
-  --sidebar-foreground: oklch(0.95 0.008 78);
-  --sidebar-primary: oklch(0.72 0.11 340);
-  --sidebar-primary-foreground: oklch(0.99 0.008 78);
-  --sidebar-accent: oklch(0.28 0.018 60);
-  --sidebar-accent-foreground: oklch(0.95 0.008 78);
-  --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.72 0.11 340);
-
-  --shadow-soft:
-    0 1px 2px -1px oklch(0 0 0 / 0.20),
-    0 4px 12px -4px oklch(0 0 0 / 0.28),
-    0 8px 24px -8px oklch(0 0 0 / 0.20);
-  --shadow-elevated:
-    0 2px 4px -2px oklch(0 0 0 / 0.32),
-    0 12px 28px -8px oklch(0 0 0 / 0.48),
-    0 24px 56px -16px oklch(0 0 0 / 0.36);
-  --shadow-floating:
-    0 4px 8px -4px oklch(0 0 0 / 0.40),
-    0 20px 48px -12px oklch(0 0 0 / 0.56),
-    0 40px 96px -24px oklch(0 0 0 / 0.40);
-  --shadow-glass:
-    0 2px 8px -2px oklch(0 0 0 / 0.32),
-    inset 0 1px 0 0 oklch(1 0 0 / 0.06);
-  --shadow-paper:
-    0 1px 0 oklch(1 0 0 / 0.04) inset,
-    0 1px 2px oklch(0 0 0 / 0.20),
-    0 4px 12px -4px oklch(0 0 0 / 0.24);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  html, body {
-    @apply bg-background text-foreground;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-  body {
-    font-feature-settings: "ss01", "cv01", "cv02";
-    position: relative;
-    min-height: 100vh;
-  }
-  /* Paper grain — SVG noise, almost invisible */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.025;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.15 0 0 0 0 0.25 0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
-    mix-blend-mode: multiply;
-  }
-  .dark body::before {
-    opacity: 0.04;
-    mix-blend-mode: screen;
-  }
-
-  /* Custom scrollbar — warmer, softer */
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    background: oklch(0.50 0.02 340 / 0.20);
-    border-radius: 9999px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.50 0.02 340 / 0.35);
-  }
-}
-
-@layer utilities {
-  /* ========== GLASSMORPHISM — softer, warmer ========== */
-  .glass {
-    background: var(--glass);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-glass);
-  }
-  .glass-strong {
-    background: var(--glass-highlight);
-    backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-glass);
-  }
-  .glass-tinted {
-    background: var(--glass-tinted);
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-glass);
-  }
-  .glass-warm {
-    background: var(--glass-warm);
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-glass);
-  }
-  /* Warm white card — for editorial / paper feel */
-  .card-warm {
-    background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-paper);
-  }
-
-  /* ========== SIGNATURE GRADIENTS ========== */
-  .bg-gradient-plum {
-    background-image: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
-  }
-  .bg-gradient-warm {
-    background-image: linear-gradient(135deg, var(--gradient-2) 0%, var(--gradient-3) 100%);
-  }
-  .bg-gradient-tri {
-    background-image: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 50%, var(--gradient-3) 100%);
-  }
-  .bg-gradient-lavender {
-    background-image: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-4) 100%);
-  }
-  .text-gradient-plum {
-    background-image: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  /* ========== AMBIENT BACKGROUND BLOBS ========== */
-  .ambient-blobs {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    overflow: hidden;
-  }
-  .ambient-blobs::before,
-  .ambient-blobs::after,
-  .ambient-blob-3 {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.35;
-  }
-  .ambient-blobs::before {
-    width: 520px; height: 520px;
-    top: -180px; left: -120px;
-    background: radial-gradient(circle, var(--peach), transparent 70%);
-  }
-  .ambient-blobs::after {
-    width: 600px; height: 600px;
-    top: -100px; right: -200px;
-    background: radial-gradient(circle, var(--lavender), transparent 70%);
-    opacity: 0.28;
-  }
-  .ambient-blob-3 {
-    width: 480px; height: 480px;
-    bottom: -200px; left: 30%;
-    background: radial-gradient(circle, var(--peach), transparent 70%);
-    opacity: 0.22;
-  }
-  .dark .ambient-blobs::before { opacity: 0.18; }
-  .dark .ambient-blobs::after { opacity: 0.15; }
-  .dark .ambient-blob-3 { opacity: 0.12; }
-
-  /* ========== SHADOWS ========== */
-  .shadow-soft { box-shadow: var(--shadow-soft); }
-  .shadow-elevated { box-shadow: var(--shadow-elevated); }
-  .shadow-floating { box-shadow: var(--shadow-floating); }
-  .shadow-glass { box-shadow: var(--shadow-glass); }
-  .shadow-paper { box-shadow: var(--shadow-paper); }
-
-  /* ========== GRID / DOTS ========== */
-  .bg-grid {
-    background-image:
-      linear-gradient(to right, oklch(0.50 0.02 320 / 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, oklch(0.50 0.02 320 / 0.04) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-  .bg-dots {
-    background-image: radial-gradient(oklch(0.50 0.02 320 / 0.12) 1px, transparent 1px);
-    background-size: 18px 18px;
-  }
-
-  /* ========== SKETCH UNDERLINE — hand-drawn feel ========== */
-  .sketch-underline {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8' preserveAspectRatio='none'><path d='M2 5 Q 30 1 60 4 T 118 5' stroke='oklch(0.65 0.18 20)' stroke-width='2.2' fill='none' stroke-linecap='round'/></svg>");
-    background-repeat: no-repeat;
-    background-position: 0 100%;
-    background-size: 100% 0.32em;
-    padding-bottom: 0.18em;
-  }
-  .sketch-circle {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 60' preserveAspectRatio='none'><path d='M10 30 Q 10 8 60 8 Q 110 8 110 30 Q 110 52 60 52 Q 10 52 10 30 Z' stroke='oklch(0.65 0.18 20)' stroke-width='2' fill='none' stroke-linecap='round' stroke-dasharray='2 3'/></svg>");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100% 100%;
-  }
-
-  /* ========== HANDWRITTEN FONT ========== */
-  .font-hand {
-    font-family: var(--font-caveat), "Comic Sans MS", cursive;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-  }
-
-  /* ========== FLOATING ANIMATION — cards gently float ========== */
-  @keyframes float-subtle {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-  }
-  .float-subtle {
-    animation: float-subtle 6s ease-in-out infinite;
-  }
-  .float-subtle-slow {
-    animation: float-subtle 9s ease-in-out infinite;
-  }
-
-  /* ========== TACTILE BUTTONS ========== */
-  .btn-tactile {
-    transition:
-      transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-      box-shadow 0.18s ease,
-      opacity 0.18s ease;
-  }
-  .btn-tactile:hover {
-    transform: translateY(-1px);
-  }
-  .btn-tactile:active {
-    transform: translateY(0.5px) scale(0.985);
-  }
-
-  /* ========== NO TAP HIGHLIGHT ========== */
-  .no-tap-highlight { -webkit-tap-highlight-color: transparent; }
-
-  /* ========== SAFE AREA ========== */
-  .safe-top { padding-top: env(safe-area-inset-top); }
-  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-
-  /* ========== REDUCED MOTION ========== */
-  @media (prefers-reduced-motion: reduce) {
-    .motion-reduce, .float-subtle, .float-subtle-slow {
-      animation: none !important;
-      transition: none !important;
-    }
-  }
-
-  /* ========== PARTICLE DOT — for hero ========== */
-  .particle {
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-  }
-
-  /* ========== NAVBAR GLASS — opaque enough to prevent text bleed-through ========== */
-  .navbar-glass {
-    background: oklch(0.978 0.014 78 / 0.92);
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-  }
-  .dark .navbar-glass {
-    background: oklch(0.19 0.012 50 / 0.92);
-  }
-
-  /* ========== MOBILE TOUCH OPTIMIZATION ========== */
-  button, [role="button"], a {
-    touch-action: manipulation;
-  }
-  * {
-    -webkit-overflow-scrolling: touch;
-  }
-  button {
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  input, textarea, [contenteditable] {
-    -webkit-user-select: text;
-    user-select: text;
-  }
-
-  /* ========== SKETCH BORDERS — hand-drawn outlines ========== */
-  /* Wavy imperfect border using SVG mask */
-  .sketch-border {
-    position: relative;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-paper);
-  }
-  .sketch-border::after {
-    content: "";
-    position: absolute;
-    inset: -1.5px;
-    border-radius: inherit;
-    pointer-events: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><path d='M2 8 Q 5 4 10 6 T 22 7 T 34 6 T 46 7' stroke='oklch(0.55 0.18 340)' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
-    background-repeat: repeat-x;
-    background-position: 0 0;
-    background-size: 50px 8px;
-    opacity: 0.25;
-  }
-
-  /* Double-stroke sketch border */
-  .sketch-double {
-    border: 1.5px solid var(--border);
-    box-shadow:
-      0 0 0 1.5px transparent,
-      inset 0 0 0 4px transparent,
-      4px 4px 0 0 oklch(0.55 0.18 340 / 0.08),
-      var(--shadow-paper);
-  }
-
-  /* Pencil-style edge — subtle dashed warm outline */
-  .sketch-pencil {
-    border: 1.5px dashed oklch(0.55 0.18 340 / 0.35);
-    box-shadow: var(--shadow-paper);
-  }
-
-  /* ========== NOTEBOOK RULED LINES — for hero / sticky notes ========== */
-  .notebook-ruled {
-    background-image:
-      linear-gradient(to bottom, transparent 27px, oklch(0.55 0.18 340 / 0.08) 27px, oklch(0.55 0.18 340 / 0.08) 28px, transparent 28px);
-    background-size: 100% 28px;
-    background-position: 0 4px;
-  }
-  /* Margin red line on left — like a notebook */
-  .notebook-margin {
-    border-left: 1.5px solid oklch(0.62 0.18 25 / 0.25);
-    padding-left: 1rem;
-  }
-
-  /* ========== PAGE FOLD — corner of a card looks folded ========== */
-  .page-fold {
-    position: relative;
-  }
-  .page-fold::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 28px;
-    height: 28px;
-    background:
-      linear-gradient(225deg, transparent 50%, oklch(0.88 0.01 60 / 0.7) 50%, oklch(0.85 0.015 60) 100%);
-    border-bottom-left-radius: 6px;
-    box-shadow: -2px 2px 4px -2px oklch(0.30 0.05 340 / 0.15);
-    pointer-events: none;
-  }
-  .dark .page-fold::before {
-    background:
-      linear-gradient(225deg, transparent 50%, oklch(0.30 0.015 290 / 0.8) 50%, oklch(0.26 0.012 290) 100%);
-  }
-
-  /* ========== STICKY NOTE — paper-textured yellow tint ========== */
-  .sticky-note {
-    background:
-      linear-gradient(180deg, oklch(0.95 0.05 90) 0%, oklch(0.92 0.06 90) 100%);
-    box-shadow:
-      0 1px 0 oklch(0.70 0.10 80 / 0.4) inset,
-      0 6px 16px -4px oklch(0.30 0.05 340 / 0.18),
-      0 2px 4px -2px oklch(0.30 0.05 340 / 0.10);
-    border: 1px solid oklch(0.85 0.06 80 / 0.4);
-    position: relative;
-  }
-  .sticky-note::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2'/></filter><rect width='100' height='100' filter='url(%23n)' opacity='0.08'/></svg>");
-    pointer-events: none;
-    border-radius: inherit;
-    mix-blend-mode: multiply;
-  }
-
-  /* ========== TAPE STRIP — washi tape look ========== */
-  .tape-strip {
-    position: absolute;
-    width: 80px;
-    height: 22px;
-    background:
-      linear-gradient(135deg, oklch(0.88 0.08 70 / 0.7) 0%, oklch(0.85 0.06 75 / 0.7) 100%);
-    box-shadow: 0 2px 6px -2px oklch(0.30 0.05 340 / 0.18);
-    border-radius: 1px;
-    transform: rotate(-3deg);
-  }
-
-  /* ========== PAPER CLIP — metallic clip on card edge ========== */
-  .paper-clip {
-    position: absolute;
-    top: -10px;
-    right: 24px;
-    width: 18px;
-    height: 38px;
-    border: 2px solid oklch(0.55 0.10 220 / 0.55);
-    border-radius: 9px 9px 0 0;
-    border-bottom: none;
-    pointer-events: none;
-  }
-  .paper-clip::after {
-    content: "";
-    position: absolute;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 8px;
-    height: 22px;
-    border: 2px solid oklch(0.55 0.10 220 / 0.55);
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-  }
-
-  /* ========== TACTILE BUTTON — premium tactile feel ========== */
-  .btn-tactile-warm {
-    background:
-      linear-gradient(180deg, oklch(1 0 0 / 0.5) 0%, oklch(1 0 0 / 0) 60%),
-      var(--primary);
-    background-blend-mode: overlay;
-    box-shadow:
-      0 1px 0 oklch(1 0 0 / 0.3) inset,
-      0 -1px 0 oklch(0 0 0 / 0.08) inset,
-      0 2px 6px -2px oklch(0.30 0.05 340 / 0.20),
-      0 6px 16px -4px oklch(0.30 0.05 340 / 0.15);
-    transition:
-      transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-      box-shadow 0.18s ease;
-  }
-  .btn-tactile-warm:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      0 1px 0 oklch(1 0 0 / 0.3) inset,
-      0 -1px 0 oklch(0 0 0 / 0.08) inset,
-      0 4px 10px -2px oklch(0.30 0.05 340 / 0.25),
-      0 10px 24px -6px oklch(0.30 0.05 340 / 0.22);
-  }
-  .btn-tactile-warm:active {
-    transform: translateY(0.5px) scale(0.985);
-    box-shadow:
-      0 1px 0 oklch(1 0 0 / 0.2) inset,
-      0 -1px 0 oklch(0 0 0 / 0.12) inset,
-      0 2px 4px -1px oklch(0.30 0.05 340 / 0.20);
-  }
-
-  /* ========== HANDWRITTEN NOTE — for sticky-note text ========== */
-  .handwritten-note {
-    font-family: var(--font-caveat), "Comic Sans MS", cursive;
-    font-weight: 500;
-    line-height: 1.4;
-  }
-
-  /* ========== SKETCH CORNER DECORATION — small doodle in corner ========== */
-  .sketch-corner-tl::before,
-  .sketch-corner-tr::before,
-  .sketch-corner-bl::before,
-  .sketch-corner-br::before {
-    content: "";
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    pointer-events: none;
-    opacity: 0.5;
-  }
-  .sketch-corner-tl::before {
-    top: 6px; left: 6px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M3 3 L 10 3 M3 3 L 3 10' stroke='oklch(0.55 0.18 340)' stroke-width='1.8' fill='none' stroke-linecap='round'/><circle cx='3' cy='3' r='1.5' fill='oklch(0.55 0.18 340)'/></svg>");
-  }
-  .sketch-corner-tr::before {
-    top: 6px; right: 6px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 3 L 21 3 M21 3 L 21 10' stroke='oklch(0.55 0.18 340)' stroke-width='1.8' fill='none' stroke-linecap='round'/><circle cx='21' cy='3' r='1.5' fill='oklch(0.55 0.18 340)'/></svg>");
-  }
-  .sketch-corner-bl::before {
-    bottom: 6px; left: 6px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M3 14 L 3 21 M3 21 L 10 21' stroke='oklch(0.55 0.18 340)' stroke-width='1.8' fill='none' stroke-linecap='round'/><circle cx='3' cy='21' r='1.5' fill='oklch(0.55 0.18 340)'/></svg>");
-  }
-  .sketch-corner-br::before {
-    bottom: 6px; right: 6px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 21 L 21 21 M21 14 L 21 21' stroke='oklch(0.55 0.18 340)' stroke-width='1.8' fill='none' stroke-linecap='round'/><circle cx='21' cy='21' r='1.5' fill='oklch(0.55 0.18 340)'/></svg>");
-  }
-
-  /* ====================================================================== */
-  /* v3 — PAPER CARD (default surface, replaces glass as default)            */
-  /* ====================================================================== */
-  /* Hand-drawn border via offset double-stroke + slightly irregular radius  */
-  /* v3.1 — warmer cream paper, brown ink border (not plum), more imperfect  */
-  .paper-card {
-    background: oklch(0.99 0.01 78);
-    border: 1.5px solid oklch(0.30 0.04 50 / 0.55);
-    border-radius: 17px 15px 18px 14px;
-    box-shadow:
-      3px 3px 0 0 oklch(0.30 0.04 50 / 0.08),
-      0 1px 2px -1px oklch(0.30 0.04 50 / 0.05),
-      0 4px 12px -4px oklch(0.30 0.04 50 / 0.06);
-    position: relative;
-  }
-  .paper-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.15 0 0 0 1 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
-    opacity: 0.04;
-    pointer-events: none;
-    mix-blend-mode: multiply;
-  }
-  /* Slightly imperfect inner edge — like a hand-drawn line just inside the border */
-  .paper-card::after {
-    content: "";
-    position: absolute;
-    inset: 4px;
-    border-radius: 13px 11px 14px 10px;
-    border: 0.5px solid oklch(0.30 0.04 50 / 0.10);
-    pointer-events: none;
-  }
-  .dark .paper-card {
-    background: oklch(0.25 0.014 50);
-    border-color: oklch(0.95 0.008 78 / 0.25);
-    box-shadow:
-      3px 3px 0 0 oklch(0 0 0 / 0.22),
-      0 1px 2px -1px oklch(0 0 0 / 0.18),
-      0 4px 12px -4px oklch(0 0 0 / 0.28);
-  }
-  .dark .paper-card::before {
-    opacity: 0.05;
-    mix-blend-mode: screen;
-  }
-  .dark .paper-card::after {
-    border-color: oklch(0.95 0.008 78 / 0.06);
-  }
-
-  /* Paper card hover — lifts like a page being turned */
-  .paper-card-hover {
-    transition:
-      transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1),
-      box-shadow 0.28s ease;
-  }
-  .paper-card-hover:hover {
-    transform: translateY(-2px) rotate(-0.3deg);
-    box-shadow:
-      5px 6px 0 0 oklch(0.30 0.04 50 / 0.10),
-      0 2px 4px -1px oklch(0.30 0.04 50 / 0.08),
-      0 8px 20px -6px oklch(0.30 0.04 50 / 0.10);
-  }
-
-  /* ====================================================================== */
-  /* v3.1 — NOTEBOOK COVER (editorial hero, replaces gradient cover)         */
-  /* ====================================================================== */
-  /* Cream paper with embossed feel, spiral-binding accent on left edge      */
-  .notebook-cover {
-    background:
-      linear-gradient(180deg, oklch(0.99 0.012 78) 0%, oklch(0.97 0.018 75) 100%);
-    border: 2px solid oklch(0.30 0.04 50 / 0.45);
-    border-radius: 18px 20px 18px 20px;
-    box-shadow:
-      4px 5px 0 0 oklch(0.30 0.04 50 / 0.10),
-      0 2px 4px -1px oklch(0.30 0.04 50 / 0.06),
-      0 12px 32px -8px oklch(0.30 0.04 50 / 0.12);
-    position: relative;
-    overflow: hidden;
-  }
-  /* Paper grain */
-  .notebook-cover::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.15 0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
-    opacity: 0.06;
-    pointer-events: none;
-    mix-blend-mode: multiply;
-  }
-  /* Spiral binding — small circles down the left edge */
-  .notebook-cover::after {
-    content: "";
-    position: absolute;
-    top: 16px;
-    bottom: 16px;
-    left: 8px;
-    width: 14px;
-    background-image: radial-gradient(circle at center, oklch(0.30 0.04 50 / 0.30) 2px, transparent 2.5px);
-    background-size: 14px 28px;
-    background-position: center top;
-    background-repeat: repeat-y;
-    pointer-events: none;
-  }
-  .dark .notebook-cover {
-    background:
-      linear-gradient(180deg, oklch(0.27 0.016 50) 0%, oklch(0.24 0.014 50) 100%);
-    border-color: oklch(0.95 0.008 78 / 0.20);
-    box-shadow:
-      4px 5px 0 0 oklch(0 0 0 / 0.30),
-      0 2px 4px -1px oklch(0 0 0 / 0.20),
-      0 12px 32px -8px oklch(0 0 0 / 0.40);
-  }
-  .dark .notebook-cover::before {
-    opacity: 0.08;
-    mix-blend-mode: screen;
-  }
-  .dark .notebook-cover::after {
-    background-image: radial-gradient(circle at center, oklch(0.95 0.008 78 / 0.20) 2px, transparent 2.5px);
-  }
-
-  /* Embossed title for light paper background — uses dark ink shadow */
-  .embossed-title-ink {
-    text-shadow:
-      0 1px 0 oklch(1 0 0 / 0.6),
-      0 -1px 0 oklch(0.30 0.04 50 / 0.18),
-      0 2px 3px oklch(0.30 0.04 50 / 0.10);
-    letter-spacing: -0.02em;
-    color: oklch(0.25 0.018 50);
-  }
-  .dark .embossed-title-ink {
-    color: oklch(0.95 0.008 78);
-    text-shadow:
-      0 1px 0 oklch(1 0 0 / 0.10),
-      0 -1px 0 oklch(0 0 0 / 0.40),
-      0 2px 3px oklch(0 0 0 / 0.30);
-  }
-
-  /* ====================================================================== */
-  /* v3.1 — NOTEBOOK TAB CARD (for Quick Action cards)                       */
-  /* ====================================================================== */
-  /* Like a notebook divider card — colored top tab, ruled line under title  */
-  .notebook-tab {
-    background: oklch(0.99 0.01 78);
-    border: 1.5px solid oklch(0.30 0.04 50 / 0.50);
-    border-radius: 14px 13px 15px 12px;
-    box-shadow:
-      2px 2px 0 0 oklch(0.30 0.04 50 / 0.07),
-      0 1px 2px -1px oklch(0.30 0.04 50 / 0.04),
-      0 4px 10px -4px oklch(0.30 0.04 50 / 0.05);
-    position: relative;
-    overflow: hidden;
-  }
-  /* Colored top tab strip — like a notebook divider */
-  .notebook-tab::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 12px;
-    right: 12px;
-    height: 5px;
-    background: var(--tab-color, oklch(0.50 0.12 340));
-    border-radius: 0 0 3px 3px;
-    opacity: 0.85;
-  }
-  /* Paper grain */
-  .notebook-tab::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.15 0 0 0 1 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
-    opacity: 0.035;
-    pointer-events: none;
-    mix-blend-mode: multiply;
-  }
-  .dark .notebook-tab {
-    background: oklch(0.26 0.014 50);
-    border-color: oklch(0.95 0.008 78 / 0.22);
-    box-shadow:
-      2px 2px 0 0 oklch(0 0 0 / 0.20),
-      0 1px 2px -1px oklch(0 0 0 / 0.16),
-      0 4px 10px -4px oklch(0 0 0 / 0.24);
-  }
-  .dark .notebook-tab::after {
-    opacity: 0.05;
-    mix-blend-mode: screen;
-  }
-  .notebook-tab-hover {
-    transition:
-      transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1),
-      box-shadow 0.28s ease;
-  }
-  .notebook-tab-hover:hover {
-    transform: translateY(-3px) rotate(-0.5deg);
-    box-shadow:
-      4px 5px 0 0 oklch(0.30 0.04 50 / 0.10),
-      0 2px 4px -1px oklch(0.30 0.04 50 / 0.06),
-      0 8px 18px -6px oklch(0.30 0.04 50 / 0.08);
-  }
-
-  /* ====================================================================== */
-  /* v3 — INDEX CARD (for stat cards, pinned-to-corkboard feel)              */
-  /* ====================================================================== */
-  .index-card {
-    background: oklch(0.99 0.01 78);
-    border: 1.5px solid oklch(0.30 0.04 50 / 0.50);
-    border-radius: 11px 13px 10px 12px;
-    box-shadow:
-      2px 2px 0 0 oklch(0.30 0.04 50 / 0.07),
-      0 1px 2px -1px oklch(0.30 0.04 50 / 0.04);
-    position: relative;
-    overflow: hidden;
-  }
-  .index-card::before {
-    /* Top rule — warm amber instead of red (reduces pink) */
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background:
-      linear-gradient(90deg,
-        oklch(0.62 0.11 70 / 0.75) 0%,
-        oklch(0.62 0.11 70 / 0.55) 60%,
-        oklch(0.62 0.11 70 / 0.35) 100%);
-  }
-  .index-card::after {
-    /* Paper grain */
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.15 0 0 0 1 0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
-    opacity: 0.04;
-    pointer-events: none;
-    mix-blend-mode: multiply;
-  }
-  .dark .index-card {
-    background: oklch(0.26 0.014 50);
-    border-color: oklch(0.95 0.008 78 / 0.22);
-  }
-  .dark .index-card::after { opacity: 0.05; mix-blend-mode: screen; }
-
-  /* ====================================================================== */
-  /* v3 — KRAFT CARD (brown paper, for warm/editorial blocks)                */
-  /* ====================================================================== */
-  .kraft-card {
-    background: oklch(0.88 0.045 65);
-    border: 1.5px solid oklch(0.40 0.06 50 / 0.50);
-    border-radius: 15px 13px 16px 14px;
-    box-shadow:
-      3px 3px 0 0 oklch(0.40 0.06 50 / 0.12),
-      0 4px 12px -4px oklch(0.30 0.04 50 / 0.10);
-    position: relative;
-  }
-  .kraft-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/><feColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.15 0 0 0 1 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
-    opacity: 0.12;
-    pointer-events: none;
-    mix-blend-mode: multiply;
-  }
-  .dark .kraft-card {
-    background: oklch(0.31 0.025 60);
-    border-color: oklch(0.70 0.04 60 / 0.40);
-  }
-
-  /* ====================================================================== */
-  /* v3 — LINED PAGE (notebook ruled paper as card identity)                 */
-  /* ====================================================================== */
-  .lined-page {
-    background: oklch(0.99 0.008 78);
-    border: 1.5px solid oklch(0.30 0.04 50 / 0.50);
-    border-radius: 13px 11px 14px 12px;
-    box-shadow:
-      2px 2px 0 0 oklch(0.30 0.04 50 / 0.07),
-      0 4px 12px -4px oklch(0.30 0.04 50 / 0.06);
-    background-image:
-      linear-gradient(to bottom, transparent 27px, oklch(0.50 0.12 340 / 0.08) 27px, oklch(0.50 0.12 340 / 0.08) 28px, transparent 28px);
-    background-size: 100% 28px;
-    background-position: 0 8px;
-    position: relative;
-  }
-  .lined-page::before {
-    /* Left margin line — amber instead of red (reduces pink) */
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 32px;
-    width: 1.5px;
-    background: oklch(0.62 0.11 70 / 0.35);
-    pointer-events: none;
-  }
-  .dark .lined-page {
-    background: oklch(0.25 0.014 50);
-    border-color: oklch(0.95 0.008 78 / 0.22);
-    background-image:
-      linear-gradient(to bottom, transparent 27px, oklch(0.95 0.008 78 / 0.07) 27px, oklch(0.95 0.008 78 / 0.07) 28px, transparent 28px);
-  }
-  .dark .lined-page::before { background: oklch(0.62 0.11 70 / 0.50); }
-
-  /* ====================================================================== */
-  /* v3 — MAGAZINE CARD (editorial, with drop-cap support)                   */
-  /* ====================================================================== */
-  .magazine-card {
-    background: oklch(0.99 0.01 78);
-    border: 1px solid oklch(0.30 0.04 50 / 0.18);
-    border-radius: 5px 4px 5px 4px;
-    box-shadow:
-      0 1px 2px -1px oklch(0.30 0.04 50 / 0.04),
-      0 8px 24px -8px oklch(0.30 0.04 50 / 0.08);
-    position: relative;
-  }
-  .magazine-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.15 0 0 0 1 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
-    opacity: 0.03;
-    pointer-events: none;
-    mix-blend-mode: multiply;
-  }
-  .dark .magazine-card {
-    background: oklch(0.25 0.014 50);
-    border-color: oklch(0.95 0.008 78 / 0.10);
-  }
-
-  /* ====================================================================== */
-  /* v3 — EDITORIAL TYPOGRAPHY UTILITIES                                    */
-  /* ====================================================================== */
-  .font-serif-display {
-    font-family: var(--font-lora), Georgia, "Times New Roman", serif;
-    font-weight: 600;
-    letter-spacing: -0.015em;
-  }
-  .font-handwritten {
-    font-family: var(--font-caveat), "Comic Sans MS", cursive;
-    font-weight: 600;
-  }
-
-  /* Drop cap — first letter of paragraph, magazine-style */
-  .drop-cap::first-letter {
-    font-family: var(--font-lora), Georgia, serif;
-    font-weight: 700;
-    font-size: 3.4em;
-    line-height: 0.85;
-    float: left;
-    margin: 0.08em 0.12em 0 0;
-    color: oklch(0.50 0.12 340);
-  }
-  .dark .drop-cap::first-letter {
-    color: oklch(0.72 0.11 340);
-  }
-
-  /* Stamped number — feels like rubber-stamped ink, warm brown */
-  .stamped-number {
-    font-family: var(--font-lora), Georgia, serif;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    color: oklch(0.30 0.04 50);
-    text-shadow:
-      0.5px 0.5px 0 oklch(0.30 0.04 50 / 0.7),
-      -0.3px -0.3px 0 oklch(0.50 0.12 340 / 0.3);
-    font-variant-numeric: tabular-nums;
-  }
-  .dark .stamped-number {
-    color: oklch(0.92 0.012 75);
-    text-shadow:
-      0.5px 0.5px 0 oklch(0.95 0.008 78 / 0.4),
-      -0.3px -0.3px 0 oklch(0.72 0.11 340 / 0.25);
-  }
-
-  /* ====================================================================== */
-  /* v3 — EDITORIAL DIVIDER (magazine-style rule with ornament)              */
-  /* ====================================================================== */
-  .editorial-rule {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 8px 0;
-  }
-  .editorial-rule::before,
-  .editorial-rule::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, oklch(0.30 0.08 340 / 0.20), transparent);
-  }
-  .dark .editorial-rule::before,
-  .dark .editorial-rule::after {
-    background: linear-gradient(90deg, transparent, oklch(0.95 0.005 75 / 0.15), transparent);
-  }
-
-  /* ====================================================================== */
-  /* v3 — TAPE CORNER (washi tape fixing a card to the page)                */
-  /* ====================================================================== */
-  .tape-corner-tl,
-  .tape-corner-tr {
-    position: absolute;
-    width: 70px;
-    height: 20px;
-    background:
-      linear-gradient(135deg,
-        oklch(0.88 0.08 70 / 0.65) 0%,
-        oklch(0.85 0.06 75 / 0.55) 50%,
-        oklch(0.88 0.08 70 / 0.65) 100%);
-    box-shadow: 0 2px 4px -2px oklch(0.30 0.05 340 / 0.20);
-    pointer-events: none;
-  }
-  .tape-corner-tl {
-    top: -8px;
-    left: 16px;
-    transform: rotate(-4deg);
-  }
-  .tape-corner-tr {
-    top: -8px;
-    right: 16px;
-    transform: rotate(3deg);
-  }
-
-  /* ====================================================================== */
-  /* v3 — EMBOSSED TITLE (for hero — feels pressed into notebook cover)      */
-  /* ====================================================================== */
-  .embossed-title {
-    text-shadow:
-      0 1px 0 oklch(1 0 0 / 0.25),
-      0 -1px 0 oklch(0 0 0 / 0.15),
-      0 2px 4px oklch(0 0 0 / 0.20);
-    letter-spacing: -0.02em;
-  }
-
-  /* ====================================================================== */
-  /* v3 — PIN (pushpin on corkboard, for stat cards)                         */
-  /* ====================================================================== */
-  .pushpin {
-    position: absolute;
-    top: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, oklch(0.70 0.18 25), oklch(0.50 0.20 25));
-    box-shadow:
-      0 2px 4px -1px oklch(0 0 0 / 0.30),
-      inset -1px -1px 2px oklch(0 0 0 / 0.20),
-      inset 1px 1px 2px oklch(1 0 0 / 0.40);
-    z-index: 2;
-  }
+  --radius: 0.625rem;
 }
 
 /* ==========================================================================
-   PREMIUM DARK LUXURY LAYER — v4 (magazine-cover hero + asymmetric grid)
-   Layered ON TOP of the existing v3 notebook system. Adds:
-   - Dark luxury surface tokens (used by hero + academic overview card)
-   - Magazine-cover hero class
-   - Unified academic status card with progress rings
-   - Asymmetric grid helpers
-   - Premium motion easings
+   COLOR TOKENS — Ink/Amber palette (dark-first)
    ========================================================================== */
 
 :root {
-  /* Dark luxury accents — warm plum/amber/copper on dark surfaces */
-  --luxury-bg: oklch(0.18 0.025 340);              /* deep plum-black */
-  --luxury-surface: oklch(0.22 0.03 340);          /* elevated plum */
-  --luxury-surface-2: oklch(0.26 0.035 340);       /* higher elevation */
-  --luxury-border: oklch(0.35 0.04 340 / 0.4);
-  --luxury-text: oklch(0.95 0.015 75);             /* warm cream text */
-  --luxury-text-muted: oklch(0.70 0.02 75);
-  --luxury-plum: oklch(0.62 0.15 340);             /* vibrant plum accent */
-  --luxury-amber: oklch(0.78 0.13 75);             /* warm amber */
-  --luxury-copper: oklch(0.68 0.13 45);            /* copper */
-  --luxury-cream: oklch(0.92 0.02 75);             /* cream */
-  --luxury-success: oklch(0.72 0.15 155);
+  /* Base surfaces — deep ink, warm-charcoal */
+  --background: #14100F;
+  --foreground: #EDE6DB;
 
-  /* Premium easings */
-  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-}
+  --card: #1B1613;
+  --card-foreground: #EDE6DB;
 
-/* ===== Magazine-Cover Hero ===== */
-.magazine-hero {
-  position: relative;
-  background:
-    radial-gradient(ellipse at top right, oklch(0.30 0.08 340 / 0.5), transparent 60%),
-    radial-gradient(ellipse at bottom left, oklch(0.25 0.06 75 / 0.3), transparent 50%),
-    linear-gradient(135deg, var(--luxury-bg) 0%, var(--luxury-surface) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.75rem;
-  overflow: hidden;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.05) inset,
-    0 30px 60px -20px oklch(0 0 0 / 0.5),
-    0 10px 30px -10px oklch(0.5 0.1 340 / 0.3);
-}
+  --popover: #1B1613;
+  --popover-foreground: #EDE6DB;
 
-.magazine-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 20% 80%, oklch(0.62 0.15 340 / 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 80% 20%, oklch(0.78 0.13 75 / 0.06) 0%, transparent 40%);
-  pointer-events: none;
-}
+  /* Primary — warm amber (the ONE accent color) */
+  --primary: #C98A3A;
+  --primary-foreground: #1B140A;
 
-.magazine-hero::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, oklch(0.78 0.13 75 / 0.5), transparent);
+  /* Secondary — subtle elevated surface */
+  --secondary: #221C18;
+  --secondary-foreground: #EDE6DB;
+
+  /* Muted — for secondary text */
+  --muted: #221C18;
+  --muted-foreground: #948A7C;
+
+  /* Accent — same as primary (amber) */
+  --accent: #221C18;
+  --accent-foreground: #EDE6DB;
+
+  /* Destructive — muted brick red, only for alerts/deadlines */
+  --destructive: #A6554A;
+  --destructive-foreground: #EDE6DB;
+
+  /* Semantic */
+  --success: #C98A3A;
+  --warning: #C98A3A;
+  --info: #948A7C;
+
+  /* Borders — hairline */
+  --border: #332A22;
+  --input: #332A22;
+  --ring: #C98A3A;
+
+  /* Glass */
+  --glass: rgba(27, 22, 19, 0.85);
+  --glass-border: #332A22;
+
+  /* Text levels */
+  --text-faint: #5E574C;
+  --hairline-soft: #241E19;
+
+  /* Shadows — subtle, warm */
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* ===== Academic Status Card (unified CGPA + % + credits) ===== */
-.academic-status {
-  position: relative;
-  background:
-    radial-gradient(ellipse at top left, oklch(0.28 0.06 340 / 0.4), transparent 50%),
-    linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.5rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.04) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4);
+/* Light theme variant — warm cream base with same amber accent */
+.light {
+  --background: #FAF7F2;
+  --foreground: #14100F;
+  --card: #FFFFFF;
+  --card-foreground: #14100F;
+  --popover: #FFFFFF;
+  --popover-foreground: #14100F;
+  --primary: #B8762E;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0EBE3;
+  --secondary-foreground: #14100F;
+  --muted: #F0EBE3;
+  --muted-foreground: #6B6358;
+  --accent: #F0EBE3;
+  --accent-foreground: #14100F;
+  --destructive: #A6554A;
+  --destructive-foreground: #FFFFFF;
+  --success: #B8762E;
+  --warning: #B8762E;
+  --info: #6B6358;
+  --border: #E0D9CE;
+  --input: #E0D9CE;
+  --ring: #B8762E;
+  --glass: rgba(255, 255, 255, 0.85);
+  --glass-border: #E0D9CE;
+  --text-faint: #9A9182;
+  --hairline-soft: #F0EBE3;
+  --shadow-soft: 0 1px 2px rgba(20, 16, 15, 0.06);
+  --shadow-elevated: 0 4px 12px rgba(20, 16, 15, 0.08);
 }
 
-.academic-status .metric-divider {
-  background: linear-gradient(180deg, transparent, var(--luxury-border), transparent);
+/* ==========================================================================
+   BASE STYLES
+   ========================================================================== */
+
+* {
+  border-color: var(--border);
 }
 
-/* ===== Progress Ring (premium) ===== */
-.progress-ring-premium {
-  filter: drop-shadow(0 0 8px oklch(0.62 0.15 340 / 0.4));
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* ===== Premium stat tile (for asymmetric grid) ===== */
-.stat-tile-luxury {
-  position: relative;
-  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.25rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.04) inset,
-    0 10px 25px -10px oklch(0 0 0 / 0.3);
-  transition: transform 0.4s var(--ease-premium), box-shadow 0.4s var(--ease-premium);
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
-.stat-tile-luxury:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.06) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4),
-    0 0 0 1px oklch(0.62 0.15 340 / 0.2);
+::selection {
+  background: rgba(201, 138, 58, 0.2);
 }
 
-/* ===== Asymmetric grid ===== */
-.grid-asymmetric {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-@media (min-width: 768px) {
-  .grid-asymmetric {
-    grid-template-columns: 2fr 1fr;
-    gap: 1.25rem;
-  }
-}
-@media (min-width: 1024px) {
-  .grid-asymmetric {
-    grid-template-columns: 3fr 2fr;
-  }
+/* Font helpers */
+.font-serif { font-family: var(--font-serif), serif; }
+.font-mono { font-family: var(--font-mono), monospace; }
+.font-sans { font-family: var(--font-sans), sans-serif; }
+
+/* ==========================================================================
+   COMPONENT PRIMITIVES — Index card aesthetic
+   ========================================================================== */
+
+/* Card — the fundamental surface. Hairline border, subtle, no gradients. */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
 }
 
-/* ===== Premium shimmer for loading ===== */
-@keyframes premium-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+.card-hover {
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
 }
-.shimmer-luxury {
-  background: linear-gradient(
-    90deg,
-    var(--luxury-surface) 0%,
-    var(--luxury-surface-2) 50%,
-    var(--luxury-surface) 100%
-  );
-  background-size: 200% 100%;
-  animation: premium-shimmer 1.8s ease-in-out infinite;
+.card-hover:hover {
+  border-color: #4a3e30;
+  background: var(--secondary);
+}
+.card-hover:active {
+  transform: scale(0.98);
 }
 
-/* ===== Magazine hero text styles ===== */
-.hero-eyebrow {
-  font-family: var(--font-caveat);
-  color: var(--luxury-amber);
-  letter-spacing: 0.02em;
+/* Glass — for sticky bars (nav, bottom nav) */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-.hero-headline {
-  font-family: var(--font-lora);
+.glass-strong {
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ==========================================================================
+   TAGS — Mono-font chips for subject codes, semesters, years
+   ========================================================================== */
+
+.tag {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.tag-amber {
+  border-color: rgba(201, 138, 58, 0.3);
+  color: var(--primary);
+  background: rgba(201, 138, 58, 0.08);
+}
+
+.tag-brick {
+  border-color: rgba(166, 85, 74, 0.3);
+  color: var(--destructive);
+  background: rgba(166, 85, 74, 0.08);
+}
+
+/* ==========================================================================
+   BUTTONS — Restrained, clear
+   ========================================================================== */
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-  color: var(--luxury-cream);
+  transition: background 0.15s ease, transform 0.12s ease;
 }
-.hero-headline em {
-  font-style: italic;
-  color: var(--luxury-plum);
-  background: linear-gradient(135deg, var(--luxury-plum), var(--luxury-amber));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.btn-primary:hover {
+  background: #D89A4E;
+}
+.btn-primary:active {
+  transform: scale(0.97);
 }
 
-/* ===== Metric number (large display) ===== */
-.metric-number {
-  font-family: var(--font-lora);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.btn-ghost:hover {
+  border-color: #4a3e30;
+  background: var(--secondary);
+}
+.btn-ghost:active {
+  transform: scale(0.97);
 }
 
-/* ===== Premium button ===== */
-.btn-luxury {
-  background: linear-gradient(135deg, var(--luxury-plum), oklch(0.55 0.14 340));
-  color: var(--luxury-cream);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.2) inset,
-    0 8px 20px -5px oklch(0.5 0.15 340 / 0.5);
-  transition: all 0.3s var(--ease-premium);
+/* ==========================================================================
+   LEDGER ROWS — For lists with strong left-aligned hierarchy
+   ========================================================================== */
+
+.ledger-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hairline-soft);
 }
-.btn-luxury:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.3) inset,
-    0 12px 28px -5px oklch(0.5 0.15 340 / 0.6);
+.ledger-row:last-child {
+  border-bottom: none;
 }
-.btn-luxury-outline {
-  background: oklch(1 0 0 / 0.04);
-  color: var(--luxury-cream);
-  border: 1px solid var(--luxury-border);
+
+/* ==========================================================================
+   ICON BOX — Consistent square icon container
+   ========================================================================== */
+
+.icon-box {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.card-hover:hover .icon-box {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ==========================================================================
+   FOCUS — Amber ring, accessible
+   ========================================================================== */
+
+input:focus, select:focus, button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   SCROLLBAR — Subtle
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4a3e30;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==========================================================================
+   TAB BAR — Top navigation
+   ========================================================================== */
+
+.tab-btn {
+  color: var(--muted-foreground);
+  position: relative;
+  transition: color 0.15s ease;
+}
+.tab-btn:hover {
+  color: var(--foreground);
+}
+.tab-btn.active {
+  color: var(--foreground);
+}
+.tab-btn .tab-underline {
+  height: 2px;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.tab-btn.active .tab-underline {
+  background: var(--primary);
+}
+
+/* ==========================================================================
+   BOTTOM NAV — Mobile / Capacitor
+   ========================================================================== */
+
+.bottom-nav {
+  background: var(--glass);
   backdrop-filter: blur(10px);
-  transition: all 0.3s var(--ease-premium);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
 }
-.btn-luxury-outline:hover {
-  background: oklch(1 0 0 / 0.08);
-  border-color: oklch(0.62 0.15 340 / 0.4);
+.bottom-nav-btn {
+  color: var(--text-faint);
+  transition: color 0.15s ease;
+}
+.bottom-nav-btn.active {
+  color: var(--primary);
+}
+.bottom-nav-btn:active {
+  opacity: 0.6;
 }
 
-/* ===== Stagger animation helpers ===== */
-@keyframes stagger-in {
-  from { opacity: 0; transform: translateY(12px); }
+/* ==========================================================================
+   SECTION HEADER — Date/eyebrow + serif title
+   ========================================================================== */
+
+.section-eyebrow {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+.section-title {
+  font-family: var(--font-serif), serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   EMPTY STATE — Single clear action, no playful microcopy
+   ========================================================================== */
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+/* ==========================================================================
+   ANIMATIONS — Minimal, purposeful
+   ========================================================================== */
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.stagger-item {
-  animation: stagger-in 0.6s var(--ease-premium) backwards;
+.fade-in {
+  animation: fade-in 0.3s ease forwards;
 }
 
-/* ==========================================================================
-   PREMIUM NAVIGATION — v4 (dark luxury nav shell)
-   ========================================================================== */
-
-/* Top navbar — premium glass with warm tint */
-.navbar-premium {
-  background:
-    linear-gradient(180deg, oklch(0.995 0.008 78 / 0.85), oklch(0.99 0.01 78 / 0.75));
-  backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid oklch(0.90 0.01 75 / 0.5);
-}
-.dark .navbar-premium {
-  background:
-    linear-gradient(180deg, oklch(0.18 0.025 340 / 0.85), oklch(0.20 0.03 340 / 0.75));
-  border-bottom: 1px solid oklch(0.35 0.04 340 / 0.3);
-}
-
-/* Premium nav button — desktop */
-.nav-btn-premium {
-  position: relative;
-  transition: all 0.3s var(--ease-premium);
-}
-.nav-btn-premium:hover {
-  transform: translateY(-1px);
-}
-.nav-btn-premium.active {
-  background: linear-gradient(135deg, oklch(0.50 0.12 340), oklch(0.45 0.10 340));
-  color: oklch(0.99 0.008 78);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.15) inset,
-    0 6px 16px -4px oklch(0.50 0.15 340 / 0.4);
-}
-.dark .nav-btn-premium.active {
-  background: linear-gradient(135deg, oklch(0.55 0.14 340), oklch(0.50 0.12 340));
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.2) inset,
-    0 8px 20px -4px oklch(0.62 0.15 340 / 0.5);
-}
-
-/* Sidebar — premium surface */
-.sidebar-premium {
-  background: linear-gradient(180deg, oklch(0.992 0.008 78 / 0.6), oklch(0.98 0.012 78 / 0.4));
-  border-right: 1px solid oklch(0.90 0.01 75 / 0.4);
-}
-.dark .sidebar-premium {
-  background: linear-gradient(180deg, oklch(0.20 0.03 340 / 0.6), oklch(0.18 0.025 340 / 0.4));
-  border-right: 1px solid oklch(0.35 0.04 340 / 0.25);
-}
-
-/* Sidebar nav item — premium */
-.sidebar-item-premium {
-  position: relative;
-  transition: all 0.25s var(--ease-premium);
-}
-.sidebar-item-premium::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%) scaleY(0);
-  width: 3px;
-  height: 60%;
-  border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, oklch(0.62 0.15 340), oklch(0.78 0.13 75));
-  transition: transform 0.3s var(--ease-premium);
-}
-.sidebar-item-premium.active::before {
-  transform: translateY(-50%) scaleY(1);
-}
-.sidebar-item-premium.active {
-  background: linear-gradient(90deg, oklch(0.50 0.12 340 / 0.08), transparent);
-}
-.dark .sidebar-item-premium.active {
-  background: linear-gradient(90deg, oklch(0.62 0.15 340 / 0.12), transparent);
-}
-.sidebar-item-premium:hover::before {
-  transform: translateY(-50%) scaleY(0.5);
-  background: oklch(0.70 0.10 75 / 0.4);
-}
-
-/* Premium icon button (search, theme, sync) */
-.icon-btn-premium {
-  position: relative;
-  transition: all 0.25s var(--ease-premium);
-}
-.icon-btn-premium:hover {
-  background: oklch(0.50 0.12 340 / 0.08);
-  transform: translateY(-1px);
-}
-.dark .icon-btn-premium:hover {
-  background: oklch(0.62 0.15 340 / 0.12);
-}
-
-/* Premium avatar */
-.avatar-premium {
-  background: linear-gradient(135deg, oklch(0.55 0.14 340), oklch(0.62 0.15 340));
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.2) inset,
-    0 4px 12px -2px oklch(0.50 0.15 340 / 0.4);
-  transition: all 0.25s var(--ease-premium);
-}
-.avatar-premium:hover {
-  transform: scale(1.05);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.3) inset,
-    0 6px 16px -2px oklch(0.50 0.15 340 / 0.5);
-}
-
-/* Supporter pill — premium */
-.supporter-pill-premium {
-  background: linear-gradient(135deg, oklch(0.62 0.15 340 / 0.12), oklch(0.78 0.13 75 / 0.08));
-  border: 1px solid oklch(0.62 0.15 340 / 0.2);
-}
-
-/* Quick action card — sidebar */
-.quick-action-card {
-  background: linear-gradient(135deg, oklch(0.50 0.12 340), oklch(0.45 0.10 340));
-  color: oklch(0.99 0.008 78);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.15) inset,
-    0 8px 20px -6px oklch(0.50 0.15 340 / 0.35);
-  transition: all 0.3s var(--ease-premium);
-}
-.quick-action-card:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.2) inset,
-    0 12px 28px -6px oklch(0.50 0.15 340 / 0.45);
-}
-
-/* Bottom nav — mobile premium */
-.bottom-nav-premium {
-  background: linear-gradient(180deg, oklch(0.992 0.008 78 / 0.9), oklch(0.99 0.01 78 / 0.85));
-  backdrop-filter: blur(20px) saturate(180%);
-  border-top: 1px solid oklch(0.90 0.01 75 / 0.5);
-}
-.dark .bottom-nav-premium {
-  background: linear-gradient(180deg, oklch(0.20 0.03 340 / 0.9), oklch(0.18 0.025 340 / 0.85));
-  border-top: 1px solid oklch(0.35 0.04 340 / 0.3);
-}
-
-/* Mobile menu — premium slide-in */
-.mobile-menu-premium {
-  background: linear-gradient(180deg, oklch(0.992 0.008 78), oklch(0.98 0.012 78));
-}
-.dark .mobile-menu-premium {
-  background: linear-gradient(180deg, oklch(0.20 0.03 340), oklch(0.18 0.025 340));
-}
-
-/* Section label — sidebar */
-.sidebar-section-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: oklch(0.55 0.02 65);
-  margin-bottom: 0.5rem;
-  padding-left: 0.875rem;
-}
-.dark .sidebar-section-label {
-  color: oklch(0.60 0.02 75);
-}
-
-/* ==========================================================================
-   PREMIUM CALCULATORS — v4 (tools marketplace)
-   ========================================================================== */
-
-/* Marketplace hero — premium gradient header */
-.calc-marketplace-hero {
-  background:
-    radial-gradient(ellipse at top right, oklch(0.30 0.08 340 / 0.4), transparent 60%),
-    radial-gradient(ellipse at bottom left, oklch(0.25 0.06 75 / 0.25), transparent 50%),
-    linear-gradient(135deg, var(--luxury-bg) 0%, var(--luxury-surface) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.5rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.05) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4);
-}
-
-/* Featured calculator card — marketplace tile */
-.calc-tile {
-  position: relative;
-  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.25rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.04) inset,
-    0 10px 25px -10px oklch(0 0 0 / 0.3);
-  transition: all 0.4s var(--ease-premium);
-  overflow: hidden;
-}
-
-.calc-tile::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at top right, oklch(0.62 0.15 340 / 0.08), transparent 50%);
-  opacity: 0;
-  transition: opacity 0.4s var(--ease-premium);
-  pointer-events: none;
-}
-
-.calc-tile:hover {
-  transform: translateY(-3px);
-  border-color: oklch(0.62 0.15 340 / 0.3);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.06) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4),
-    0 0 0 1px oklch(0.62 0.15 340 / 0.15);
-}
-
-.calc-tile:hover::before {
-  opacity: 1;
-}
-
-.calc-tile.active {
-  border-color: oklch(0.62 0.15 340 / 0.5);
-  background: linear-gradient(135deg, oklch(0.28 0.06 340) 0%, oklch(0.32 0.07 340) 100%);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.08) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4),
-    0 0 0 1.5px oklch(0.62 0.15 340 / 0.4);
-}
-
-.calc-tile.active::before {
-  opacity: 1;
-}
-
-/* Calculator icon badge — gradient by accent */
-.calc-icon-badge {
-  position: relative;
-  border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.4s var(--ease-premium);
-}
-.calc-tile:hover .calc-icon-badge {
-  transform: scale(1.08) rotate(-3deg);
-}
-.calc-icon-plum {
-  background: linear-gradient(135deg, oklch(0.62 0.15 340 / 0.2), oklch(0.55 0.14 340 / 0.1));
-  border: 1px solid oklch(0.62 0.15 340 / 0.25);
-  color: oklch(0.78 0.15 340);
-}
-.calc-icon-amber {
-  background: linear-gradient(135deg, oklch(0.78 0.13 75 / 0.2), oklch(0.70 0.12 75 / 0.1));
-  border: 1px solid oklch(0.78 0.13 75 / 0.25);
-  color: oklch(0.82 0.13 75);
-}
-.calc-icon-mint {
-  background: linear-gradient(135deg, oklch(0.72 0.15 155 / 0.2), oklch(0.65 0.13 155 / 0.1));
-  border: 1px solid oklch(0.72 0.15 155 / 0.25);
-  color: oklch(0.78 0.15 155);
-}
-.calc-icon-coral {
-  background: linear-gradient(135deg, oklch(0.68 0.13 45 / 0.2), oklch(0.60 0.12 45 / 0.1));
-  border: 1px solid oklch(0.68 0.13 45 / 0.25);
-  color: oklch(0.74 0.13 45);
-}
-
-/* Calculator panel — premium container for the active calculator */
-.calc-panel {
-  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.5rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.04) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.3);
-}
-
-/* Back button — premium */
-.calc-back-btn {
-  background: oklch(1 0 0 / 0.04);
-  color: var(--luxury-text-muted);
-  border: 1px solid var(--luxury-border);
-  backdrop-filter: blur(10px);
-  transition: all 0.25s var(--ease-premium);
-}
-.calc-back-btn:hover {
-  background: oklch(1 0 0 / 0.08);
-  color: var(--luxury-cream);
-  transform: translateX(-2px);
-}
-
-/* Premium input override for calculators */
-.calc-panel input,
-.calc-panel select {
-  background: oklch(0 0 0 / 0.2) !important;
-  border-color: var(--luxury-border) !important;
-  color: var(--luxury-text) !important;
-}
-.calc-panel input::placeholder {
-  color: var(--luxury-text-muted) !important;
-}
-.calc-panel input:focus,
-.calc-panel select:focus {
-  border-color: oklch(0.62 0.15 340 / 0.5) !important;
-  box-shadow: 0 0 0 3px oklch(0.62 0.15 340 / 0.15) !important;
-}
-.calc-panel label {
-  color: var(--luxury-text-muted) !important;
-}
-
-/* ==========================================================================
-   PREMIUM PAPERS — v4 (Netflix-style browsing)
-   ========================================================================== */
-
-/* Papers hero — premium gradient header */
-.papers-hero {
-  background:
-    radial-gradient(ellipse at top right, oklch(0.30 0.08 340 / 0.4), transparent 60%),
-    radial-gradient(ellipse at bottom left, oklch(0.25 0.06 75 / 0.25), transparent 50%),
-    linear-gradient(135deg, var(--luxury-bg) 0%, var(--luxury-surface) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.5rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.05) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4);
-}
-
-/* Premium filter bar — dark luxury */
-.papers-filter-bar {
-  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.25rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.04) inset,
-    0 10px 25px -10px oklch(0 0 0 / 0.3);
-}
-
-.papers-filter-bar input,
-.papers-filter-bar select {
-  background: oklch(0 0 0 / 0.2) !important;
-  border-color: var(--luxury-border) !important;
-  color: var(--luxury-text) !important;
-}
-.papers-filter-bar input::placeholder {
-  color: var(--luxury-text-muted) !important;
-}
-.papers-filter-bar input:focus,
-.papers-filter-bar select:focus {
-  border-color: oklch(0.62 0.15 340 / 0.5) !important;
-  box-shadow: 0 0 0 3px oklch(0.62 0.15 340 / 0.15) !important;
-}
-
-/* Paper card — premium dark luxury tile */
-.paper-tile {
-  position: relative;
-  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.25rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.04) inset,
-    0 10px 25px -10px oklch(0 0 0 / 0.3);
-  transition: all 0.4s var(--ease-premium);
-  overflow: hidden;
-}
-
-.paper-tile::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, oklch(0.62 0.15 340), oklch(0.78 0.13 75));
-  opacity: 0;
-  transition: opacity 0.4s var(--ease-premium);
-}
-
-.paper-tile:hover {
-  transform: translateY(-4px);
-  border-color: oklch(0.62 0.15 340 / 0.3);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.06) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4),
-    0 0 0 1px oklch(0.62 0.15 340 / 0.15);
-}
-
-.paper-tile:hover::before {
-  opacity: 1;
-}
-
-/* Paper thumbnail — premium gradient with subject initial */
-.paper-thumbnail {
-  position: relative;
-  background: linear-gradient(135deg, oklch(0.50 0.12 340 / 0.15), oklch(0.45 0.10 340 / 0.05));
-  border-bottom: 1px solid var(--luxury-border);
-  overflow: hidden;
-}
-
-.paper-thumbnail::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 30% 30%, oklch(0.62 0.15 340 / 0.1), transparent 50%),
-    radial-gradient(circle at 70% 70%, oklch(0.78 0.13 75 / 0.08), transparent 50%);
-  pointer-events: none;
-}
-
-/* Premium badge — for exam type */
-.badge-premium {
-  background: oklch(0 0 0 / 0.25);
-  border: 1px solid var(--luxury-border);
-  color: var(--luxury-text-muted);
-  backdrop-filter: blur(8px);
-}
-.badge-premium-accent {
-  background: oklch(0.62 0.15 340 / 0.15);
-  border: 1px solid oklch(0.62 0.15 340 / 0.25);
-  color: oklch(0.78 0.15 340);
-  backdrop-filter: blur(8px);
-}
-
-/* Paper action buttons — premium */
-.paper-btn-primary {
-  background: linear-gradient(135deg, oklch(0.62 0.15 340), oklch(0.55 0.14 340));
-  color: oklch(0.99 0.008 78);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.2) inset,
-    0 4px 12px -2px oklch(0.50 0.15 340 / 0.4);
-  transition: all 0.25s var(--ease-premium);
-}
-.paper-btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.3) inset,
-    0 6px 16px -2px oklch(0.50 0.15 340 / 0.5);
-}
-.paper-btn-secondary {
-  background: oklch(1 0 0 / 0.05);
-  color: var(--luxury-cream);
-  border: 1px solid var(--luxury-border);
-  transition: all 0.25s var(--ease-premium);
-}
-.paper-btn-secondary:hover {
-  background: oklch(1 0 0 / 0.1);
-  border-color: oklch(0.62 0.15 340 / 0.3);
-}
-
-/* Count badge — premium */
-.count-badge-premium {
-  background: oklch(0.62 0.15 340 / 0.12);
-  border: 1px solid oklch(0.62 0.15 340 / 0.2);
-  color: oklch(0.78 0.15 340);
-}
-
-/* Premium skeleton */
-.skeleton-luxury-paper {
-  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  border-radius: 1.25rem;
-  border: 1px solid var(--luxury-border);
-}
-
-/* ==========================================================================
-   PREMIUM NOTICES — v4 (modern timeline)
-   ========================================================================== */
-
-/* Notices hero — premium gradient header */
-.notices-hero {
-  background:
-    radial-gradient(ellipse at top right, oklch(0.30 0.08 340 / 0.4), transparent 60%),
-    radial-gradient(ellipse at bottom left, oklch(0.25 0.06 75 / 0.25), transparent 50%),
-    linear-gradient(135deg, var(--luxury-bg) 0%, var(--luxury-surface) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.5rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.05) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4);
-}
-
-/* Category filter pills — premium */
-.notice-cat-pill {
-  position: relative;
-  transition: all 0.3s var(--ease-premium);
-  background: oklch(1 0 0 / 0.04);
-  border: 1px solid var(--luxury-border);
-  color: var(--luxury-text-muted);
-  backdrop-filter: blur(10px);
-}
-.notice-cat-pill:hover {
-  background: oklch(1 0 0 / 0.08);
-  color: var(--luxury-cream);
-  transform: translateY(-1px);
-}
-.notice-cat-pill.active {
-  background: linear-gradient(135deg, oklch(0.62 0.15 340), oklch(0.55 0.14 340));
-  border-color: oklch(0.62 0.15 340 / 0.5);
-  color: oklch(0.99 0.008 78);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.2) inset,
-    0 6px 16px -4px oklch(0.50 0.15 340 / 0.4);
-}
-
-/* Timeline container */
-.notices-timeline {
-  position: relative;
-}
-
-/* Timeline vertical line */
-.notices-timeline::before {
-  content: "";
-  position: absolute;
-  left: 19px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(180deg, oklch(0.62 0.15 340 / 0.3), oklch(0.62 0.15 340 / 0.1), transparent);
-}
-
-/* Timeline item */
-.timeline-item {
-  position: relative;
-  padding-left: 56px;
-  transition: all 0.3s var(--ease-premium);
-}
-
-/* Timeline dot — priority indicator */
-.timeline-dot {
-  position: absolute;
-  left: 12px;
-  top: 20px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 3px solid var(--luxury-bg);
-  z-index: 2;
-  transition: all 0.3s var(--ease-premium);
-}
-.timeline-dot-priority-pinned {
-  background: oklch(0.78 0.13 75);
-  box-shadow: 0 0 0 4px oklch(0.78 0.13 75 / 0.2);
-}
-.timeline-dot-priority-high {
-  background: oklch(0.65 0.22 25);
-  box-shadow: 0 0 0 4px oklch(0.65 0.22 25 / 0.15);
-}
-.timeline-dot-priority-normal {
-  background: oklch(0.62 0.15 340);
-  box-shadow: 0 0 0 4px oklch(0.62 0.15 340 / 0.15);
-}
-.timeline-dot-priority-low {
-  background: oklch(0.55 0.02 75);
-  box-shadow: 0 0 0 4px oklch(0.55 0.02 75 / 0.1);
-}
-.timeline-item:hover .timeline-dot {
-  transform: scale(1.2);
-}
-
-/* Notice card — premium */
-.notice-card {
-  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.25rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.04) inset,
-    0 10px 25px -10px oklch(0 0 0 / 0.3);
-  transition: all 0.4s var(--ease-premium);
-  cursor: pointer;
-}
-.notice-card:hover {
-  transform: translateX(4px);
-  border-color: oklch(0.62 0.15 340 / 0.3);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.06) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4);
-}
-
-/* Notice category badge — premium */
-.notice-badge-cat {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  backdrop-filter: blur(8px);
-}
-.notice-badge-academic {
-  background: oklch(0.62 0.15 340 / 0.15);
-  color: oklch(0.78 0.15 340);
-  border: 1px solid oklch(0.62 0.15 340 / 0.25);
-}
-.notice-badge-examination {
-  background: oklch(0.65 0.22 25 / 0.15);
-  color: oklch(0.75 0.20 25);
-  border: 1px solid oklch(0.65 0.22 25 / 0.25);
-}
-.notice-badge-scholarship {
-  background: oklch(0.72 0.15 155 / 0.15);
-  color: oklch(0.80 0.15 155);
-  border: 1px solid oklch(0.72 0.15 155 / 0.25);
-}
-.notice-badge-placement {
-  background: oklch(0.78 0.13 75 / 0.15);
-  color: oklch(0.85 0.13 75);
-  border: 1px solid oklch(0.78 0.13 75 / 0.25);
-}
-.notice-badge-cultural {
-  background: oklch(0.70 0.15 350 / 0.15);
-  color: oklch(0.80 0.15 350);
-  border: 1px solid oklch(0.70 0.15 350 / 0.25);
-}
-.notice-badge-general {
-  background: oklch(0.60 0.08 250 / 0.15);
-  color: oklch(0.75 0.08 250);
-  border: 1px solid oklch(0.60 0.08 250 / 0.25);
-}
-
-/* Pinned badge — premium amber */
-.notice-badge-pinned {
-  background: oklch(0.78 0.13 75 / 0.15);
-  color: oklch(0.85 0.13 75);
-  border: 1px solid oklch(0.78 0.13 75 / 0.25);
-}
-
-/* New badge — premium plum pulse */
-.notice-badge-new {
-  background: oklch(0.62 0.15 340 / 0.2);
-  color: oklch(0.78 0.15 340);
-  border: 1px solid oklch(0.62 0.15 340 / 0.3);
-  animation: pulse-plum 2s ease-in-out infinite;
-}
-@keyframes pulse-plum {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-
-/* Notice detail sheet — premium */
-.notice-detail-sheet {
-  background: linear-gradient(180deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  color: var(--luxury-text);
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.06) inset,
-    0 30px 60px -20px oklch(0 0 0 / 0.5);
-}
-
-.notice-detail-sheet .notice-close-btn {
-  background: oklch(1 0 0 / 0.04);
-  border: 1px solid var(--luxury-border);
-  color: var(--luxury-text-muted);
-  transition: all 0.25s var(--ease-premium);
-}
-.notice-detail-sheet .notice-close-btn:hover {
-  background: oklch(1 0 0 / 0.08);
-  color: var(--luxury-cream);
-}
-
-.notice-tag {
-  background: oklch(1 0 0 / 0.04);
-  border: 1px solid var(--luxury-border);
-  color: var(--luxury-text-muted);
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-
-/* ==========================================================================
-   PREMIUM CALENDAR — v4 (academic planner)
-   ========================================================================== */
-
-/* Calendar hero — premium gradient header */
-.calendar-hero {
-  background:
-    radial-gradient(ellipse at top right, oklch(0.30 0.08 340 / 0.4), transparent 60%),
-    radial-gradient(ellipse at bottom left, oklch(0.25 0.06 75 / 0.25), transparent 50%),
-    linear-gradient(135deg, var(--luxury-bg) 0%, var(--luxury-surface) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.5rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.05) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4);
-}
-
-/* Premium tab switcher */
-.cal-tab-switcher {
-  background: oklch(0 0 0 / 0.15);
-  border: 1px solid var(--luxury-border);
-  border-radius: 1rem;
-  padding: 4px;
-  backdrop-filter: blur(10px);
-}
-.cal-tab {
-  position: relative;
-  transition: all 0.3s var(--ease-premium);
-  color: var(--luxury-text-muted);
-  border-radius: 0.75rem;
-}
-.cal-tab:hover {
-  color: var(--luxury-cream);
-  background: oklch(1 0 0 / 0.04);
-}
-.cal-tab.active {
-  background: linear-gradient(135deg, oklch(0.62 0.15 340), oklch(0.55 0.14 340));
-  color: oklch(0.99 0.008 78);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.2) inset,
-    0 4px 12px -2px oklch(0.50 0.15 340 / 0.4);
-}
-
-/* Calendar event card — premium */
-.cal-event-card {
-  position: relative;
-  background: linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.25rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.04) inset,
-    0 10px 25px -10px oklch(0 0 0 / 0.3);
-  transition: all 0.4s var(--ease-premium);
-  overflow: hidden;
-}
-.cal-event-card:hover {
-  transform: translateY(-2px);
-  border-color: oklch(0.62 0.15 340 / 0.3);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.06) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4);
-}
-
-/* Date block — premium */
-.cal-date-block {
-  background: oklch(0 0 0 / 0.2);
-  border: 1px solid var(--luxury-border);
-  border-radius: 0.875rem;
-  padding: 0.5rem 0.75rem;
-  text-align: center;
-  min-width: 64px;
-}
-
-/* Event type badge — premium */
-.cal-badge-type {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  backdrop-filter: blur(8px);
-}
-.cal-badge-exam {
-  background: oklch(0.65 0.22 25 / 0.15);
-  color: oklch(0.75 0.20 25);
-  border: 1px solid oklch(0.65 0.22 25 / 0.25);
-}
-.cal-badge-holiday {
-  background: oklch(0.72 0.15 155 / 0.15);
-  color: oklch(0.80 0.15 155);
-  border: 1px solid oklch(0.72 0.15 155 / 0.25);
-}
-.cal-badge-result {
-  background: oklch(0.60 0.08 250 / 0.15);
-  color: oklch(0.75 0.08 250);
-  border: 1px solid oklch(0.60 0.08 250 / 0.25);
-}
-.cal-badge-registration {
-  background: oklch(0.78 0.13 75 / 0.15);
-  color: oklch(0.85 0.13 75);
-  border: 1px solid oklch(0.78 0.13 75 / 0.25);
-}
-.cal-badge-workshop {
-  background: oklch(0.65 0.15 340 / 0.15);
-  color: oklch(0.78 0.15 340);
-  border: 1px solid oklch(0.65 0.15 340 / 0.25);
-}
-.cal-badge-deadline {
-  background: oklch(0.70 0.18 55 / 0.15);
-  color: oklch(0.80 0.18 55);
-  border: 1px solid oklch(0.70 0.18 55 / 0.25);
-}
-.cal-badge-event {
-  background: oklch(0.70 0.15 350 / 0.15);
-  color: oklch(0.80 0.15 350);
-  border: 1px solid oklch(0.70 0.15 350 / 0.25);
-}
-
-/* Countdown badge — premium */
-.cal-countdown {
-  background: oklch(0.62 0.15 340 / 0.15);
-  border: 1px solid oklch(0.62 0.15 340 / 0.25);
-  color: oklch(0.78 0.15 340);
-  padding: 3px 10px;
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 600;
-}
-.cal-countdown-today {
-  background: oklch(0.65 0.22 25 / 0.15);
-  border: 1px solid oklch(0.65 0.22 25 / 0.25);
-  color: oklch(0.75 0.20 25);
-  padding: 3px 10px;
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 700;
-  animation: pulse-plum 2s ease-in-out infinite;
-}
-.cal-countdown-past {
-  background: oklch(0.55 0.02 75 / 0.1);
-  border: 1px solid oklch(0.55 0.02 75 / 0.15);
-  color: oklch(0.50 0.02 75);
-  padding: 3px 10px;
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-/* Timetable card — premium */
-.cal-timetable-card {
-  background: linear-gradient(135deg, oklch(0.28 0.06 340) 0%, oklch(0.32 0.07 340) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.5rem;
-  border: 1px solid oklch(0.62 0.15 340 / 0.3);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.06) inset,
-    0 20px 40px -15px oklch(0 0 0 / 0.4);
-}
-
-/* Milestone strip — premium */
-.cal-milestone {
-  background: oklch(0 0 0 / 0.15);
-  border: 1px solid var(--luxury-border);
-  border-radius: 0.75rem;
-  padding: 0.75rem;
-  transition: all 0.3s var(--ease-premium);
-}
-.cal-milestone:hover {
-  background: oklch(0 0 0 / 0.25);
-  border-color: oklch(0.62 0.15 340 / 0.3);
-  transform: translateY(-1px);
-}
-
-/* ==========================================================================
-   PREMIUM EMPTY STATES — v4 (editorial illustrations + delightful messaging)
-   ========================================================================== */
-
-.empty-state-premium {
-  position: relative;
-  background:
-    radial-gradient(ellipse at center, oklch(0.62 0.15 340 / 0.06), transparent 70%),
-    linear-gradient(135deg, var(--luxury-surface) 0%, var(--luxury-surface-2) 100%);
-  color: var(--luxury-text);
-  border-radius: 1.5rem;
-  border: 1px solid var(--luxury-border);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.04) inset,
-    0 10px 25px -10px oklch(0 0 0 / 0.3);
-  overflow: hidden;
-}
-
-/* Decorative dotted pattern overlay */
-.empty-state-premium::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, oklch(1 0 0 / 0.03) 1px, transparent 1px);
-  background-size: 24px 24px;
-  pointer-events: none;
-}
-
-/* Floating orbs — decorative background */
-.empty-state-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(40px);
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-/* Illustration container — premium */
-.empty-illustration {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-}
-
-/* Handwritten accent text */
-.empty-handwritten {
-  font-family: var(--font-caveat);
-  color: var(--luxury-amber);
-  font-size: 1.25rem;
-  rotate: -3deg;
-  display: inline-block;
-}
-
-/* Empty state title — serif */
-.empty-title-premium {
-  font-family: var(--font-lora);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--luxury-cream);
-  line-height: 1.2;
-}
-
-/* Empty state description — muted */
-.empty-desc-premium {
-  color: var(--luxury-text-muted);
-  line-height: 1.6;
-  max-width: 28rem;
-}
-
-/* Empty state buttons — premium */
-.empty-btn-primary {
-  background: linear-gradient(135deg, oklch(0.62 0.15 340), oklch(0.55 0.14 340));
-  color: oklch(0.99 0.008 78);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.2) inset,
-    0 6px 16px -4px oklch(0.50 0.15 340 / 0.4);
-  transition: all 0.3s var(--ease-premium);
-}
-.empty-btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 0.3) inset,
-    0 10px 20px -4px oklch(0.50 0.15 340 / 0.5);
-}
-.empty-btn-secondary {
-  background: oklch(1 0 0 / 0.05);
-  color: var(--luxury-cream);
-  border: 1px solid var(--luxury-border);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s var(--ease-premium);
-}
-.empty-btn-secondary:hover {
-  background: oklch(1 0 0 / 0.1);
-  border-color: oklch(0.62 0.15 340 / 0.3);
-}
-
-/* Compact variant */
-.empty-state-premium.compact {
-  border-radius: 1.25rem;
-}
-
-/* ==========================================================================
-   PREMIUM MOTION POLISH — v4 (micro-interactions + page transitions)
-   ========================================================================== */
-
-/* Enhanced page transition — premium spring */
-.page-transition-enter {
-  animation: page-enter 0.5s var(--ease-premium) backwards;
-}
-@keyframes page-enter {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.99);
-    filter: blur(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-/* Micro-bounce — tap feedback for buttons */
-.micro-bounce {
-  transition: transform 0.15s var(--ease-spring);
-}
-.micro-bounce:active {
-  transform: scale(0.96);
-}
-
-/* Hover lift — for cards + tiles */
-.hover-lift {
-  transition: transform 0.3s var(--ease-premium), box-shadow 0.3s var(--ease-premium);
-}
-.hover-lift:hover {
-  transform: translateY(-3px);
-}
-
-/* Premium focus ring — for inputs + buttons */
-.focus-ring-premium:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 3px oklch(0.62 0.15 340 / 0.2),
-    0 0 0 1px oklch(0.62 0.15 340 / 0.5);
-}
-
-/* Stagger container — sets up staggered children */
-.stagger-container > * {
-  animation: stagger-in 0.5s var(--ease-premium) backwards;
-}
-.stagger-container > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger-container > *:nth-child(2) { animation-delay: 0.1s; }
-.stagger-container > *:nth-child(3) { animation-delay: 0.15s; }
-.stagger-container > *:nth-child(4) { animation-delay: 0.2s; }
-.stagger-container > *:nth-child(5) { animation-delay: 0.25s; }
-.stagger-container > *:nth-child(6) { animation-delay: 0.3s; }
-.stagger-container > *:nth-child(7) { animation-delay: 0.35s; }
-.stagger-container > *:nth-child(8) { animation-delay: 0.4s; }
-
-/* Shimmer — premium loading */
 @keyframes shimmer-sweep {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-.shimmer-premium {
-  background: linear-gradient(
-    90deg,
-    var(--luxury-surface) 0%,
-    oklch(0.30 0.04 340) 50%,
-    var(--luxury-surface) 100%
-  );
+.shimmer {
+  background: linear-gradient(90deg, var(--card) 0%, var(--secondary) 50%, var(--card) 100%);
   background-size: 200% 100%;
   animation: shimmer-sweep 1.8s ease-in-out infinite;
 }
 
-/* Pulse glow — for live indicators */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 oklch(0.72 0.15 155 / 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 6px oklch(0.72 0.15 155 / 0);
-  }
-}
-.pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* Float — subtle floating animation for decorative elements */
-@keyframes float-subtle-premium {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-.float-premium {
-  animation: float-subtle-premium 4s ease-in-out infinite;
-}
-
-/* Reduced motion — disable all premium animations */
 @media (prefers-reduced-motion: reduce) {
-  .page-transition-enter,
-  .stagger-container > *,
-  .shimmer-premium,
-  .pulse-glow,
-  .float-premium {
-    animation: none !important;
-  }
-  .micro-bounce:active {
-    transform: none;
-  }
-  .hover-lift:hover {
-    transform: none;
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
 /* ==========================================================================
-   MICRO-BOUNCE — active state for all premium buttons
-   Applied as :active selectors on existing button classes
+   UTILITY — Safe areas for Capacitor / notched devices
    ========================================================================== */
 
-.btn-luxury:active,
-.btn-luxury-outline:active,
-.paper-btn-primary:active,
-.paper-btn-secondary:active,
-.empty-btn-primary:active,
-.empty-btn-secondary:active,
-.nav-btn-premium:active,
-.sidebar-item-premium:active,
-.icon-btn-premium:active,
-.calc-back-btn:active,
-.notice-cat-pill:active,
-.cal-tab:active,
-.calc-tile:active,
-.paper-tile:active,
-.notice-card:active,
-.cal-event-card:active,
-.cal-milestone:active {
-  transform: scale(0.97);
+.safe-top { padding-top: env(safe-area-inset-top, 0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* ==========================================================================
+   SCROLL TO TOP — Floating button
+   ========================================================================== */
+
+.scroll-to-top-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  backdrop-filter: blur(8px);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.scroll-to-top-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ==========================================================================
+   INPUTS — Dark surfaces, amber focus
+   ========================================================================== */
+
+input[type="text"], input[type="password"], input[type="email"], input[type="number"],
+input[type="search"], input[type="date"], textarea, select {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  border-radius: 8px;
+  transition: border-color 0.15s ease;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+input::placeholder {
+  color: var(--text-faint);
+}
+
+/* Select dropdown options need explicit styling for dark mode */
+select option {
+  background: var(--card);
+  color: var(--foreground);
 }

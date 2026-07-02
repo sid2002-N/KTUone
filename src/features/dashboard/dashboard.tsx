@@ -10,34 +10,13 @@ import {
   ClipboardList,
   Target,
   FileText,
-  BookOpen,
   Bell,
-  CalendarDays,
-  Sparkles,
-  ArrowRight,
-  TrendingUp,
   Clock,
   ChevronRight,
   Heart,
   RefreshCw,
+  TrendingUp,
 } from "lucide-react";
-import { GlassCard } from "@/components/ui-custom/glass-card";
-import { StatCard } from "@/components/ui-custom/stat-card";
-import { AnimatedCounter } from "@/components/ui-custom/animated-counter";
-import { CircularProgress } from "@/components/ui-custom/circular-progress";
-import { AcademicStatusCard } from "@/components/ui-custom/academic-status-card";
-import { BannerAd } from "@/components/ui-custom/banner-ad";
-import { HandwrittenText } from "@/components/ui-custom/handwritten-text";
-import {
-  SketchArrow,
-  SketchHeart,
-  SketchCoffeeCup,
-  SketchBooks,
-  SketchPencil,
-  SketchNotebook,
-} from "@/components/ui-custom/sketch-elements";
-import { CardDecoration } from "@/components/ui-custom/card-decoration";
-import { EditorialDivider } from "@/components/ui-custom/editorial-divider";
 import { useNavStore } from "@/store/nav-store";
 import { useSupporterStore } from "@/store/supporter-store";
 import { useAuthStore } from "@/store/auth-store";
@@ -66,13 +45,6 @@ const calcIcons: Record<CalculatorKey, React.ComponentType<{ className?: string 
   pass: Target,
 };
 
-const accentMap: Record<string, "plum" | "amber" | "mint" | "coral"> = {
-  plum: "plum",
-  amber: "amber",
-  mint: "mint",
-  coral: "coral",
-};
-
 export function Dashboard() {
   const set = useNavStore((s) => s.set);
   const setSupportOpen = useNavStore((s) => s.setSupportOpen);
@@ -89,13 +61,11 @@ export function Dashboard() {
 
   const firstName = (profile?.name ?? "Student").split(" ")[0]!;
 
-  // Fetch dashboard data via Server Actions + TanStack Query
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const lastSyncedAt = useAuthStore((s) => s.lastSyncedAt);
   const setSyncOpen = useNavStore((s) => s.setSyncOpen);
   const setLoginOpen = useNavStore((s) => s.setLoginOpen);
 
-  // Stale data check — show a "sync" banner if data is > 24h old (or never synced)
   const isStale =
     isAuthenticated &&
     (!lastSyncedAt || Date.now() - new Date(lastSyncedAt).getTime() > 24 * 60 * 60 * 1000);
@@ -121,7 +91,6 @@ export function Dashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch real CGPA when authenticated
   const { data: cgpaData } = useQuery({
     queryKey: ["cgpa"],
     queryFn: async () => {
@@ -134,554 +103,373 @@ export function Dashboard() {
     staleTime: 60 * 60 * 1000,
   });
 
-  // Calc history via unified hook
   const { entries: calcHistory } = useCalcHistory();
   const recentHistory = calcHistory.slice(0, 3);
 
+  const today = new Date().toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
   return (
-    <div className="space-y-6">
-      {/* ===== PREMIUM MAGAZINE-COVER HERO ===== */}
-      <motion.div
-        initial={prefersReduced ? false : { opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="magazine-hero relative"
-      >
-        <div className="relative z-10 p-7 sm:p-10 lg:p-14">
-          {/* Top row: greeting + sync indicator */}
-          <div className="flex items-start justify-between gap-4 mb-6">
-            <motion.div
-              initial={prefersReduced ? false : { opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-            >
-              <p className="hero-eyebrow text-xl sm:text-2xl rotate-[-2deg] inline-block mb-2">
-                {greeting}, {firstName}
-              </p>
-              <h1 className="hero-headline text-4xl sm:text-5xl lg:text-6xl">
-                Your academic<br />day, <em>sorted.</em>
-              </h1>
-            </motion.div>
-            {/* Sync indicator dot */}
-            {isAuthenticated && lastSyncedAt && (
-              <motion.div
-                initial={prefersReduced ? false : { opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6, duration: 0.4 }}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[oklch(1_0_0_/_0.06)] border border-[var(--luxury-border)] backdrop-blur-sm"
-                title={`Last synced ${formatRelativeTime(lastSyncedAt)}`}
-              >
-                <span className="size-1.5 rounded-full bg-[var(--luxury-success)] animate-pulse" />
-                <span className="text-[10px] uppercase tracking-wider text-[var(--luxury-text-muted)] font-medium">
-                  Synced {formatRelativeTime(lastSyncedAt)}
-                </span>
-              </motion.div>
-            )}
+    <div className="space-y-8">
+      {/* ===== HEADER — no hero banner, just date + name + branch tag ===== */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <div className="section-eyebrow">
+            {today}
+            {profile ? ` — S${profile.semester}` : ""}
           </div>
-
-          {/* Profile line + CTAs */}
-          <motion.div
-            initial={prefersReduced ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="flex flex-wrap items-end justify-between gap-4"
-          >
-            <div>
-              <p className="text-sm text-[var(--luxury-text-muted)] max-w-md leading-relaxed">
-                {profile
-                  ? `${profile.branchName} · Semester ${profile.semester} · ${profile.registerNumber}`
-                  : "Sign in to sync your CGPA, results and attendance from KTU."}
-              </p>
-              <div className="flex flex-wrap items-center gap-2 mt-5">
-                <button
-                  onClick={() => set("calculators")}
-                  className="btn-luxury px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2"
-                >
-                  <Sparkles className="size-4" />
-                  Open a calculator
-                </button>
-                {!isSupporter && (
-                  <button
-                    onClick={() => setSupportOpen(true)}
-                    className="btn-luxury-outline px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2"
-                  >
-                    <Heart className="size-3.5" fill="currentColor" />
-                    Go ad-free · ₹99
-                  </button>
-                )}
-              </div>
-            </div>
-            {/* Decorative sketch cluster — premium positioned */}
-            <div className="hidden lg:flex items-end gap-1 opacity-60 pointer-events-none">
-              <SketchNotebook size={80} color="plum" />
-              <div className="-ml-2 -mb-1">
-                <SketchPencil size={32} color="amber" />
-              </div>
-            </div>
-          </motion.div>
+          <h1 className="section-title text-[30px] md:text-[34px] mt-1">
+            {greeting}, {firstName}
+          </h1>
         </div>
-      </motion.div>
+        {profile && (
+          <span className="tag">
+            B.Tech · {profile.branchCode} · {UNIVERSITY_NAME}
+          </span>
+        )}
+      </div>
 
-      {/* Stale data banner — shown when cached data is > 24h old (or never synced) */}
+      {/* Stale data banner */}
       {isStale && (
-        <motion.div
-          initial={prefersReduced ? false : { opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="amber-card rounded-2xl p-4 flex items-center gap-3 flex-wrap"
-        >
-          <Clock className="size-5 text-amber-600 shrink-0" />
+        <div className="card p-4 flex items-center gap-3 flex-wrap border-l-2 border-l-primary">
+          <Clock className="size-5 text-primary shrink-0" />
           <div className="flex-1 min-w-[200px]">
-            <p className="text-sm font-medium text-foreground">
+            <p className="text-sm font-medium">
               {!lastSyncedAt
-                ? "Sync your data to see latest CGPA and results"
+                ? "Sync to see your latest CGPA and results"
                 : `Data last synced ${formatRelativeTime(lastSyncedAt)}`}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Tap sync to re-fetch fresh data from KTU.
+              Re-fetch fresh data from KTU.
             </p>
           </div>
           <button
             onClick={() => setSyncOpen(true)}
-            className="btn-tactile px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1.5 shrink-0"
+            className="btn-ghost px-4 py-2 rounded-md text-xs font-medium flex items-center gap-1.5 shrink-0"
           >
             <RefreshCw className="size-3.5" />
-            Sync now
+            Sync
           </button>
-        </motion.div>
+        </div>
       )}
 
-      {/* ===== ASYMMETRIC GRID: Academic Status (large) + Quick Stats (sidebar) ===== */}
-      <div className="grid-asymmetric">
-        {/* LARGE: Unified Academic Status Card — CGPA + Percentage + Credits */}
-        <AcademicStatusCard
-          cgpa={isAuthenticated && cgpaData ? cgpaData.cgpa : null}
-          creditsEarned={isAuthenticated && cgpaData ? cgpaData.creditsEarned : null}
-          totalCredits={isAuthenticated && cgpaData ? cgpaData.totalCredits : null}
-          targetCredits={160}
-          isAuthenticated={isAuthenticated}
-          onLoginClick={() => setLoginOpen(true)}
-        />
+      {/* ===== ACADEMIC LEDGER STRIP — signature element ===== */}
+      <div className="card p-5 md:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="section-eyebrow">Academic standing — as recorded</div>
+          {isAuthenticated ? (
+            <button
+              onClick={() => setLoginOpen(true)}
+              className="text-[12.5px] underline decoration-dotted text-muted-foreground hover:text-foreground"
+            >
+              View transcript
+            </button>
+          ) : (
+            <button
+              onClick={() => setLoginOpen(true)}
+              className="text-[12.5px] underline decoration-dotted text-muted-foreground hover:text-foreground"
+            >
+              Sign in to view
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border">
+          {/* CGPA */}
+          <div className="pr-4 md:pr-6">
+            <div className="text-[11px] font-mono text-[color:var(--text-faint)]">CGPA</div>
+            <div className="section-title text-[26px] mt-1">
+              {isAuthenticated && cgpaData ? (
+                cgpaData.cgpa.toFixed(2)
+              ) : isAuthenticated ? (
+                <span className="text-base text-muted-foreground">Loading…</span>
+              ) : (
+                <span className="text-base text-muted-foreground">—</span>
+              )}
+            </div>
+            <div className="text-[11.5px] mt-0.5 text-muted-foreground">
+              {isAuthenticated && cgpaData
+                ? `${cgpaData.creditsEarned} credits earned`
+                : "Sign in to view"}
+            </div>
+          </div>
 
-        {/* SIDEBAR: 2x2 mini stat tiles */}
-        <div className="grid grid-cols-2 gap-3">
-          <motion.div
-            initial={prefersReduced ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="stat-tile-luxury p-4 flex flex-col justify-between"
-          >
-            <div className="size-8 rounded-lg bg-[oklch(0.78_0.13_75_/_0.12)] flex items-center justify-center mb-2">
-              <FileText className="size-4 text-[var(--luxury-amber)]" />
+          {/* Percentage */}
+          <div className="pl-4 md:pl-6 pr-4 md:pr-6">
+            <div className="text-[11px] font-mono text-[color:var(--text-faint)]">Percentage</div>
+            <div className="section-title text-[26px] mt-1">
+              {isAuthenticated && cgpaData ? (
+                <>{(cgpaData.cgpa * 10).toFixed(1)}<span className="text-[15px] text-[color:var(--text-faint)]">%</span></>
+              ) : isAuthenticated ? (
+                <span className="text-base text-muted-foreground">Loading…</span>
+              ) : (
+                <span className="text-base text-muted-foreground">—</span>
+              )}
             </div>
-            <div>
-              <p className="metric-number text-2xl text-[var(--luxury-cream)]">
-                <AnimatedCounter value={stats?.papers ?? 0} />
-              </p>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--luxury-text-muted)] mt-0.5">
-                Papers
-              </p>
-            </div>
-          </motion.div>
+            <div className="text-[11.5px] mt-0.5 text-muted-foreground">out of 100</div>
+          </div>
 
-          <motion.div
-            initial={prefersReduced ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="stat-tile-luxury p-4 flex flex-col justify-between"
-          >
-            <div className="size-8 rounded-lg bg-[oklch(0.68_0.13_45_/_0.12)] flex items-center justify-center mb-2">
-              <Bell className="size-4 text-[var(--luxury-copper)]" />
+          {/* Credits */}
+          <div className="pl-4 md:pl-6 pr-4 md:pr-6">
+            <div className="text-[11px] font-mono text-[color:var(--text-faint)]">Credits</div>
+            <div className="section-title text-[26px] mt-1">
+              {isAuthenticated && cgpaData ? (
+                <>{cgpaData.creditsEarned}<span className="text-[15px] text-[color:var(--text-faint)]">/160</span></>
+              ) : (
+                <span className="text-base text-muted-foreground">—</span>
+              )}
             </div>
-            <div>
-              <p className="metric-number text-2xl text-[var(--luxury-cream)]">
-                <AnimatedCounter value={stats?.notices ?? 0} />
-              </p>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--luxury-text-muted)] mt-0.5">
-                Notices
-              </p>
+            <div className="text-[11.5px] mt-0.5 text-muted-foreground">
+              {isAuthenticated && cgpaData
+                ? `${Math.round((cgpaData.creditsEarned / 160) * 100)}% on track`
+                : "Sign in to view"}
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={prefersReduced ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="stat-tile-luxury p-4 flex flex-col justify-between"
-          >
-            <div className="size-8 rounded-lg bg-[oklch(0.72_0.15_155_/_0.12)] flex items-center justify-center mb-2">
-              <CalendarCheck className="size-4 text-[var(--luxury-success)]" />
+          {/* Papers available */}
+          <div className="pl-4 md:pl-6">
+            <div className="text-[11px] font-mono text-[color:var(--text-faint)]">Papers</div>
+            <div className="section-title text-[26px] mt-1">
+              {stats?.papers ?? 0}
             </div>
-            <div>
-              <p className="metric-number text-2xl text-[var(--luxury-cream)]">Manual</p>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--luxury-text-muted)] mt-0.5">
-                Attendance
-              </p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={prefersReduced ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="stat-tile-luxury p-4 flex flex-col justify-between"
-          >
-            <div className="size-8 rounded-lg bg-[oklch(0.62_0.15_340_/_0.12)] flex items-center justify-center mb-2">
-              <CalendarDays className="size-4 text-[var(--luxury-plum)]" />
-            </div>
-            <div>
-              <p className="metric-number text-2xl text-[var(--luxury-cream)]">
-                {upcomingEvent ? new Date(upcomingEvent.startDate).getDate() : "—"}
-              </p>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--luxury-text-muted)] mt-0.5">
-                Next Event
-              </p>
-            </div>
-          </motion.div>
+            <div className="text-[11.5px] mt-0.5 text-muted-foreground">available to download</div>
+          </div>
         </div>
       </div>
 
-      {/* Quick actions — calculator shortcuts */}
-      <section>
-        <SectionHeader
-          title="Quick actions"
-          subtitle="Jump straight into a calculator"
-          onSeeAll={() => set("calculators" as NavKey)}
-          accent="let's go!"
-        />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {CALCULATORS.map((calc, i) => {
+      {/* ===== CALCULATORS — quick access grid ===== */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="section-title text-[19px]">Calculators</h2>
+          <button
+            onClick={() => set("calculators")}
+            className="text-[12.5px] text-muted-foreground hover:text-foreground"
+          >
+            See all →
+          </button>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          {CALCULATORS.map((calc) => {
             const Icon = calcIcons[calc.key];
-            // Map accent to CSS custom property for notebook-tab top strip
-            const tabColor =
-              calc.accent === "plum"
-                ? "oklch(0.50 0.12 340)"
-                : calc.accent === "amber"
-                  ? "oklch(0.62 0.11 70)"
-                  : calc.accent === "mint"
-                    ? "oklch(0.58 0.09 155)"
-                    : "oklch(0.55 0.10 25)";
             return (
-              <motion.button
+              <button
                 key={calc.key}
-                initial={prefersReduced ? false : { opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04, duration: 0.4 }}
                 onClick={() => set("calculators")}
-                style={{
-                  transform: `rotate(${i % 2 === 0 ? -0.5 : 0.5}deg)`,
-                  // @ts-expect-error custom property
-                  "--tab-color": tabColor,
-                }}
-                className="btn-tactile notebook-tab notebook-tab-hover rounded-2xl p-4 pt-5 text-left group relative"
+                className="card card-hover p-4 text-left"
               >
-                <div
-                  className={`size-10 rounded-xl flex items-center justify-center mb-3 border border-foreground/10 ${
-                    calc.accent === "plum"
-                      ? "bg-primary/15 text-primary"
-                      : calc.accent === "amber"
-                        ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
-                        : calc.accent === "mint"
-                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
-                          : "bg-rose-500/15 text-rose-700 dark:text-rose-400"
-                  }`}
-                >
-                  <Icon className="size-5" />
+                <div className="icon-box mb-3">
+                  <Icon className="size-4" />
                 </div>
-                <p className="font-serif-display text-base leading-tight">{calc.title.replace(" Calculator", "")}</p>
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2 italic">
-                  {calc.description}
-                </p>
-                <div className="mt-2 flex items-center gap-1 text-xs text-primary opacity-0 group-hover:opacity-100 transition">
-                  Open <ArrowRight className="size-3" />
+                <div className="text-[13.5px] font-medium">
+                  {calc.title.replace(" Calculator", "")}
                 </div>
-              </motion.button>
+                <div className="text-[11.5px] mt-0.5 text-[color:var(--text-faint)]">
+                  {calc.key === "sgpa" && "Per semester"}
+                  {calc.key === "cgpa" && "All semesters"}
+                  {calc.key === "attendance" && "Track & predict"}
+                  {calc.key === "internal" && "Series + assign."}
+                  {calc.key === "pass" && "End-sem needed"}
+                </div>
+              </button>
             );
           })}
         </div>
-      </section>
-
-      {/* Editorial divider */}
-      <EditorialDivider ornament="diamond" label="your day at a glance" />
-
-      {/* Ad */}
-      <BannerAd slot="home-top" />
-
-      {/* Two-column section: recent activity + upcoming */}
-      <div className="grid lg:grid-cols-3 gap-4">
-        {/* Recent calculations — feels like a notebook page with entries */}
-        <GlassCard variant="lined" className="lg:col-span-2 p-5 pl-12 relative">
-          <div className="tape-corner-tr" aria-hidden="true" />
-          <SectionHeader
-            title="Recent activity"
-            subtitle="What you calculated recently"
-            compact
-            accent="keep going!"
-          />
-          <div className="space-y-1.5">
-            {recentHistory.map((h) => (
-              <button
-                key={h.id}
-                onClick={() => set("calculators")}
-                className="w-full flex items-center justify-between gap-3 py-2.5 px-3 rounded-lg hover:bg-primary/5 transition text-left border border-transparent hover:border-primary/15"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/15">
-                    {h.type === "SGPA" && <Trophy className="size-4" />}
-                    {h.type === "CGPA" && <Award className="size-4" />}
-                    {h.type === "ATTENDANCE" && <CalendarCheck className="size-4" />}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-serif-display text-sm truncate">
-                      {h.label ?? h.type}
-                    </p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1 italic">
-                      <Clock className="size-3" />
-                      {formatRelativeTime(h.output.computedAt)}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="stamped-number text-xl tabular-nums">
-                    {h.output.value.toFixed(2)}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-bold">
-                    {h.type}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </GlassCard>
-
-        {/* Attendance — manual, no scraper data */}
-        <GlassCard variant="kraft" className="p-5 pt-7 relative">
-          <CardDecoration variant="cornerHeart" position="top-right" color="coral" />
-          <SectionHeader title="Attendance" subtitle="This semester" compact accent="track it!" />
-          <div className="flex flex-col items-center justify-center py-3">
-            <div className="flex flex-col items-center text-center gap-2 py-6">
-              <CalendarCheck className="size-10 text-foreground/40" />
-              <p className="text-sm text-foreground/70 max-w-[180px] leading-relaxed">
-                KTU doesn't expose attendance data. Use the calculator to track yours manually.
-              </p>
-            </div>
-            <button
-              onClick={() => set("calculators")}
-              className="btn-tactile mt-3 text-xs text-primary hover:underline font-semibold flex items-center gap-1"
-            >
-              Open attendance calculator <ChevronRight className="size-3" />
-            </button>
-          </div>
-        </GlassCard>
       </div>
 
-      {/* Editorial divider */}
-      <EditorialDivider ornament="star" label="from the university" />
-
-      {/* Notices */}
-      <section>
-        <SectionHeader
-          title="Latest notices"
-          subtitle="From the university"
-          onSeeAll={() => set("notices" as NavKey)}
-          accent="fresh today"
-        />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {recentNotices.map((n, i) => (
-            <GlassCard
-              key={n.id}
-              variant="paper"
-              hover
-              className="p-4 cursor-pointer"
-              onClick={() => set("notices" as NavKey)}
-            >
-              {/* Tape strip on first card — feels pinned up */}
-              {i === 0 && <div className="tape-corner-tl" aria-hidden="true" />}
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <span className="text-[10px] uppercase tracking-[0.15em] text-primary font-bold px-2 py-0.5 rounded bg-primary/10 border border-primary/15">
-                  {n.category}
-                </span>
-                {n.pinned && (
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 font-bold border border-amber-500/20">
-                    ★ Pinned
-                  </span>
-                )}
-              </div>
-              <p className="font-serif-display text-sm leading-snug line-clamp-2">
-                {n.title}
+      {/* ===== TWO COLUMN: recent activity + upcoming ===== */}
+      <div className="grid md:grid-cols-5 gap-6">
+        {/* Recent activity / calc history */}
+        <div className="md:col-span-3 card p-5 md:p-6">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="section-title text-[19px]">Recent activity</h2>
+            {recentHistory.length > 0 && (
+              <button
+                onClick={() => set("calculators")}
+                className="text-[12.5px] text-muted-foreground hover:text-foreground"
+              >
+                View all →
+              </button>
+            )}
+          </div>
+          {recentHistory.length === 0 ? (
+            <div className="empty-state py-8">
+              <p className="text-sm text-muted-foreground mb-3">
+                No calculations yet.
               </p>
-              <p className="text-xs text-muted-foreground mt-2 italic flex items-center gap-1">
-                <Clock className="size-3" />
-                {formatRelativeTime(n.publishedAt)}
-              </p>
-            </GlassCard>
-          ))}
+              <button
+                onClick={() => set("calculators")}
+                className="text-[12.5px] underline decoration-dotted text-muted-foreground hover:text-foreground"
+              >
+                Open a calculator
+              </button>
+            </div>
+          ) : (
+            <div className="mt-3">
+              {recentHistory.map((h) => (
+                <div key={h.id} className="ledger-row">
+                  <div>
+                    <div className="text-[13.5px]">{h.label ?? h.type}</div>
+                    <div className="text-[11.5px] font-mono mt-0.5 text-[color:var(--text-faint)]">
+                      {h.type} · {formatRelativeTime(h.output.computedAt)}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-mono text-[14px]">{h.output.value.toFixed(2)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </section>
 
-      {/* Editorial divider */}
-      <EditorialDivider ornament="diamond" label="what's next" />
-
-      {/* Upcoming + Continue Reading */}
-      <div className="grid lg:grid-cols-2 gap-4">
-        {/* Upcoming academic event */}
-        <GlassCard variant="kraft" className="p-5 relative">
-          <CardDecoration variant="pageFold" />
-          <SectionHeader title="Upcoming" subtitle="Next on your calendar" compact accent="don't miss!" />
+        {/* Upcoming */}
+        <div className="md:col-span-2 card p-5 md:p-6 flex flex-col">
+          <h2 className="section-title text-[19px] mb-4">Upcoming</h2>
           {upcomingEvent ? (
-            <div className="flex items-start gap-4 p-3 rounded-lg border border-foreground/10 bg-foreground/[0.03]">
-              <div className="text-center shrink-0 px-2">
-                <p className="text-[10px] uppercase tracking-[0.15em] text-foreground/60 font-bold">
-                  {new Date(upcomingEvent.startDate).toLocaleString("en-IN", { month: "short" })}
-                </p>
-                <p className="stamped-number text-3xl text-primary">
-                  {new Date(upcomingEvent.startDate).getDate()}
-                </p>
-              </div>
-              <div className="min-w-0 border-l border-foreground/15 pl-3">
-                <p className="font-serif-display text-sm leading-snug">{upcomingEvent.title}</p>
-                <p className="text-xs text-foreground/70 mt-1 line-clamp-2 italic">
-                  {upcomingEvent.description}
-                </p>
+            <div className="flex-1">
+              <div className="ledger-row">
+                <div>
+                  <div className="text-[13.5px]">{upcomingEvent.title}</div>
+                  <div className="text-[11.5px] font-mono mt-0.5 text-[color:var(--text-faint)]">
+                    {new Date(upcomingEvent.startDate).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </div>
+                </div>
                 <button
-                  onClick={() => set("calendar" as NavKey)}
-                  className="btn-tactile mt-2 text-xs text-primary hover:underline font-semibold flex items-center gap-1"
+                  onClick={() => set("calendar")}
+                  className="text-[12.5px] text-muted-foreground hover:text-foreground"
                 >
-                  View calendar <ChevronRight className="size-3" />
+                  <ChevronRight className="size-4" />
                 </button>
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center p-6 text-sm text-foreground/60 italic">
-              No upcoming events
+            <div className="flex-1 flex flex-col items-start justify-center py-6">
+              <div className="icon-box mb-3">
+                <CalendarCheck className="size-4" />
+              </div>
+              <div className="text-[13.5px] mb-1">Nothing scheduled</div>
+              <div className="text-[12px] mb-4 text-muted-foreground">
+                Add your class timetable or exam dates to see them here.
+              </div>
+              <button
+                onClick={() => set("calendar")}
+                className="btn-ghost text-[12.5px] px-3.5 py-2 rounded-md"
+              >
+                Open calendar
+              </button>
             </div>
           )}
-        </GlassCard>
-
-        {/* Continue reading — notebook page */}
-        <GlassCard variant="lined" className="p-5 pl-12 relative">
-          <CardDecoration variant="cornerStar" position="top-right" color="amber" />
-          <SectionHeader
-            title="Continue reading"
-            subtitle="Recently viewed papers"
-            onSeeAll={() => set("papers" as NavKey)}
-            compact
-            accent="pick up where you left off"
-          />
-          <div className="space-y-1">
-            {recentPapers.slice(0, 3).map((p) => (
-              <button
-                key={p.id}
-                onClick={() => set("papers" as NavKey)}
-                className="w-full flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-primary/5 transition text-left border border-transparent hover:border-primary/15"
-              >
-                <div className="size-9 rounded-lg bg-rose-500/15 text-rose-700 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-500/20">
-                  <FileText className="size-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-serif-display text-sm truncate">{p.subjectName}</p>
-                  <p className="text-xs text-muted-foreground italic">
-                    {p.examType.replace("_", " ")} · {p.year} · {formatNumber(p.views)} views
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </GlassCard>
+        </div>
       </div>
 
-      {/* Support banner — for non-supporters (kraft paper, no gradient) */}
-      {!isSupporter && (
-        <div className="kraft-card p-6 sm:p-8 relative overflow-hidden float-subtle">
-          {/* Tiny sketch heart accent */}
-          <div className="absolute top-4 right-4 opacity-70">
-            <SketchHeart size={20} color="coral" />
-          </div>
-          <div className="flex items-center gap-5 flex-wrap relative">
-            {/* Editorial illustration */}
-            <div className="shrink-0">
-              <SketchBooks size={84} color="amber" />
-            </div>
-            <div className="flex-1 min-w-[200px]">
-              <HandwrittenText as="p" color="amber" className="text-xl rotate-[-2deg] inline-block mb-1">
-                Hey friend!
-              </HandwrittenText>
-              <h3 className="font-serif-display text-2xl sm:text-3xl tracking-tight text-foreground">
-                Love KTU One?
-              </h3>
-              <p className="text-sm text-foreground/80 mt-2 max-w-md leading-relaxed">
-                Support development for ₹99 lifetime. Remove ads, get a badge,
-                and help every KTU student.
-              </p>
-            </div>
+      {/* ===== NOTICES + PAPERS — two column ===== */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Recent notices */}
+        <div className="card p-5 md:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="section-title text-[19px]">Notices</h2>
             <button
-              onClick={() => setSupportOpen(true)}
-              className="btn-tactile bg-primary text-primary-foreground px-5 py-2.5 rounded-full font-semibold flex items-center gap-2 shadow-soft hover:opacity-90"
+              onClick={() => set("notices" as NavKey)}
+              className="text-[12.5px] text-muted-foreground hover:text-foreground"
             >
-              <Heart className="size-4" fill="currentColor" />
-              Become a Supporter
+              All →
             </button>
           </div>
+          {recentNotices.length === 0 ? (
+            <div className="empty-state py-6">
+              <p className="text-sm text-muted-foreground">No notices yet.</p>
+            </div>
+          ) : (
+            <div>
+              {recentNotices.map((n) => (
+                <div key={n.id} className="ledger-row">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      {n.pinned && (
+                        <span className="tag tag-amber">Pinned</span>
+                      )}
+                      <span className="tag">{n.category}</span>
+                    </div>
+                    <div className="text-[13.5px] line-clamp-1">{n.title}</div>
+                    <div className="text-[11.5px] font-mono mt-0.5 text-[color:var(--text-faint)]">
+                      {formatRelativeTime(n.publishedAt)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Footer note — editorial colophon */}
-      <footer className="pt-8 pb-2">
-        <EditorialDivider ornament="diamond" />
-        <div className="text-center">
-          <p className="font-handwritten text-base text-muted-foreground">
-            made with 💜 for KTU students
-          </p>
-          <p className="text-[11px] text-muted-foreground/70 mt-1 tracking-wide">
-            {UNIVERSITY_NAME} · v{APP_VERSION}
-          </p>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-function SectionHeader({
-  title,
-  subtitle,
-  onSeeAll,
-  compact,
-  accent,
-}: {
-  title: string;
-  subtitle?: string;
-  onSeeAll?: () => void;
-  compact?: boolean;
-  accent?: string;
-}) {
-  return (
-    <div className={`flex items-end justify-between gap-4 ${compact ? "mb-3" : "mb-5"}`}>
-      <div className="flex items-start gap-3">
-        {/* Vertical accent bar — feels like a margin note rule */}
-        <div className="w-1 self-stretch rounded-full bg-gradient-to-b from-primary/50 via-primary/25 to-transparent mt-1" />
-        <div>
-          <div className="flex items-baseline gap-2.5 flex-wrap">
-            <h2 className={`font-serif-display tracking-tight ${compact ? "text-lg" : "text-2xl"}`}>
-              {title}
-            </h2>
-            {accent && (
-              <HandwrittenText as="span" color="amber" className="text-lg rotate-[-3deg]">
-                {accent}
-              </HandwrittenText>
-            )}
+        {/* Recent papers */}
+        <div className="card p-5 md:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="section-title text-[19px]">Papers</h2>
+            <button
+              onClick={() => set("papers" as NavKey)}
+              className="text-[12.5px] text-muted-foreground hover:text-foreground"
+            >
+              All →
+            </button>
           </div>
-          {subtitle && (
-            <p className="text-xs text-muted-foreground mt-0.5 italic">{subtitle}</p>
+          {recentPapers.length === 0 ? (
+            <div className="empty-state py-6">
+              <p className="text-sm text-muted-foreground">No papers yet.</p>
+            </div>
+          ) : (
+            <div>
+              {recentPapers.slice(0, 4).map((p) => (
+                <div key={p.id} className="ledger-row">
+                  <div className="min-w-0">
+                    <div className="text-[13.5px] line-clamp-1">{p.subjectName}</div>
+                    <div className="text-[11.5px] font-mono mt-0.5 text-[color:var(--text-faint)]">
+                      {p.subjectCode} · S{p.semester} · {p.year}
+                    </div>
+                  </div>
+                  <span className="font-mono text-[12px] text-muted-foreground">
+                    {formatNumber(p.views)} views
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
-      {onSeeAll && (
-        <button
-          onClick={onSeeAll}
-          className="btn-tactile text-xs text-primary hover:underline font-medium flex items-center gap-1 shrink-0 px-2 py-1 rounded-full hover:bg-primary/5"
-        >
-          See all <ArrowRight className="size-3" />
-        </button>
+
+      {/* ===== SUPPORT BANNER — non-supporters only ===== */}
+      {!isSupporter && (
+        <div className="card p-6 flex items-center gap-5 flex-wrap">
+          <div className="icon-box shrink-0">
+            <Heart className="size-4" />
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <h3 className="section-title text-lg">Support KTU One</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Remove ads and help keep this free for every KTU student. ₹99 lifetime.
+            </p>
+          </div>
+          <button
+            onClick={() => setSupportOpen(true)}
+            className="btn-primary px-5 py-2.5 rounded-md text-sm font-semibold shrink-0"
+          >
+            Become a Supporter
+          </button>
+        </div>
       )}
+
+      {/* ===== FOOTER ===== */}
+      <footer className="pt-8 pb-2 border-t border-border">
+        <div className="flex flex-col sm:flex-row justify-between gap-2 text-[11.5px] text-[color:var(--text-faint)]">
+          <div>Built for KTU students · not affiliated with the university</div>
+          <div className="font-mono">{UNIVERSITY_NAME} · v{APP_VERSION}</div>
+        </div>
+      </footer>
     </div>
   );
 }
