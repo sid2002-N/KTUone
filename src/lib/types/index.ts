@@ -90,7 +90,10 @@ export const GRADE_POINTS: Record<Grade, number> = {
 export interface SemesterResult {
   semester: SemesterNumber;
   subjects: SubjectResult[];
-  sgpa: number;
+  /** SGPA for this semester. Undefined when KTU hasn't published it yet
+   *  (e.g. student has a supply, or results aren't out). Semesters with
+   *  undefined SGPA are EXCLUDED from CGPA calculation. */
+  sgpa?: number;
   totalCredits: number;
   creditsEarned: number;
 }

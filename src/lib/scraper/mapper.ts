@@ -107,7 +107,25 @@ export function mapScraperToResults(scraper: ScraperStudentResponse): SemesterRe
     const creditsEarned = subjects
       .filter((s) => s.passed)
       .reduce((sum, s) => sum + s.credits, 0);
-    const sgpa = sgpaStr ? Number(sgpaStr) : 0;
+
+    // SGPA is only set when KTU has officially published it. If the student
+    // has a supply (fail) in any subject, KTU withholds the SGPA until the
+    // supply is cleared. The scraper returns no `S{n}sgpa` field in that
+    // case. We leave `sgpa` undefined so the CGPA calculation can skip
+    // this semester instead of treating it as 0 (which would drag down the
+    // average incorrectly).
+    //
+    // We also guard against "0" / "0.0" / empty strings — KTU never
+    // publishes an SGPA of literally 0 (even an all-fail semester gets a
+    // non-zero value from the non-F grades). If the scraper returns "0",
+    // it's almost certainly a placeholder for "not published".
+    let sgpa: number | undefined;
+    if (sgpaStr && sgpaStr.trim() !== "") {
+      const parsed = Number(sgpaStr);
+      if (!isNaN(parsed) && parsed > 0) {
+        sgpa = parsed;
+      }
+    }
 
     out.push({
       semester: sem as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
@@ -122,13 +140,20 @@ export function mapScraperToResults(scraper: ScraperStudentResponse): SemesterRe
 
 export function mapScraperToCGPA(scraper: ScraperStudentResponse): CGPAResult {
   const semesters = mapScraperToResults(scraper);
+
+  // CGPA = Σ(SGPA × credits) / Σ(credits) — but ONLY for semesters where
+  // KTU has published an SGPA. Semesters with supplies (no SGPA published)
+  // or semesters where results aren't out yet are EXCLUDED from both the
+  // numerator and denominator. This matches KTU's official CGPA calculation.
   let totalCredits = 0;
   let weighted = 0;
   for (const s of semesters) {
+    if (s.sgpa === undefined || s.sgpa === null) continue;
     totalCredits += s.totalCredits;
     weighted += s.sgpa * s.totalCredits;
   }
   const cgpa = totalCredits > 0 ? weighted / totalCredits : 0;
+
   return {
     cgpa: Number(cgpa.toFixed(2)),
     totalCredits,

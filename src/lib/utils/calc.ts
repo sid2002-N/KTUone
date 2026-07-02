@@ -67,6 +67,9 @@ export function computeCGPA(
   let totalCredits = 0;
   let weighted = 0;
   for (const s of semesters) {
+    // Skip empty/placeholder rows (0 credits or 0 SGPA). This matches the
+    // KTU rule: semesters with no published SGPA don't count toward CGPA.
+    if (s.credits <= 0 || s.sgpa <= 0) continue;
     totalCredits += s.credits;
     weighted += s.sgpa * s.credits;
   }

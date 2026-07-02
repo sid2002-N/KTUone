@@ -848,3 +848,73 @@ Browser downloads PDF with clean filename ✓
 - The `scripts/cleanup-mock-data.ts` + `scripts/cleanup-test-notices.ts` are one-off scripts — they don't need to run again. They're kept for audit trail.
 - Mock data is gone for good — the new `prisma/seed.ts` only seeds branches + semesters (reference data). Real content is always added via `/admin`.
 
+
+---
+
+## 2026-07-02 — Task `cgpa-fix` — Fix CGPA calculation for semesters with supplies
+
+**Scope:** User reported CGPA showing 1.8 when it should be above 5. Root
+cause: when a student has a supply (fail) in a semester, KTU does NOT publish
+the SGPA. The scraper returns the courses but no `S{n}sgpa` field. The old
+code defaulted this to `0`, which dragged down the CGPA average.
+
+### The bug
+
+In `mapScraperToResults` (mapper.ts):
+```ts
+const sgpa = sgpaStr ? Number(sgpaStr) : 0;  // ← BUG: 0 drags down CGPA
+```
+
+Then in `mapScraperToCGPA`:
+```ts
+weighted += s.sgpa * s.totalCredits;  // 0 * credits = 0 → drags down average
+```
+
+**Example:** Student with 5 semesters of courses but only 2 published SGPAs:
+- S1: SGPA=8.5, S2: SGPA=7.8, S3: supply (no SGPA), S4: SGPA=8.0, S5: results not out (no SGPA)
+- **Buggy CGPA:** (8.5×14 + 7.8×11 + 0×13 + 8.0×11 + 0×10) / 59 = **4.96** (wrong!)
+- **Fixed CGPA:** (8.5×14 + 7.8×11 + 8.0×11) / 36 = **8.13** (correct!)
+
+### Files modified
+
+| # | Path | What changed |
+|---|------|--------------|
+| 1 | `src/lib/types/index.ts` | `SemesterResult.sgpa` changed from `number` to `number?` (optional). Undefined = KTU hasn't published it (supply or results not out). |
+| 2 | `src/lib/scraper/mapper.ts` | `mapScraperToResults`: only sets `sgpa` if the scraper returns a valid non-empty, non-zero string. `mapScraperToCGPA`: skips semesters where `sgpa` is undefined — they're excluded from both numerator and denominator (matches KTU's official calculation). |
+| 3 | `src/features/calculators/use-student-data.ts` | `cgpaToSemesters`: filters out semesters with undefined SGPA before passing to the CGPA calculator's pre-fill. |
+| 4 | `src/lib/utils/calc.ts` | `computeCGPA`: skips semesters with 0 credits or 0 SGPA (defensive — handles manual calculator rows where the user hasn't entered values yet). |
+
+### Test
+
+`scripts/test-cgpa-fix.ts` — simulates a student with supplies in S3 + S5
+(no SGPA published) and published SGPAs in S1, S2, S4. Verifies the CGPA is
+~8.1 (average of the 3 published SGPAs) instead of ~5.0 (which the old bug
+would have produced by including 0×credits for S3 and S5).
+
+```
+✅ PASS — fix works correctly
+  CGPA: 8.13 (expected ~8.1)
+  Total credits: 36 (only from semesters with published SGPA)
+```
+
+### Validation
+
+- `npx tsc --noEmit` → 0 errors
+- `npx eslint src/` → 0 errors, 0 warnings
+- `npx next build` → compiled successfully
+- Dev server → Home 200, Admin 200
+- Test script → ✅ PASS
+
+### Notes for future agents
+
+- `SemesterResult.sgpa` is now optional. Any code that reads it must check
+  for `undefined` — if it's undefined, the semester has courses but no
+  published SGPA (supply or results pending).
+- The CGPA calculation ONLY includes semesters with a published SGPA. This
+  matches KTU's official rule: supplies don't count against you until you
+  clear them and the SGPA is published.
+- The manual CGPA calculator (`computeCGPA` in calc.ts) also skips 0-credit
+  and 0-SGPA rows — this is defensive so empty placeholder rows don't drag
+  down the average while the user is typing.
+- The `scripts/test-cgpa-fix.ts` script is kept for regression testing.
+
