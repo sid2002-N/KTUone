@@ -137,6 +137,22 @@ model CalendarEvent {
   @@map("calendar_events")
 }
 
+model Timetable {
+  id         String    @id @default(cuid())
+  semester   Int       // 1..8
+  branchCode String
+  title      String
+  fileUrl    String    // R2 object key (PDF / image)
+  isActive   Boolean   @default(true)
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([branchCode, semester, isActive])
+  @@index([isActive])
+  @@map("timetables")
+}
+
 /* ===================================================================== */
 /* Auth + per-student data                                                */
 /* ===================================================================== */

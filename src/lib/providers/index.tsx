@@ -8,6 +8,8 @@ import { useSupporterStore } from "@/store/supporter-store";
 import { getAdsProvider } from "@/lib/providers/ads";
 import { __setStudentService } from "@/lib/providers/student";
 import { HttpStudentService } from "@/lib/providers/student-http";
+import { __setPaymentProvider } from "@/lib/providers/payment";
+import { RazorpayPaymentProvider } from "@/lib/providers/payment-razorpay";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
@@ -47,11 +49,14 @@ function SupporterAdsSync() {
 
 /**
  * Swap the MockStudentService (default) for HttpStudentService which talks to
- * the BFF API routes. Done once at app boot.
+ * the BFF API routes. Done once at app boot. Also swaps the default
+ * MockPaymentProvider for the real RazorpayPaymentProvider so the supporter
+ * purchase flow talks to /api/v1/payments/* + the Razorpay checkout modal.
  */
 function WireStudentService() {
   useEffect(() => {
     __setStudentService(new HttpStudentService());
+    __setPaymentProvider(new RazorpayPaymentProvider());
   }, []);
   return null;
 }
