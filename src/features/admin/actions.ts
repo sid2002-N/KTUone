@@ -1,4 +1,6 @@
-"use server";
+// NOTE: No "use server" directive — these functions are called from API route
+// handlers (server-to-server), not from client components. The "use server"
+// directive would prevent exporting Zod schemas (non-function exports).
 
 /**
  * Admin server actions — Notices + Calendar CRUD.

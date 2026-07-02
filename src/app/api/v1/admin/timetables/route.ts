@@ -20,8 +20,8 @@ import {
   deleteTimetable,
   toggleTimetableActive,
   listAllTimetablesForAdmin,
-  TimetableInputSchema,
 } from "@/features/timetable/actions";
+import { TimetableInputSchema } from "@/features/timetable/schema";
 import { deleteFromR2 } from "@/lib/storage/r2";
 import { adminJsonResponse, handleAdminOptions } from "@/lib/auth/admin-cors";
 

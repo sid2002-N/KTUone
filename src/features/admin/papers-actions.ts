@@ -1,4 +1,4 @@
-"use server";
+// No "use server" — called from API route handlers only
 
 /**
  * Admin server actions — Question Papers + Syllabus management.
