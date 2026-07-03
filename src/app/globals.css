@@ -899,3 +899,92 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
+
+/* ==========================================================================
+   LEGACY TOKEN ALIASES — for components that still reference old class names
+   These map old names to the new design system so nothing breaks visually.
+   ========================================================================== */
+
+/* Glass variants — map to new liquid glass system */
+.glass-strong {
+  background: var(--glass);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-tinted {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-warm {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+/* Shadows — map to new system */
+.shadow-soft { box-shadow: var(--shadow-sm); }
+.shadow-elevated { box-shadow: var(--shadow-md); }
+.shadow-floating { box-shadow: var(--shadow-lg); }
+.shadow-glass { box-shadow: var(--shadow-sm); }
+.shadow-paper { box-shadow: var(--shadow-xs); }
+
+/* Gradient — plum maps to amber-tinted surface */
+.bg-gradient-plum {
+  background: linear-gradient(135deg, rgba(212,148,58,0.12) 0%, rgba(212,148,58,0.04) 100%);
+}
+
+/* Font aliases */
+.font-serif-display { font-family: var(--font-serif), Georgia, serif; font-weight: 500; letter-spacing: -0.02em; }
+.font-handwritten { font-family: var(--font-sans), sans-serif; font-style: italic; }
+
+/* Old card variants — map to new card system */
+.notebook-cover {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+.kraft-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+.amber-card {
+  background: var(--card);
+  border: 1px solid rgba(212,148,58,0.2);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+/* Old decoration classes — no-ops that don't break */
+.float-subtle { /* no-op */ }
+.tape-corner-tl { /* no-op */ }
+.tape-corner-tr { /* no-op */ }
+.embossed-title-ink { /* no-op */ }
+.pushpin { /* no-op */ }
+.stamped-number { font-family: var(--font-mono), monospace; font-variant-numeric: tabular-nums; }
+.navbar-glass {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+/* Success color alias */
+.text-success { color: var(--primary); }
+.bg-success\/15 { background: rgba(212,148,58,0.12); }
+.bg-success\/10 { background: rgba(212,148,58,0.08); }
+
+/* Sketch elements — hide old illustration decorations */
+.sketch-amber { color: var(--primary); }
+.sketch-plum { color: var(--primary); }
+.sketch-coral { color: var(--destructive); }
+.sketch-mint { color: var(--primary); }
+.sketch-lavender { color: var(--muted-foreground); }

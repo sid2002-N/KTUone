@@ -9,10 +9,11 @@ import { getPaymentProvider } from "@/lib/providers/payment";
 import { getNotificationProvider } from "@/lib/providers/notification";
 import { getAnalyticsProvider } from "@/lib/providers/analytics";
 import { SUPPORTER_PRICE_INR } from "@/lib/constants";
+import { hapticSync } from "@/lib/utils/haptics";
 
 const benefits = [
   { title: "Remove ads forever", subtitle: "Banner ads gone, on every device." },
-  { title: "Lifetime Supporter Badge", subtitle: "A small purple mark next to your name." },
+  { title: "Lifetime Supporter Badge", subtitle: "A small mark next to your name." },
   { title: "Help future development", subtitle: "Fund faster PDFs, search & AI Tutor." },
   { title: "Priority feature requests", subtitle: "Vote on what we build next." },
 ];
@@ -57,6 +58,7 @@ export function SupportCurtain() {
   }, [open, setOpen, purchasing]);
 
   const handlePurchase = async () => {
+    hapticSync("medium");
     setPurchasing(true);
     setError(null);
     getAnalyticsProvider().track({ name: "supporter_purchase_started", props: {} });
@@ -66,6 +68,7 @@ export function SupportCurtain() {
         currency: "INR",
       });
       if (result.status === "Success") {
+        hapticSync("success");
         markSupporter(result.transactionId, new Date().toISOString());
         setSuccess(true);
         getAnalyticsProvider().track({
@@ -74,15 +77,15 @@ export function SupportCurtain() {
         });
         getNotificationProvider().show({
           kind: "success",
-          title: "Welcome to KTU One Supporters 💜",
+          title: "Welcome to KTU One Supporters",
           message: "Ads are gone. Thanks for keeping this alive.",
         });
-        // Auto-close after celebration
         setTimeout(() => setOpen(false), 2200);
       } else {
         throw new Error("Payment did not succeed.");
       }
     } catch (e) {
+      hapticSync("error");
       const message = e instanceof Error ? e.message : "Payment failed. Try again.";
       setError(message);
       getAnalyticsProvider().track({
@@ -95,9 +98,7 @@ export function SupportCurtain() {
   };
 
   const curtainVariants = {
-    hidden: prefersReduced
-      ? { y: "-100%", opacity: 0 }
-      : { y: "-100%", opacity: 0 },
+    hidden: { y: "-100%", opacity: 0 },
     visible: prefersReduced
       ? { y: "0%", opacity: 1 }
       : {
@@ -127,9 +128,9 @@ export function SupportCurtain() {
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-[100]">
-          {/* Dimmed / blurred backdrop */}
+          {/* Dimmed backdrop */}
           <motion.div
-            className="absolute inset-0 bg-black/40 backdrop-blur-md"
+            className="absolute inset-0 bg-black/50 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -137,7 +138,7 @@ export function SupportCurtain() {
             onClick={() => !purchasing && setOpen(false)}
           />
 
-          {/* The curtain panel — slides from top, stops at ~85% height */}
+          {/* Curtain panel — slides from top */}
           <motion.div
             className="absolute left-0 right-0 top-0 h-[85vh] mx-auto"
             variants={curtainVariants}
@@ -145,7 +146,17 @@ export function SupportCurtain() {
             animate="visible"
             exit="exit"
           >
-            <div className="h-full glass-strong rounded-b-3xl overflow-hidden flex flex-col shadow-floating">
+            <div
+              className="h-full rounded-b-[24px] overflow-hidden flex flex-col"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 50%, rgba(255,255,255,0.03) 100%), var(--card)",
+                backdropFilter: "blur(40px) saturate(200%)",
+                WebkitBackdropFilter: "blur(40px) saturate(200%)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                boxShadow: "0 16px 48px rgba(0,0,0,0.4)",
+              }}
+            >
               {/* Top handle */}
               <div className="pt-3 pb-1 flex justify-center">
                 <div className="w-10 h-1.5 rounded-full bg-foreground/15" />
@@ -155,13 +166,18 @@ export function SupportCurtain() {
                 {!success ? (
                   <>
                     <div className="text-center mt-2">
-                      <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-primary/10 mb-4">
+                      <div className="inline-flex items-center justify-center size-16 rounded-2xl mb-4"
+                        style={{
+                          background: "rgba(212,148,58,0.1)",
+                          border: "1px solid rgba(212,148,58,0.2)",
+                        }}
+                      >
                         <Heart className="size-8 text-primary" fill="currentColor" />
                       </div>
-                      <h2 className="text-3xl font-bold tracking-tight">
+                      <h2 className="section-title text-3xl">
                         Support KTU One
                       </h2>
-                      <p className="mt-3 text-muted-foreground leading-relaxed">
+                      <p className="mt-3 text-muted-foreground leading-relaxed text-[14px]">
                         KTU One is free for every student.
                         <br />
                         Your support helps keep the app alive and updated.
@@ -169,16 +185,20 @@ export function SupportCurtain() {
                     </div>
 
                     <div className="mt-8 space-y-3">
-                      <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold px-1">
-                        Benefits
-                      </p>
+                      <p className="section-eyebrow px-1">Benefits</p>
                       {benefits.map((b) => (
                         <div
                           key={b.title}
-                          className="flex items-start gap-3 p-4 rounded-2xl glass"
+                          className="card p-4 flex items-start gap-3"
                         >
-                          <div className="size-8 rounded-full bg-success/15 flex items-center justify-center shrink-0 mt-0.5">
-                            <Check className="size-4 text-success" strokeWidth={3} />
+                          <div
+                            className="size-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                            style={{
+                              background: "rgba(212,148,58,0.1)",
+                              border: "1px solid rgba(212,148,58,0.2)",
+                            }}
+                          >
+                            <Check className="size-4 text-primary" strokeWidth={3} />
                           </div>
                           <div>
                             <p className="font-medium text-sm">{b.title}</p>
@@ -188,15 +208,23 @@ export function SupportCurtain() {
                       ))}
                     </div>
 
-                    <div className="mt-8 p-5 rounded-2xl bg-gradient-plum text-white text-center">
-                      <p className="text-xs uppercase tracking-widest font-semibold opacity-80">
+                    {/* Price card */}
+                    <div
+                      className="mt-8 p-5 rounded-2xl text-center"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(212,148,58,0.12) 0%, rgba(212,148,58,0.04) 100%)",
+                        border: "1px solid rgba(212,148,58,0.2)",
+                      }}
+                    >
+                      <p className="text-xs uppercase tracking-widest font-semibold text-primary">
                         One-time price
                       </p>
-                      <p className="text-4xl font-bold mt-1">
+                      <p className="section-title text-4xl mt-1">
                         ₹{SUPPORTER_PRICE_INR}
-                        <span className="text-base font-medium opacity-80 ml-2">Lifetime</span>
+                        <span className="text-base font-medium text-muted-foreground ml-2">Lifetime</span>
                       </p>
-                      <p className="text-xs opacity-80 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         Not a subscription. Pay once, keep forever.
                       </p>
                     </div>
@@ -211,7 +239,7 @@ export function SupportCurtain() {
                       <button
                         onClick={handlePurchase}
                         disabled={purchasing}
-                        className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-semibold hover:opacity-90 transition shadow-soft disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="btn-primary w-full py-3.5 rounded-[10px] font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         {purchasing ? (
                           <>
@@ -226,16 +254,19 @@ export function SupportCurtain() {
                         )}
                       </button>
                       <button
-                        onClick={() => setOpen(false)}
+                        onClick={() => {
+                          hapticSync("light");
+                          setOpen(false);
+                        }}
                         disabled={purchasing}
-                        className="w-full py-3 rounded-full bg-secondary text-secondary-foreground font-medium hover:bg-secondary/80 transition disabled:opacity-50"
+                        className="btn-ghost w-full py-3 rounded-[10px] font-medium disabled:opacity-50"
                       >
                         Maybe later
                       </button>
                     </div>
 
                     <p className="mt-5 text-center text-[11px] text-muted-foreground leading-relaxed">
-                      Payments are securely processed. Your support is non-refundable
+                      Payments are securely processed by Razorpay. Your support is non-refundable
                       unless required by law. KTU One is an independent project,
                       not affiliated with APJ Abdul Kalam Technological University.
                     </p>
@@ -251,14 +282,19 @@ export function SupportCurtain() {
                       initial={prefersReduced ? {} : { scale: 0, rotate: -30 }}
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ type: "spring", stiffness: 200, damping: 12, delay: 0.1 }}
-                      className="size-24 rounded-full bg-gradient-plum flex items-center justify-center mb-6"
+                      className="size-24 rounded-full flex items-center justify-center mb-6"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(212,148,58,0.15) 0%, rgba(212,148,58,0.05) 100%)",
+                        border: "1px solid rgba(212,148,58,0.25)",
+                      }}
                     >
-                      <Sparkles className="size-12 text-white" />
+                      <Sparkles className="size-12 text-primary" />
                     </motion.div>
-                    <h2 className="text-3xl font-bold tracking-tight">
-                      You&apos;re a Supporter 💜
+                    <h2 className="section-title text-3xl">
+                      You&apos;re a Supporter
                     </h2>
-                    <p className="mt-3 text-muted-foreground max-w-sm">
+                    <p className="mt-3 text-muted-foreground max-w-sm text-[14px]">
                       Welcome aboard. Ads are gone forever — and you just helped
                       every KTU student get a better app.
                     </p>
@@ -268,12 +304,19 @@ export function SupportCurtain() {
             </div>
           </motion.div>
 
-          {/* Floating circular X — sits just below the curtain, slight overlap */}
+          {/* Floating circular X */}
           <motion.button
             onClick={() => !purchasing && setOpen(false)}
             aria-label="Close support curtain"
-            className="absolute left-1/2 -translate-x-1/2 z-[101] size-14 rounded-full glass-strong shadow-floating flex items-center justify-center hover:scale-105 active:scale-95 transition-transform no-tap-highlight"
-            style={{ top: "calc(85vh - 28px)" }}
+            className="absolute left-1/2 -translate-x-1/2 z-[101] size-14 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-transform no-tap-highlight"
+            style={{
+              top: "calc(85vh - 28px)",
+              background: "var(--card)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+            }}
             initial={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
