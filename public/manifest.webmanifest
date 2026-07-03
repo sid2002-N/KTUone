@@ -1,17 +1,29 @@
 {
   "name": "KTU One",
   "short_name": "KTU One",
-  "description": "Everything a KTU Student Needs.",
+  "description": "Student companion for APJ Abdul Kalam Technological University — calculators, question papers, syllabus, and academic resources.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#faf8f5",
-  "theme_color": "#9333EA",
+  "background_color": "#111315",
+  "theme_color": "#111315",
   "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/logo.svg",
       "sizes": "any",
       "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

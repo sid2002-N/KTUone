@@ -86,10 +86,16 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
     },
   },
+  verification: {
+    google: "XXXXXXX",
+    other: {
+      "msvalidate.01": "XXXXXXX",
+    },
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#14100F",
+  themeColor: "#111315",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,

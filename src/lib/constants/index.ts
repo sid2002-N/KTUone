@@ -46,7 +46,7 @@ export const UNIVERSITY_NAME = "APJ Abdul Kalam Technological University";
 export const NAV_ITEMS = [
   { key: "dashboard", label: "Home", icon: "Home", href: "/" },
   { key: "calculators", label: "Calculators", icon: "Calculator", href: "/calculators" },
-  { key: "papers", label: "Papers", icon: "FileText", href: "/papers" },
+  { key: "papers", label: "Papers", icon: "FileText", href: "/question-papers" },
   { key: "syllabus", label: "Syllabus", icon: "BookOpen", href: "/syllabus" },
   { key: "calendar", label: "Calendar", icon: "CalendarDays", href: "/calendar" },
   { key: "notices", label: "Notices", icon: "Bell", href: "/notices" },

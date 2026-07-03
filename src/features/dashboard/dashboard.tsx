@@ -120,6 +120,9 @@ export function Dashboard() {
 
   return (
     <div className="space-y-7">
+      {/* Visually-hidden H1 for SEO — crawlers see "KTU One" not the dynamic greeting */}
+      <h1 className="sr-only">KTU One — Student Companion for APJ Abdul Kalam Technological University</h1>
+
       {/* ===== HEADER — date + name + branch tag ===== */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
@@ -127,9 +130,9 @@ export function Dashboard() {
             {today}
             {profile ? ` — S${profile.semester}` : ""}
           </div>
-          <h1 className="section-title text-[28px] md:text-[32px] mt-2">
+          <h2 className="section-title text-[28px] md:text-[32px] mt-2">
             {greeting}, {firstName}
-          </h1>
+          </h2>
         </div>
         {profile && (
           <span className="tag">
@@ -438,7 +441,7 @@ export function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="section-title text-[19px]">Papers</h2>
           <button
-            onClick={() => router.push("/papers")}
+            onClick={() => router.push("/question-papers")}
             className="text-[12.5px] text-muted-foreground hover:text-foreground"
           >
             All papers →
@@ -453,7 +456,7 @@ export function Dashboard() {
             {recentPapers.map((p) => (
               <button
                 key={p.id}
-                onClick={() => router.push("/papers")}
+                onClick={() => router.push("/question-papers")}
                 className="text-left p-3 rounded-lg border border-border hover:bg-secondary/40 transition-colors"
               >
                 <div className="flex items-center gap-1.5 mb-2">

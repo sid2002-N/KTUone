@@ -4,13 +4,13 @@ import { Papers } from "@/features/papers/papers";
 export const metadata: Metadata = {
   title: "KTU Question Papers — Browse & Download Previous Papers",
   description:
-    "Download previous KTU question papers by branch, semester, and year. B.Tech CSE, EC, EEE, ME, IT papers with exam type filters.",
-  alternates: { canonical: "/papers" },
+    "Browse and download previous year KTU question papers organized by semester and subject. B.Tech CSE, EC, EEE, ME, IT papers with exam type filters.",
+  alternates: { canonical: "/question-papers" },
   openGraph: {
-    title: "KTU Question Papers — Browse & Download Previous Papers",
+    title: "KTU Question Papers | KTU One",
     description:
-      "Download previous KTU question papers by branch, semester, and year. B.Tech CSE, EC, EEE, ME, IT papers with exam type filters.",
-    url: "/papers",
+      "Browse and download previous year KTU question papers organized by semester and subject.",
+    url: "/question-papers",
   },
 };
 
@@ -23,7 +23,7 @@ const jsonLd = {
   isPartOf: { "@type": "WebSite", name: "KTU One", url: "https://ktuone.in" },
 };
 
-export default function PapersPage() {
+export default function QuestionPapersPage() {
   return (
     <>
       <script

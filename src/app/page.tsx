@@ -23,9 +23,17 @@ const jsonLd = {
   offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
   description:
     "Student companion for APJ Abdul Kalam Technological University — calculators, question papers, syllabus, notices, calendar.",
+  url: "https://ktuone.in",
   publisher: {
     "@type": "Organization",
     name: "KTU One",
+    url: "https://ktuone.in",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://ktuone.in/icon-512.png",
+      width: 512,
+      height: 512,
+    },
   },
 };
 

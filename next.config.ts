@@ -4,6 +4,15 @@ const nextConfig: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
   allowedDevOrigins: ["*.space-z.ai", "*.fcapp.run", "localhost", "127.0.0.1"],
+  async redirects() {
+    return [
+      {
+        source: "/papers",
+        destination: "/question-papers",
+        permanent: true,
+      },
+    ];
+  },
   /**
    * Server Actions CSRF protection: by default, Next.js rejects Server Action
    * requests where the `origin` header doesn't match the `host` /

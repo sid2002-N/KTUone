@@ -117,11 +117,11 @@ export function SearchOverlay() {
       props: { query, resultCount: results.length },
     });
     const navMap: Record<ResultKind, string> = {
-      paper: "/papers",
+      paper: "/question-papers",
       syllabus: "/syllabus",
       notice: "/notices",
       calendar: "/calendar",
-      subject: "/papers",
+      subject: "/question-papers",
     };
     router.push(navMap[r.kind]);
     setOpen(false);
