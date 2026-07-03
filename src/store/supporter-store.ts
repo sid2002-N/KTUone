@@ -26,6 +26,7 @@ export const useSupporterStore = create<SupporterState>()(
     {
       name: "ktu_one:supporter",
       storage: createJSONStorage(() => localStorage),
+      skipHydration: true,
     },
   ),
 );

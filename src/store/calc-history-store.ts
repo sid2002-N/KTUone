@@ -35,6 +35,7 @@ export const useCalcHistoryStore = create<CalcHistoryState>()(
     {
       name: "ktu_one:calc-history",
       storage: createJSONStorage(() => localStorage),
+      skipHydration: true,
     },
   ),
 );

@@ -50,6 +50,7 @@ export const useBookmarkStore = create<BookmarkState>()(
     {
       name: "ktu_one:bookmarks",
       storage: createJSONStorage(() => localStorage),
+      skipHydration: true,
     },
   ),
 );

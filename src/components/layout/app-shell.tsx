@@ -173,24 +173,28 @@ export function AppShell({ children }: AppShellProps) {
               )}
             </button>
 
-            {/* Sync — only when authenticated */}
-            {isAuthenticated && (
-              <button
-                onClick={() => setSyncOpen(true)}
-                className="size-9 rounded-md flex items-center justify-center hover:bg-secondary transition-colors relative group"
-                aria-label="Sync"
-                title={
-                  lastSyncedAt
-                    ? `Last synced ${formatRelativeTime(lastSyncedAt)}`
-                    : "Sync"
-                }
-              >
-                <RefreshCw className="size-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                {lastSyncedAt && (
-                  <span className="absolute -bottom-0.5 -right-0.5 size-2 rounded-full bg-primary border border-background" />
-                )}
-              </button>
-            )}
+            {/* Sync — fixed-size slot to prevent CLS when it appears
+                after rehydration. The slot is always rendered (size-9),
+                but the button only shows when isAuthenticated. */}
+            <div className="size-9 flex items-center justify-center">
+              {isAuthenticated && (
+                <button
+                  onClick={() => setSyncOpen(true)}
+                  className="size-9 rounded-md flex items-center justify-center hover:bg-secondary transition-colors relative group"
+                  aria-label="Sync"
+                  title={
+                    lastSyncedAt
+                      ? `Last synced ${formatRelativeTime(lastSyncedAt)}`
+                      : "Sync"
+                  }
+                >
+                  <RefreshCw className="size-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  {lastSyncedAt && (
+                    <span className="absolute -bottom-0.5 -right-0.5 size-2 rounded-full bg-primary border border-background" />
+                  )}
+                </button>
+              )}
+            </div>
 
             {/* Avatar / Login */}
             {profile ? (

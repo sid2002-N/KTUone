@@ -74,6 +74,7 @@ export const useAuthStore = create<AuthState>()(
         lastSyncedAt: state.lastSyncedAt,
         rememberedRegisterNumber: state.rememberedRegisterNumber,
       }),
+      skipHydration: true,
     },
   ),
 );

@@ -5,6 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useThemeStore } from "@/store/theme-store";
 import { useSupporterStore } from "@/store/supporter-store";
+import { useAuthStore } from "@/store/auth-store";
+import { useBookmarkStore } from "@/store/bookmark-store";
+import { useCalcHistoryStore } from "@/store/calc-history-store";
 import { getAdsProvider } from "@/lib/providers/ads";
 import { AdSenseScript } from "@/lib/providers/adsense-script";
 import { AdMobInitializer } from "@/lib/providers/admob-initializer";
@@ -79,6 +82,31 @@ function AdLayers() {
   );
 }
 
+/**
+ * StoreRehydrator — manually rehydrates all Zustand persist stores that have
+ * `skipHydration: true`. This ensures the first client render matches the
+ * server render exactly (preventing hydration mismatches caused by
+ * `useId()` sequence shifts from conditional Radix component rendering).
+ *
+ * Rehydration happens AFTER hydration completes (in useEffect), so there
+ * will be a brief flash for elements that change based on persisted state
+ * (e.g. "Support" button → "Supporter" pill). Layout space is reserved
+ * in AppShell to prevent CLS.
+ *
+ * Theme store is NOT rehydrated here — it uses a blocking inline script
+ * in layout.tsx <head> to prevent dark-mode flash (FOUC).
+ */
+function StoreRehydrator() {
+  useEffect(() => {
+    // Rehydrate all stores with skipHydration: true
+    useSupporterStore.persist.rehydrate();
+    useAuthStore.persist.rehydrate();
+    useBookmarkStore.persist.rehydrate();
+    useCalcHistoryStore.persist.rehydrate();
+  }, []);
+  return null;
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(
     () =>
@@ -96,6 +124,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <QueryClientProvider client={client}>
+        <StoreRehydrator />
         <ThemeSync />
         <SupporterAdsSync />
         <AdLayers />

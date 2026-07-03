@@ -101,8 +101,39 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Blocking inline script — reads theme from localStorage and sets the
+  // .light / .dark class on <html> BEFORE any CSS or React renders.
+  // This prevents the dark-mode flash (FOUC) that would occur if theme
+  // was applied after hydration via useEffect.
+  const themeScript = `
+    (function() {
+      try {
+        var stored = localStorage.getItem('ktu_one:theme');
+        var mode = 'system';
+        if (stored) {
+          var parsed = JSON.parse(stored);
+          if (parsed && parsed.state && parsed.state.mode) {
+            mode = parsed.state.mode;
+          }
+        }
+        var isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var root = document.documentElement;
+        if (isDark) {
+          root.classList.add('dark');
+          root.classList.remove('light');
+        } else {
+          root.classList.add('light');
+          root.classList.remove('dark');
+        }
+      } catch (e) {}
+    })();
+  `;
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body
         className={`${sourceSerif.variable} ${inter.variable} ${ibmPlexMono.variable} antialiased`}
       >
