@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KTU One — UI Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400;1,8..60,500;1,8..60,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            background: '#111315',
+            foreground: '#E8E6E1',
+            card: '#1A1D20',
+            'card-foreground': '#E8E6E1',
+            primary: '#D4943A',
+            'primary-foreground': '#1A140A',
+            secondary: '#22262A',
+            'secondary-foreground': '#E8E6E1',
+            muted: '#22262A',
+            'muted-foreground': '#8B8881',
+            border: '#2A2E32',
+            'text-faint': '#5C5A55',
+          },
+          fontFamily: {
+            serif: ['"Source Serif 4"', 'ui-serif', 'Georgia', 'serif'],
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
+          },
+          maxWidth: { content: '1200px' },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* ---------- Design tokens ---------- */
+    :root {
+      --background: #111315;
+      --foreground: #E8E6E1;
+      --card: #1A1D20;
+      --card-foreground: #E8E6E1;
+      --primary: #D4943A;
+      --primary-foreground: #1A140A;
+      --secondary: #22262A;
+      --secondary-foreground: #E8E6E1;
+      --muted: #22262A;
+      --muted-foreground: #8B8881;
+      --border: #2A2E32;
+      --text-faint: #5C5A55;
+      --hairline-soft: #1E2124;
+      --glass: rgba(17, 19, 21, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.06);
+
+      --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+      --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.24), 0 2px 6px rgba(0, 0, 0, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      background-image:
+        radial-gradient(900px 500px at 85% -8%, rgba(212, 148, 58, 0.08), transparent 60%),
+        radial-gradient(700px 420px at 8% 4%, rgba(120, 160, 200, 0.05), transparent 60%);
+      background-attachment: fixed;
+    }
+
+    ::selection { background: rgba(212, 148, 58, 0.28); color: #fff; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2A2E32; border-radius: 999px; border: 2px solid var(--background); }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3f44; }
+
+    /* ---------- Liquid glass card ---------- */
+    .card {
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.018) 0%, rgba(255, 255, 255, 0) 40%),
+        linear-gradient(180deg, #1c2024 0%, var(--card) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 55%);
+      pointer-events: none;
+      border-radius: inherit;
+    }
+    .card-hover { transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      border-color: rgba(212, 148, 58, 0.35);
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn-primary {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: .6rem 1.1rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: .875rem;
+      color: var(--primary-foreground);
+      background: linear-gradient(180deg, #E0A24C 0%, var(--primary) 100%);
+      border: 1px solid rgba(0, 0, 0, 0.18);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        0 1px 2px rgba(0, 0, 0, 0.25);
+      transition: filter .18s ease, transform .12s ease;
+      cursor: pointer;
+    }
+    .btn-primary:hover { filter: brightness(1.06); }
+    .btn-primary:active { transform: translateY(1px); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: .55rem 1rem;
+      border-radius: 10px;
+      font-weight: 500;
+      font-size: .875rem;
+      color: var(--foreground);
+      background: var(--glass);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-color .18s ease, background .18s ease;
+      cursor: pointer;
+    }
+    .btn-ghost:hover { border-color: rgba(212, 148, 58, 0.4); background: rgba(212, 148, 58, 0.06); }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      color: var(--muted-foreground);
+      background: transparent;
+      border: 1px solid transparent;
+      transition: all .18s ease;
+      cursor: pointer;
+    }
+    .icon-btn:hover { color: var(--foreground); background: rgba(255, 255, 255, 0.04); border-color: var(--border); }
+
+    /* ---------- Tags ---------- */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .2rem .55rem;
+      border-radius: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: .68rem;
+      font-weight: 500;
+      letter-spacing: .02em;
+      color: var(--muted-foreground);
+      background: var(--secondary);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .tag-amber {
+      color: var(--primary);
+      background: rgba(212, 148, 58, 0.10);
+      border-color: rgba(212, 148, 58, 0.28);
+    }
+    .tag-blue { color: #8FB8E6; background: rgba(95, 150, 210, 0.10); border-color: rgba(95, 150, 210, 0.26); }
+    .tag-green { color: #8FCFA8; background: rgba(80, 180, 130, 0.10); border-color: rgba(80, 180, 130, 0.26); }
+    .tag-rose { color: #E69FB0; background: rgba(210, 95, 120, 0.10); border-color: rgba(210, 95, 120, 0.26); }
+    .tag-violet { color: #B79FE6; background: rgba(150, 110, 220, 0.10); border-color: rgba(150, 110, 220, 0.26); }
+
+    /* ---------- Icon box ---------- */
+    .icon-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      color: var(--primary);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)),
+        var(--secondary);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .icon-box.amber {
+      color: var(--primary);
+      background:
+        linear-gradient(180deg, rgba(212, 148, 58, 0.16), rgba(212, 148, 58, 0.04));
+      border-color: rgba(212, 148, 58, 0.30);
+    }
+
+    /* ---------- Section labels ---------- */
+    .section-eyebrow {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+    .section-title {
+      font-family: 'Source Serif 4', serif;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--foreground);
+    }
+
+    /* ---------- Ledger row ---------- */
+    .ledger-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      padding: .85rem .25rem;
+      border-bottom: 1px solid var(--hairline-soft);
+    }
+    .ledger-row:last-child { border-bottom: none; }
+
+    /* ---------- Nav tab ---------- */
+    .tab-btn {
+      position: relative;
+      padding: .65rem .15rem;
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--muted-foreground);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: color .18s ease;
+    }
+    .tab-btn:hover { color: var(--foreground); }
+    .tab-btn.active { color: var(--foreground); }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 2px;
+      background: var(--primary);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* ---------- Nav link ---------- */
+    .nav-link {
+      position: relative;
+      padding: .5rem .15rem;
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--muted-foreground);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: color .18s ease;
+    }
+    .nav-link:hover { color: var(--foreground); }
+    .nav-link.active { color: var(--foreground); }
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: -10px;
+      height: 2px;
+      background: var(--primary);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* ---------- Liquid glass nav (top) ---------- */
+    .liquid-glass-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--glass);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(22px) saturate(150%);
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
+    }
+
+    /* ---------- Bottom nav (mobile) ---------- */
+    .bottom-nav {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: .5rem .5rem calc(.5rem + env(safe-area-inset-bottom));
+      background: var(--glass);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(22px) saturate(150%);
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
+    }
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .2rem;
+      padding: .35rem .75rem;
+      font-size: .68rem;
+      font-weight: 500;
+      color: var(--text-faint);
+      cursor: pointer;
+      transition: color .18s ease;
+    }
+    .bottom-nav-item.active { color: var(--primary); }
+    .bottom-nav-item:hover { color: var(--foreground); }
+
+    /* ---------- Toggle ---------- */
+    .toggle { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider {
+      position: absolute; inset: 0;
+      background: var(--secondary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      transition: .2s;
+      cursor: pointer;
+    }
+    .toggle .slider::before {
+      content: ''; position: absolute;
+      height: 16px; width: 16px; left: 2px; top: 2px;
+      background: var(--muted-foreground);
+      border-radius: 50%;
+      transition: .2s;
+    }
+    .toggle input:checked + .slider { background: var(--primary); border-color: var(--primary); }
+    .toggle input:checked + .slider::before { transform: translateX(18px); background: var(--primary-foreground); }
+
+    /* ---------- Form controls ---------- */
+    .input, .select {
+      width: 100%;
+      padding: .6rem .85rem;
+      font-size: .875rem;
+      color: var(--foreground);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: border-color .18s ease, box-shadow .18s ease;
+      outline: none;
+    }
+    .input::placeholder { color: var(--text-faint); }
+    .input:focus, .select:focus { border-color: rgba(212, 148, 58, 0.5); box-shadow: 0 0 0 3px rgba(212, 148, 58, 0.12); }
+    .select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238B8881' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right .7rem center;
+      padding-right: 2.2rem;
+    }
+
+    /* ---------- Filter pill ---------- */
+    .pill {
+      padding: .4rem .9rem;
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--muted-foreground);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all .18s ease;
+      white-space: nowrap;
+    }
+    .pill:hover { color: var(--foreground); border-color: rgba(212, 148, 58, 0.35); }
+    .pill.active { color: var(--primary-foreground); background: var(--primary); border-color: var(--primary); }
+
+    /* ---------- Page switching ---------- */
+    .page { display: none; animation: fade .3s ease; }
+    .page.active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    /* ---------- Mobile menu ---------- */
+    #mobile-menu {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(320px, 84vw);
+      z-index: 70;
+      background: var(--card);
+      border-left: 1px solid var(--border);
+      transform: translateX(100%);
+      transition: transform .28s cubic-bezier(.22,1,.36,1);
+      overflow-y: auto;
+    }
+    #mobile-menu.open { transform: translateX(0); }
+    #menu-backdrop {
+      position: fixed; inset: 0; z-index: 65;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
+      opacity: 0; pointer-events: none;
+      transition: opacity .28s ease;
+    }
+    #menu-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .divider { height: 1px; background: var(--hairline-soft); }
+
+    .stat-num { font-family: 'Source Serif 4', serif; font-weight: 600; }
+
+    @media (max-width: 768px) {
+      .section-title { font-size: 1.65rem !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-20 md:pb-0">
+
+  <!-- ============ SVG ICON SPRITE ============ -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h4"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-chev-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-chev-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></symbol>
+    <symbol id="i-trending" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
+    <symbol id="i-award" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></symbol>
+    <symbol id="i-grad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1 2.5 3 6 3s6-2 6-3v-5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-percent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 7h18M7 7l-3 6a3 3 0 0 0 6 0zM21 13l-3-6-3 6a3 3 0 0 0 6 0z"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></symbol>
+  </svg>
+
+  <!-- ============ TOP NAV ============ -->
+  <header class="liquid-glass-nav">
+    <div class="max-w-content mx-auto px-4 sm:px-6">
+      <div class="flex h-16 items-center justify-between gap-4">
+        <!-- Logo -->
+        <a href="#" onclick="showPage('home');return false;" class="flex items-center gap-2.5 shrink-0">
+          <span class="grid place-items-center w-9 h-9 rounded-xl font-serif font-semibold text-[var(--primary-foreground)]" style="background:linear-gradient(180deg,#E0A24C,#D4943A);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)">K</span>
+          <span class="font-serif text-lg font-semibold tracking-tight">KTU One</span>
+        </a>
+
+        <!-- Desktop nav -->
+        <nav class="hidden lg:flex items-center gap-7">
+          <button class="nav-link active" data-nav="home" onclick="showPage('home')">Home</button>
+          <button class="nav-link" data-nav="calculators" onclick="showPage('calculators')">Calculators</button>
+          <button class="nav-link" data-nav="question-papers" onclick="showPage('question-papers')">Papers</button>
+          <button class="nav-link" data-nav="syllabus" onclick="showPage('syllabus')">Syllabus</button>
+          <button class="nav-link" data-nav="calendar" onclick="showPage('calendar')">Calendar</button>
+          <button class="nav-link" data-nav="notices" onclick="showPage('notices')">Notices</button>
+          <button class="nav-link" data-nav="settings" onclick="showPage('settings')">Settings</button>
+        </nav>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-1">
+          <button class="icon-btn hidden sm:inline-flex" title="Search"><svg class="w-5 h-5"><use href="#i-search"/></svg></button>
+          <button class="icon-btn hidden sm:inline-flex" title="Theme"><svg class="w-5 h-5"><use href="#i-moon"/></svg></button>
+          <button class="icon-btn relative" title="Notifications">
+            <svg class="w-5 h-5"><use href="#i-bell"/></svg>
+            <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[var(--primary)]"></span>
+          </button>
+          <button class="hidden sm:grid place-items-center w-9 h-9 rounded-full ml-1 text-xs font-semibold text-[var(--primary-foreground)]" style="background:linear-gradient(180deg,#E0A24C,#D4943A)">ST</button>
+          <!-- Hamburger -->
+          <button class="icon-btn lg:hidden" onclick="toggleMenu(true)" title="Menu"><svg class="w-5 h-5"><use href="#i-menu"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ MOBILE MENU ============ -->
+  <div id="menu-backdrop" onclick="toggleMenu(false)"></div>
+  <aside id="mobile-menu" aria-label="Mobile menu">
+    <div class="flex items-center justify-between p-5 border-b border-[var(--border)]">
+      <div class="flex items-center gap-2.5">
+        <span class="grid place-items-center w-8 h-8 rounded-lg font-serif font-semibold text-[var(--primary-foreground)]" style="background:linear-gradient(180deg,#E0A24C,#D4943A)">K</span>
+        <span class="font-serif text-base font-semibold">KTU One</span>
+      </div>
+      <button class="icon-btn" onclick="toggleMenu(false)"><svg class="w-5 h-5"><use href="#i-x"/></svg></button>
+    </div>
+    <nav class="p-3 flex flex-col gap-1">
+      <a class="m-nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-[var(--muted-foreground)] hover:bg-white/5 hover:text-white" onclick="showPage('home');toggleMenu(false)"><svg class="w-5 h-5"><use href="#i-home"/></svg>Home</a>
+      <a class="m-nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-[var(--muted-foreground)] hover:bg-white/5 hover:text-white" onclick="showPage('calculators');toggleMenu(false)"><svg class="w-5 h-5"><use href="#i-calc"/></svg>Calculators</a>
+      <a class="m-nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-[var(--muted-foreground)] hover:bg-white/5 hover:text-white" onclick="showPage('question-papers');toggleMenu(false)"><svg class="w-5 h-5"><use href="#i-file"/></svg>Question Papers</a>
+      <a class="m-nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-[var(--muted-foreground)] hover:bg-white/5 hover:text-white" onclick="showPage('syllabus');toggleMenu(false)"><svg class="w-5 h-5"><use href="#i-book"/></svg>Syllabus</a>
+      <a class="m-nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-[var(--muted-foreground)] hover:bg-white/5 hover:text-white" onclick="showPage('calendar');toggleMenu(false)"><svg class="w-5 h-5"><use href="#i-calendar"/></svg>Calendar</a>
+      <a class="m-nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-[var(--muted-foreground)] hover:bg-white/5 hover:text-white" onclick="showPage('notices');toggleMenu(false)"><svg class="w-5 h-5"><use href="#i-bell"/></svg>Notices</a>
+      <a class="m-nav-link flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-[var(--muted-foreground)] hover:bg-white/5 hover:text-white" onclick="showPage('settings');toggleMenu(false)"><svg class="w-5 h-5"><use href="#i-settings"/></svg>Settings</a>
+    </nav>
+    <div class="divider mx-5"></div>
+    <div class="p-5 flex items-center gap-3">
+      <span class="grid place-items-center w-10 h-10 rounded-full text-xs font-semibold text-[var(--primary-foreground)]" style="background:linear-gradient(180deg,#E0A24C,#D4943A)">ST</span>
+      <div class="text-sm">
+        <div class="font-medium">Student Name</div>
+        <div class="text-[var(--text-faint)] text-xs">TVE21CS001</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="max-w-content mx-auto px-4 sm:px-6 pt-8">
+
+    <!-- ============================= HOME ============================= -->
+    <section id="page-home" class="page active">
+      <!-- Greeting -->
+      <div class="mb-8">
+        <span class="section-eyebrow">Tuesday, 12 November</span>
+        <h2 class="section-title text-3xl md:text-4xl mt-2">Good morning, <em class="italic text-[var(--primary)]">Student</em></h2>
+        <p class="text-[var(--muted-foreground)] mt-2 text-sm md:text-base max-w-2xl">Here's a snapshot of your academic standing and everything happening across campus today.</p>
+      </div>
+
+      <!-- Academic standing -->
+      <div class="card p-5 md:p-6 mb-8">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-3">
+            <span class="icon-box amber"><svg class="w-5 h-5"><use href="#i-trending"/></svg></span>
+            <div>
+              <h3 class="font-serif text-lg font-semibold">Academic standing</h3>
+              <p class="text-xs text-[var(--text-faint)]">Updated 2 hours ago</p>
+            </div>
+          </div>
+          <span class="tag tag-amber">Semester 5</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="rounded-xl p-4 bg-[var(--secondary)] border border-[var(--border)]">
+            <div class="text-[11px] uppercase tracking-wider text-[var(--text-faint)] font-mono">CGPA</div>
+            <div class="stat-num text-3xl mt-1 text-[var(--primary)]">8.42</div>
+            <div class="text-xs text-[var(--muted-foreground)] mt-1 flex items-center gap-1"><svg class="w-3 h-3 text-[#8FCFA8]"><use href="#i-trending"/></svg> +0.12 this sem</div>
+          </div>
+          <div class="rounded-xl p-4 bg-[var(--secondary)] border border-[var(--border)]">
+            <div class="text-[11px] uppercase tracking-wider text-[var(--text-faint)] font-mono">Percentage</div>
+            <div class="stat-num text-3xl mt-1">82.6<span class="text-lg text-[var(--muted-foreground)]">%</span></div>
+            <div class="text-xs text-[var(--muted-foreground)] mt-1">Aggregate</div>
+          </div>
+          <div class="rounded-xl p-4 bg-[var(--secondary)] border border-[var(--border)]">
+            <div class="text-[11px] uppercase tracking-wider text-[var(--text-faint)] font-mono">Credits</div>
+            <div class="stat-num text-3xl mt-1">124<span class="text-lg text-[var(--muted-foreground)]">/160</span></div>
+            <div class="text-xs text-[var(--muted-foreground)] mt-1">Earned so far</div>
+          </div>
+          <div class="rounded-xl p-4 bg-[var(--secondary)] border border-[var(--border)]">
+            <div class="text-[11px] uppercase tracking-wider text-[var(--text-faint)] font-mono">Papers</div>
+            <div class="stat-num text-3xl mt-1">38</div>
+            <div class="text-xs text-[var(--muted-foreground)] mt-1">In library</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculators quick access -->
+      <div class="mb-8">
+        <div class="flex items-end justify-between mb-4">
+          <div>
+            <span class="section-eyebrow">Quick access</span>
+            <h3 class="section-title text-xl md:text-2xl mt-1">Calculators</h3>
+          </div>
+          <button onclick="showPage('calculators')" class="text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] flex items-center gap-1 transition-colors">View all <svg class="w-4 h-4"><use href="#i-chev-right"/></svg></button>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <button onclick="showPage('calculators')" class="card card-hover p-4 text-left">
+            <span class="icon-box amber mb-3"><svg class="w-5 h-5"><use href="#i-trending"/></svg></span>
+            <div class="font-medium text-sm">SGPA</div>
+            <div class="text-xs text-[var(--text-faint)] mt-0.5">Semester GPA</div>
+          </button>
+          <button onclick="showPage('calculators')" class="card card-hover p-4 text-left">
+            <span class="icon-box amber mb-3"><svg class="w-5 h-5"><use href="#i-award"/></svg></span>
+            <div class="font-medium text-sm">CGPA</div>
+            <div class="text-xs text-[var(--text-faint)] mt-0.5">Cumulative GPA</div>
+          </button>
+          <button onclick="showPage('calculators')" class="card card-hover p-4 text-left">
+            <span class="icon-box mb-3"><svg class="w-5 h-5"><use href="#i-clock"/></svg></span>
+            <div class="font-medium text-sm">Attendance</div>
+            <div class="text-xs text-[var(--text-faint)] mt-0.5">Track classes</div>
+          </button>
+          <button onclick="showPage('calculators')" class="card card-hover p-4 text-left">
+            <span class="icon-box mb-3"><svg class="w-5 h-5"><use href="#i-percent"/></svg></span>
+            <div class="font-medium text-sm">Internal</div>
+            <div class="text-xs text-[var(--text-faint)] mt-0.5">Assessment</div>
+          </button>
+          <button onclick="showPage('calculators')" class="card card-hover p-4 text-left col-span-2 sm:col-span-1">
+            <span class="icon-box mb-3"><svg class="w-5 h-5"><use href="#i-check"/></svg></span>
+            <div class="font-medium text-sm">Pass</div>
+            <div class="text-xs text-[var(--text-faint)] mt-0.5">Required marks</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Two column: Recent activity + Upcoming events -->
+      <div class="grid lg:grid-cols-5 gap-6 mb-8">
+        <!-- Recent activity -->
+        <div class="card p-5 md:p-6 lg:col-span-3">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <span class="icon-box"><svg class="w-5 h-5"><use href="#i-clock"/></svg></span>
+              <h3 class="font-serif text-lg font-semibold">Recent activity</h3>
+            </div>
+            <span class="tag">Last 7 days</span>
+          </div>
+          <div>
+            <div class="ledger-row">
+              <div>
+                <div class="text-sm font-medium">Downloaded Data Structures paper</div>
+                <div class="text-xs text-[var(--text-faint)] mt-0.5">CS203 · December 2023</div>
+              </div>
+              <span class="text-xs text-[var(--muted-foreground)] font-mono">2h ago</span>
+            </div>
+            <div class="ledger-row">
+              <div>
+                <div class="text-sm font-medium">Calculated SGPA for Semester 4</div>
+                <div class="text-xs text-[var(--text-faint)] mt-0.5">Result: 8.74</div>
+              </div>
+              <span class="text-xs text-[var(--muted-foreground)] font-mono">Yesterday</span>
+            </div>
+            <div class="ledger-row">
+              <div>
+                <div class="text-sm font-medium">Bookmarked Operating Systems syllabus</div>
+                <div class="text-xs text-[var(--text-faint)] mt-0.5">CS204 · 2019 scheme</div>
+              </div>
+              <span class="text-xs text-[var(--muted-foreground)] font-mono">2d ago</span>
+            </div>
+            <div class="ledger-row">
+              <div>
+                <div class="text-sm font-medium">Viewed exam timetable</div>
+                <div class="text-xs text-[var(--text-faint)] mt-0.5">End-semester, December 2024</div>
+              </div>
+              <span class="text-xs text-[var(--muted-foreground)] font-mono">3d ago</span>
+            </div>
+            <div class="ledger-row">
+              <div>
+                <div class="text-sm font-medium">Updated attendance target</div>
+                <div class="text-xs text-[var(--text-faint)] mt-0.5">New goal: 85%</div>
+              </div>
+              <span class="text-xs text-[var(--muted-foreground)] font-mono">5d ago</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming events -->
+        <div class="card p-5 md:p-6 lg:col-span-2">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <span class="icon-box"><svg class="w-5 h-5"><use href="#i-calendar"/></svg></span>
+              <h3 class="font-serif text-lg font-semibold">Upcoming</h3>
+            </div>
+            <button onclick="showPage('calendar')" class="text-xs text-[var(--muted-foreground)] hover:text-[var(--primary)]">Calendar</button>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="rounded-xl p-3 bg-[var(--secondary)] border border-[var(--border)] border-l-2 border-l-[var(--primary)]">
+              <div class="font-mono text-[10px] uppercase tracking-wider text-[var(--primary)]">Nov 18</div>
+              <div class="text-sm font-medium mt-1.5 leading-snug">DBMS internals submission</div>
+              <div class="text-[11px] text-[var(--text-faint)] mt-1">Assignment</div>
+            </div>
+            <div class="rounded-xl p-3 bg-[var(--secondary)] border border-[var(--border)] border-l-2 border-l-[#E69FB0]">
+              <div class="font-mono text-[10px] uppercase tracking-wider text-[#E69FB0]">Nov 22</div>
+              <div class="text-sm font-medium mt-1.5 leading-snug">Series exam — Operating Systems</div>
+              <div class="text-[11px] text-[var(--text-faint)] mt-1">Examination</div>
+            </div>
+            <div class="rounded-xl p-3 bg-[var(--secondary)] border border-[var(--border)] border-l-2 border-l-[#8FB8E6]">
+              <div class="font-mono text-[10px] uppercase tracking-wider text-[#8FB8E6]">Nov 28</div>
+              <div class="text-sm font-medium mt-1.5 leading-snug">Hackathon registration closes</div>
+              <div class="text-[11px] text-[var(--text-faint)] mt-1">Cultural</div>
+            </div>
+            <div class="rounded-xl p-3 bg-[var(--secondary)] border border-[var(--border)] border-l-2 border-l-[#8FCFA8]">
+              <div class="font-mono text-[10px] uppercase tracking-wider text-[#8FCFA8]">Dec 04</div>
+              <div class="text-sm font-medium mt-1.5 leading-snug">End-semester exams begin</div>
+              <div class="text-[11px] text-[var(--text-faint)] mt-1">Examination</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notices -->
+      <div class="card p-5 md:p-6 mb-8">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-3">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-bell"/></svg></span>
+            <h3 class="font-serif text-lg font-semibold">Latest notices</h3>
+          </div>
+          <button onclick="showPage('notices')" class="text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] flex items-center gap-1">All notices <svg class="w-4 h-4"><use href="#i-chev-right"/></svg></button>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="rounded-xl p-4 bg-[var(--secondary)] border border-[var(--border)] card-hover">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="tag tag-amber">Academic</span>
+              <span class="tag"><svg class="w-3 h-3"><use href="#i-pin"/></svg>Pinned</span>
+            </div>
+            <h4 class="font-medium text-sm leading-snug">Revised internal assessment schedule</h4>
+            <p class="text-xs text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Internal assessments for S5 have been rescheduled. Check the updated timetable.</p>
+            <div class="text-[11px] text-[var(--text-faint)] mt-3 font-mono">3h ago</div>
+          </div>
+          <div class="rounded-xl p-4 bg-[var(--secondary)] border border-[var(--border)] card-hover">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="tag tag-blue">Examination</span>
+            </div>
+            <h4 class="font-medium text-sm leading-snug">End-semester exam registration open</h4>
+            <p class="text-xs text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Register for the December 2024 end-semester examinations before Nov 20.</p>
+            <div class="text-[11px] text-[var(--text-faint)] mt-3 font-mono">1d ago</div>
+          </div>
+          <div class="rounded-xl p-4 bg-[var(--secondary)] border border-[var(--border)] card-hover">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="tag tag-green">Scholarship</span>
+            </div>
+            <h4 class="font-medium text-sm leading-snug">Merit scholarship applications</h4>
+            <p class="text-xs text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Applications for the merit-cum-means scholarship are now open for this year.</p>
+            <div class="text-[11px] text-[var(--text-faint)] mt-3 font-mono">2d ago</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Papers -->
+      <div class="card p-5 md:p-6 mb-8">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-3">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-file"/></svg></span>
+            <h3 class="font-serif text-lg font-semibold">Question papers</h3>
+          </div>
+          <button onclick="showPage('question-papers')" class="text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] flex items-center gap-1">Browse library <svg class="w-4 h-4"><use href="#i-chev-right"/></svg></button>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- paper tile x6 -->
+          <div class="rounded-xl overflow-hidden bg-[var(--secondary)] border border-[var(--border)] card-hover">
+            <div class="relative h-28 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+              <svg class="w-8 h-8 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+              <span class="absolute top-2 left-2 tag tag-amber">End-sem</span>
+              <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/30"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+            </div>
+            <div class="p-3.5">
+              <div class="font-medium text-sm leading-snug">Data Structures</div>
+              <div class="font-mono text-[11px] text-[var(--text-faint)] mt-0.5">CS203 · Dec 2023</div>
+              <div class="text-[11px] text-[var(--muted-foreground)] mt-1">CSE · S3</div>
+            </div>
+          </div>
+          <div class="rounded-xl overflow-hidden bg-[var(--secondary)] border border-[var(--border)] card-hover">
+            <div class="relative h-28 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+              <svg class="w-8 h-8 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+              <span class="absolute top-2 left-2 tag tag-blue">Series</span>
+              <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/30"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+            </div>
+            <div class="p-3.5">
+              <div class="font-medium text-sm leading-snug">Operating Systems</div>
+              <div class="font-mono text-[11px] text-[var(--text-faint)] mt-0.5">CS204 · May 2023</div>
+              <div class="text-[11px] text-[var(--muted-foreground)] mt-1">CSE · S4</div>
+            </div>
+          </div>
+          <div class="rounded-xl overflow-hidden bg-[var(--secondary)] border border-[var(--border)] card-hover">
+            <div class="relative h-28 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+              <svg class="w-8 h-8 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+              <span class="absolute top-2 left-2 tag tag-amber">End-sem</span>
+              <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/30"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+            </div>
+            <div class="p-3.5">
+              <div class="font-medium text-sm leading-snug">Database Management</div>
+              <div class="font-mono text-[11px] text-[var(--text-faint)] mt-0.5">CS205 · Dec 2022</div>
+              <div class="text-[11px] text-[var(--muted-foreground)] mt-1">CSE · S5</div>
+            </div>
+          </div>
+          <div class="rounded-xl overflow-hidden bg-[var(--secondary)] border border-[var(--border)] card-hover">
+            <div class="relative h-28 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+              <svg class="w-8 h-8 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+              <span class="absolute top-2 left-2 tag tag-violet">Model</span>
+              <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/30"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+            </div>
+            <div class="p-3.5">
+              <div class="font-medium text-sm leading-snug">Computer Networks</div>
+              <div class="font-mono text-[11px] text-[var(--text-faint)] mt-0.5">CS206 · Nov 2023</div>
+              <div class="text-[11px] text-[var(--muted-foreground)] mt-1">CSE · S6</div>
+            </div>
+          </div>
+          <div class="rounded-xl overflow-hidden bg-[var(--secondary)] border border-[var(--border)] card-hover">
+            <div class="relative h-28 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+              <svg class="w-8 h-8 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+              <span class="absolute top-2 left-2 tag tag-blue">Series</span>
+              <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/30"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+            </div>
+            <div class="p-3.5">
+              <div class="font-medium text-sm leading-snug">Theory of Computation</div>
+              <div class="font-mono text-[11px] text-[var(--text-faint)] mt-0.5">CS301 · Apr 2023</div>
+              <div class="text-[11px] text-[var(--muted-foreground)] mt-1">CSE · S5</div>
+            </div>
+          </div>
+          <div class="rounded-xl overflow-hidden bg-[var(--secondary)] border border-[var(--border)] card-hover">
+            <div class="relative h-28 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+              <svg class="w-8 h-8 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+              <span class="absolute top-2 left-2 tag tag-amber">End-sem</span>
+              <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/30"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+            </div>
+            <div class="p-3.5">
+              <div class="font-medium text-sm leading-snug">Discrete Mathematics</div>
+              <div class="font-mono text-[11px] text-[var(--text-faint)] mt-0.5">MA202 · Dec 2023</div>
+              <div class="text-[11px] text-[var(--muted-foreground)] mt-1">Common · S3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support banner -->
+      <div class="card p-6 md:p-8 mb-8 overflow-hidden relative">
+        <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full" style="background:radial-gradient(circle,rgba(212,148,58,.16),transparent 70%)"></div>
+        <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div class="flex items-start gap-4">
+            <span class="icon-box amber !w-12 !h-12"><svg class="w-6 h-6"><use href="#i-heart"/></svg></span>
+            <div>
+              <h3 class="font-serif text-xl font-semibold">Enjoying KTU One?</h3>
+              <p class="text-sm text-[var(--muted-foreground)] mt-1 max-w-md leading-relaxed">KTU One is free and open, built by students for students. If it's helped you, consider supporting its continued development.</p>
+            </div>
+          </div>
+          <button class="btn-primary shrink-0"><svg class="w-4 h-4"><use href="#i-heart"/></svg>Become a Supporter</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= CALCULATORS ============================= -->
+    <section id="page-calculators" class="page">
+      <div class="mb-8">
+        <span class="section-eyebrow">Tools</span>
+        <h1 class="section-title text-3xl md:text-4xl mt-2">Calculators</h1>
+        <p class="text-[var(--muted-foreground)] mt-2 text-sm md:text-base max-w-2xl">Smart, accurate calculators for every academic metric — from semester GPA to attendance thresholds.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <button class="card card-hover p-5 text-left">
+          <span class="icon-box amber mb-4"><svg class="w-5 h-5"><use href="#i-trending"/></svg></span>
+          <h3 class="font-serif text-lg font-semibold">SGPA Calculator</h3>
+          <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Compute your Semester Grade Point Average from subject grades and credits.</p>
+          <div class="flex items-center gap-1.5 mt-4 text-xs text-[var(--primary)] font-medium">Open <svg class="w-3.5 h-3.5"><use href="#i-arrow-right"/></svg></div>
+        </button>
+        <button class="card card-hover p-5 text-left">
+          <span class="icon-box amber mb-4"><svg class="w-5 h-5"><use href="#i-award"/></svg></span>
+          <h3 class="font-serif text-lg font-semibold">CGPA Calculator</h3>
+          <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Track your Cumulative GPA across all completed semesters in one place.</p>
+          <div class="flex items-center gap-1.5 mt-4 text-xs text-[var(--primary)] font-medium">Open <svg class="w-3.5 h-3.5"><use href="#i-arrow-right"/></svg></div>
+        </button>
+        <button class="card card-hover p-5 text-left">
+          <span class="icon-box mb-4"><svg class="w-5 h-5"><use href="#i-clock"/></svg></span>
+          <h3 class="font-serif text-lg font-semibold">Attendance Calculator</h3>
+          <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Find out how many more classes you can miss without falling below 75%.</p>
+          <div class="flex items-center gap-1.5 mt-4 text-xs text-[var(--primary)] font-medium">Open <svg class="w-3.5 h-3.5"><use href="#i-arrow-right"/></svg></div>
+        </button>
+        <button class="card card-hover p-5 text-left">
+          <span class="icon-box mb-4"><svg class="w-5 h-5"><use href="#i-percent"/></svg></span>
+          <h3 class="font-serif text-lg font-semibold">Internal Marks</h3>
+          <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Estimate internal assessment scores from series and assignment marks.</p>
+          <div class="flex items-center gap-1.5 mt-4 text-xs text-[var(--primary)] font-medium">Open <svg class="w-3.5 h-3.5"><use href="#i-arrow-right"/></svg></div>
+        </button>
+        <button class="card card-hover p-5 text-left">
+          <span class="icon-box mb-4"><svg class="w-5 h-5"><use href="#i-check"/></svg></span>
+          <h3 class="font-serif text-lg font-semibold">Pass Marks</h3>
+          <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Calculate the minimum marks needed to pass any given subject.</p>
+          <div class="flex items-center gap-1.5 mt-4 text-xs text-[var(--primary)] font-medium">Open <svg class="w-3.5 h-3.5"><use href="#i-arrow-right"/></svg></div>
+        </button>
+        <!-- Suggest card -->
+        <button class="rounded-2xl p-5 text-left border border-dashed border-[var(--border)] hover:border-[rgba(212,148,58,.4)] transition-colors flex flex-col items-center justify-center text-center min-h-[180px]">
+          <span class="icon-box mb-4 border-dashed"><svg class="w-5 h-5"><use href="#i-plus"/></svg></span>
+          <h3 class="font-serif text-lg font-semibold">Suggest a calculator</h3>
+          <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Have an idea for a tool? Let us know and we'll build it.</p>
+          <div class="flex items-center gap-1.5 mt-4 text-xs text-[var(--primary)] font-medium">Submit idea <svg class="w-3.5 h-3.5"><use href="#i-arrow-right"/></svg></div>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================= QUESTION PAPERS ============================= -->
+    <section id="page-question-papers" class="page">
+      <div class="mb-8">
+        <span class="section-eyebrow">Library</span>
+        <h1 class="section-title text-3xl md:text-4xl mt-2">Question papers</h1>
+        <p class="text-[var(--muted-foreground)] mt-2 text-sm md:text-base max-w-2xl">A growing archive of previous question papers across branches, semesters, and exam types — searchable and downloadable.</p>
+      </div>
+
+      <!-- Search -->
+      <div class="relative mb-4">
+        <svg class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)]"><use href="#i-search"/></svg>
+        <input class="input pl-11" placeholder="Search by subject name or course code…" />
+      </div>
+
+      <!-- Filters -->
+      <div class="grid sm:grid-cols-3 gap-3 mb-8">
+        <select class="select"><option>All branches</option><option>CSE</option><option>ECE</option><option>MECH</option><option>CIVIL</option><option>EEE</option></select>
+        <select class="select"><option>All semesters</option><option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option><option>S6</option></select>
+        <select class="select"><option>All years</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option></select>
+      </div>
+
+      <!-- Paper grid -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <!-- paper card -->
+        <div class="card card-hover overflow-hidden">
+          <div class="relative h-32 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+            <svg class="w-9 h-9 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+            <span class="absolute top-2.5 left-2.5 tag tag-amber">End-sem</span>
+            <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/40"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-sm leading-snug">Data Structures</h3>
+            <div class="font-mono text-[11px] text-[var(--text-faint)] mt-1">CS203</div>
+            <div class="text-[11px] text-[var(--muted-foreground)] mt-1.5">CSE · S3 · Dec 2023</div>
+            <div class="flex gap-2 mt-4">
+              <button class="btn-primary !py-1.5 !px-3 !text-xs flex-1"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+              <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="card card-hover overflow-hidden">
+          <div class="relative h-32 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+            <svg class="w-9 h-9 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+            <span class="absolute top-2.5 left-2.5 tag tag-blue">Series</span>
+            <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/40"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-sm leading-snug">Operating Systems</h3>
+            <div class="font-mono text-[11px] text-[var(--text-faint)] mt-1">CS204</div>
+            <div class="text-[11px] text-[var(--muted-foreground)] mt-1.5">CSE · S4 · May 2023</div>
+            <div class="flex gap-2 mt-4">
+              <button class="btn-primary !py-1.5 !px-3 !text-xs flex-1"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+              <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="card card-hover overflow-hidden">
+          <div class="relative h-32 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+            <svg class="w-9 h-9 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+            <span class="absolute top-2.5 left-2.5 tag tag-amber">End-sem</span>
+            <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/40"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-sm leading-snug">Database Management</h3>
+            <div class="font-mono text-[11px] text-[var(--text-faint)] mt-1">CS205</div>
+            <div class="text-[11px] text-[var(--muted-foreground)] mt-1.5">CSE · S5 · Dec 2022</div>
+            <div class="flex gap-2 mt-4">
+              <button class="btn-primary !py-1.5 !px-3 !text-xs flex-1"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+              <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="card card-hover overflow-hidden">
+          <div class="relative h-32 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+            <svg class="w-9 h-9 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+            <span class="absolute top-2.5 left-2.5 tag tag-violet">Model</span>
+            <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/40"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-sm leading-snug">Computer Networks</h3>
+            <div class="font-mono text-[11px] text-[var(--text-faint)] mt-1">CS206</div>
+            <div class="text-[11px] text-[var(--muted-foreground)] mt-1.5">CSE · S6 · Nov 2023</div>
+            <div class="flex gap-2 mt-4">
+              <button class="btn-primary !py-1.5 !px-3 !text-xs flex-1"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+              <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="card card-hover overflow-hidden">
+          <div class="relative h-32 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+            <svg class="w-9 h-9 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+            <span class="absolute top-2.5 left-2.5 tag tag-blue">Series</span>
+            <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/40"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-sm leading-snug">Theory of Computation</h3>
+            <div class="font-mono text-[11px] text-[var(--text-faint)] mt-1">CS301</div>
+            <div class="text-[11px] text-[var(--muted-foreground)] mt-1.5">CSE · S5 · Apr 2023</div>
+            <div class="flex gap-2 mt-4">
+              <button class="btn-primary !py-1.5 !px-3 !text-xs flex-1"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+              <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="card card-hover overflow-hidden">
+          <div class="relative h-32 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+            <svg class="w-9 h-9 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+            <span class="absolute top-2.5 left-2.5 tag tag-amber">End-sem</span>
+            <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/40"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-sm leading-snug">Discrete Mathematics</h3>
+            <div class="font-mono text-[11px] text-[var(--text-faint)] mt-1">MA202</div>
+            <div class="text-[11px] text-[var(--muted-foreground)] mt-1.5">Common · S3 · Dec 2023</div>
+            <div class="flex gap-2 mt-4">
+              <button class="btn-primary !py-1.5 !px-3 !text-xs flex-1"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+              <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="card card-hover overflow-hidden">
+          <div class="relative h-32 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+            <svg class="w-9 h-9 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+            <span class="absolute top-2.5 left-2.5 tag tag-green">Supplementary</span>
+            <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/40"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-sm leading-snug">Digital Logic Design</h3>
+            <div class="font-mono text-[11px] text-[var(--text-faint)] mt-1">EC201</div>
+            <div class="text-[11px] text-[var(--muted-foreground)] mt-1.5">ECE · S3 · Jun 2023</div>
+            <div class="flex gap-2 mt-4">
+              <button class="btn-primary !py-1.5 !px-3 !text-xs flex-1"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+              <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="card card-hover overflow-hidden">
+          <div class="relative h-32 grid place-items-center bg-gradient-to-br from-[#1f2327] to-[#16181a] border-b border-[var(--border)]">
+            <svg class="w-9 h-9 text-[var(--text-faint)]"><use href="#i-file"/></svg>
+            <span class="absolute top-2.5 left-2.5 tag tag-amber">End-sem</span>
+            <button class="absolute top-2 right-2 icon-btn !w-7 !h-7 !rounded-md bg-black/40"><svg class="w-4 h-4"><use href="#i-bookmark"/></svg></button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-medium text-sm leading-snug">Microprocessors</h3>
+            <div class="font-mono text-[11px] text-[var(--text-faint)] mt-1">EC305</div>
+            <div class="text-[11px] text-[var(--muted-foreground)] mt-1.5">ECE · S5 · Dec 2023</div>
+            <div class="flex gap-2 mt-4">
+              <button class="btn-primary !py-1.5 !px-3 !text-xs flex-1"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+              <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= NOTICES ============================= -->
+    <section id="page-notices" class="page">
+      <div class="mb-8">
+        <span class="section-eyebrow">Updates</span>
+        <h1 class="section-title text-3xl md:text-4xl mt-2">Notices</h1>
+        <p class="text-[var(--muted-foreground)] mt-2 text-sm md:text-base max-w-2xl">Stay current with official announcements from the university — academic, examination, scholarships and more.</p>
+      </div>
+
+      <!-- Category pills -->
+      <div class="flex flex-wrap gap-2 mb-8">
+        <button class="pill active">All</button>
+        <button class="pill">Academic</button>
+        <button class="pill">Examination</button>
+        <button class="pill">Scholarship</button>
+        <button class="pill">Placement</button>
+        <button class="pill">Cultural</button>
+        <button class="pill">General</button>
+      </div>
+
+      <!-- Timeline -->
+      <div class="relative pl-6">
+        <div class="absolute left-[7px] top-2 bottom-2 w-px bg-[var(--hairline-soft)]"></div>
+
+        <div class="relative mb-5">
+          <span class="absolute -left-[22px] top-5 w-3.5 h-3.5 rounded-full bg-[var(--primary)] ring-4 ring-[var(--background)]"></span>
+          <div class="card p-5">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="tag tag-amber">Academic</span>
+              <span class="tag"><svg class="w-3 h-3"><use href="#i-pin"/></svg>Pinned</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">Revised internal assessment schedule</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">The internal assessment examinations for Semester 5 have been rescheduled to the third week of November. Students are advised to check the department notice board and the student portal for the updated slot timings.</p>
+            <div class="text-xs text-[var(--text-faint)] mt-3 font-mono">3 hours ago · Office of the Controller</div>
+          </div>
+        </div>
+
+        <div class="relative mb-5">
+          <span class="absolute -left-[21px] top-5 w-3 h-3 rounded-full bg-[#8FB8E6] ring-4 ring-[var(--background)]"></span>
+          <div class="card p-5">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="tag tag-blue">Examination</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">End-semester exam registration open</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Registration for the December 2024 end-semester examinations is now open. The last date to register without a late fee is 20 November 2024.</p>
+            <div class="text-xs text-[var(--text-faint)] mt-3 font-mono">1 day ago · Examination Section</div>
+          </div>
+        </div>
+
+        <div class="relative mb-5">
+          <span class="absolute -left-[21px] top-5 w-3 h-3 rounded-full bg-[#8FCFA8] ring-4 ring-[var(--background)]"></span>
+          <div class="card p-5">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="tag tag-green">Scholarship</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">Merit-cum-means scholarship applications</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Applications for the merit-cum-means scholarship for the academic year 2024–25 are now being accepted. Eligible students should submit the prescribed form along with income certificate before 30 November.</p>
+            <div class="text-xs text-[var(--text-faint)] mt-3 font-mono">2 days ago · Scholarship Cell</div>
+          </div>
+        </div>
+
+        <div class="relative mb-5">
+          <span class="absolute -left-[21px] top-5 w-3 h-3 rounded-full bg-[#B79FE6] ring-4 ring-[var(--background)]"></span>
+          <div class="card p-5">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="tag tag-violet">Placement</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">Pre-placement talk — Infosys</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">Infosys will be conducting a pre-placement talk for final-year students on 25 November at the seminar hall. Attire: formal. Carry two copies of your resume.</p>
+            <div class="text-xs text-[var(--text-faint)] mt-3 font-mono">3 days ago · Placement Cell</div>
+          </div>
+        </div>
+
+        <div class="relative">
+          <span class="absolute -left-[21px] top-5 w-3 h-3 rounded-full bg-[var(--text-faint)] ring-4 ring-[var(--background)]"></span>
+          <div class="card p-5">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="tag">General</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">Library timing extended during exams</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1.5 leading-relaxed">The central library will remain open until 10:00 PM on all working days from 25 November to support students during the examination period.</p>
+            <div class="text-xs text-[var(--text-faint)] mt-3 font-mono">5 days ago · Central Library</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= CALENDAR ============================= -->
+    <section id="page-calendar" class="page">
+      <div class="mb-8">
+        <span class="section-eyebrow">Planner</span>
+        <h1 class="section-title text-3xl md:text-4xl mt-2">Academic calendar</h1>
+        <p class="text-[var(--muted-foreground)] mt-2 text-sm md:text-base max-w-2xl">Track academic events, holidays, and examination schedules. Switch between the academic calendar and the exam timetable.</p>
+      </div>
+
+      <!-- Tab switcher -->
+      <div class="flex items-center gap-6 border-b border-[var(--border)] mb-8">
+        <button class="tab-btn active" data-cal-tab="academic" onclick="switchCalTab('academic')">Academic Calendar</button>
+        <button class="tab-btn" data-cal-tab="exam" onclick="switchCalTab('exam')">Exam Timetable</button>
+      </div>
+
+      <!-- Academic calendar list -->
+      <div id="cal-academic" class="space-y-4">
+        <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="w-1 self-stretch rounded-full bg-[var(--primary)]"></span>
+          <div class="grid place-items-center w-16 h-16 rounded-xl bg-[var(--secondary)] border border-[var(--border)] shrink-0 text-center">
+            <div class="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">NOV</div>
+            <div class="font-serif text-2xl font-semibold leading-none mt-0.5">18</div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="tag tag-amber">Assignment</span>
+              <span class="tag">Database Management</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">DBMS internals submission deadline</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1">Submit the normalized schema design report via the course portal before 11:59 PM.</p>
+          </div>
+          <span class="tag tag-amber shrink-0"><svg class="w-3 h-3"><use href="#i-clock"/></svg>in 6 days</span>
+        </div>
+
+        <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="w-1 self-stretch rounded-full bg-[#E69FB0]"></span>
+          <div class="grid place-items-center w-16 h-16 rounded-xl bg-[var(--secondary)] border border-[var(--border)] shrink-0 text-center">
+            <div class="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">NOV</div>
+            <div class="font-serif text-2xl font-semibold leading-none mt-0.5">22</div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="tag tag-rose">Examination</span>
+              <span class="tag">Operating Systems</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">Series exam — Operating Systems</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1">Second series examination. Hall: Block B-204, 10:00 AM to 12:00 PM.</p>
+          </div>
+          <span class="tag shrink-0"><svg class="w-3 h-3"><use href="#i-clock"/></svg>in 10 days</span>
+        </div>
+
+        <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="w-1 self-stretch rounded-full bg-[#8FB8E6]"></span>
+          <div class="grid place-items-center w-16 h-16 rounded-xl bg-[var(--secondary)] border border-[var(--border)] shrink-0 text-center">
+            <div class="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">NOV</div>
+            <div class="font-serif text-2xl font-semibold leading-none mt-0.5">28</div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="tag tag-blue">Cultural</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">Inter-college hackathon — registration closes</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1">Final day to register your team for the 24-hour hackathon hosted by the CSE association.</p>
+          </div>
+          <span class="tag shrink-0"><svg class="w-3 h-3"><use href="#i-clock"/></svg>in 16 days</span>
+        </div>
+
+        <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="w-1 self-stretch rounded-full bg-[#8FCFA8]"></span>
+          <div class="grid place-items-center w-16 h-16 rounded-xl bg-[var(--secondary)] border border-[var(--border)] shrink-0 text-center">
+            <div class="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">DEC</div>
+            <div class="font-serif text-2xl font-semibold leading-none mt-0.5">04</div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="tag tag-green">Examination</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">End-semester examinations begin</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1">The December 2024 end-semester examinations commence. Check your individual timetable for subject-wise dates.</p>
+          </div>
+          <span class="tag tag-amber shrink-0"><svg class="w-3 h-3"><use href="#i-clock"/></svg>in 22 days</span>
+        </div>
+      </div>
+
+      <!-- Exam timetable -->
+      <div id="cal-exam" class="hidden space-y-4">
+        <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="w-1 self-stretch rounded-full bg-[var(--primary)]"></span>
+          <div class="grid place-items-center w-16 h-16 rounded-xl bg-[var(--secondary)] border border-[var(--border)] shrink-0 text-center">
+            <div class="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">DEC</div>
+            <div class="font-serif text-2xl font-semibold leading-none mt-0.5">04</div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="tag tag-amber">End-sem</span>
+              <span class="tag">09:30 AM</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">Data Structures (CS203)</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1">Hall: Block A-101 · Duration: 3 hours</p>
+          </div>
+          <span class="tag tag-amber shrink-0"><svg class="w-3 h-3"><use href="#i-clock"/></svg>in 22 days</span>
+        </div>
+        <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="w-1 self-stretch rounded-full bg-[var(--primary)]"></span>
+          <div class="grid place-items-center w-16 h-16 rounded-xl bg-[var(--secondary)] border border-[var(--border)] shrink-0 text-center">
+            <div class="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">DEC</div>
+            <div class="font-serif text-2xl font-semibold leading-none mt-0.5">07</div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="tag tag-amber">End-sem</span>
+              <span class="tag">09:30 AM</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">Operating Systems (CS204)</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1">Hall: Block A-103 · Duration: 3 hours</p>
+          </div>
+          <span class="tag shrink-0"><svg class="w-3 h-3"><use href="#i-clock"/></svg>in 25 days</span>
+        </div>
+        <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="w-1 self-stretch rounded-full bg-[var(--primary)]"></span>
+          <div class="grid place-items-center w-16 h-16 rounded-xl bg-[var(--secondary)] border border-[var(--border)] shrink-0 text-center">
+            <div class="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">DEC</div>
+            <div class="font-serif text-2xl font-semibold leading-none mt-0.5">11</div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="tag tag-amber">End-sem</span>
+              <span class="tag">09:30 AM</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">Database Management (CS205)</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1">Hall: Block A-105 · Duration: 3 hours</p>
+          </div>
+          <span class="tag shrink-0"><svg class="w-3 h-3"><use href="#i-clock"/></svg>in 29 days</span>
+        </div>
+        <div class="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="w-1 self-stretch rounded-full bg-[var(--primary)]"></span>
+          <div class="grid place-items-center w-16 h-16 rounded-xl bg-[var(--secondary)] border border-[var(--border)] shrink-0 text-center">
+            <div class="font-mono text-[10px] uppercase tracking-wider text-[var(--text-faint)]">DEC</div>
+            <div class="font-serif text-2xl font-semibold leading-none mt-0.5">14</div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="tag tag-amber">End-sem</span>
+              <span class="tag">09:30 AM</span>
+            </div>
+            <h3 class="font-serif text-lg font-semibold">Computer Networks (CS206)</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-1">Hall: Block A-107 · Duration: 3 hours</p>
+          </div>
+          <span class="tag shrink-0"><svg class="w-3 h-3"><use href="#i-clock"/></svg>in 32 days</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= SETTINGS ============================= -->
+    <section id="page-settings" class="page">
+      <div class="mb-8">
+        <span class="section-eyebrow">Account</span>
+        <h1 class="section-title text-3xl md:text-4xl mt-2">Settings</h1>
+      </div>
+
+      <!-- Profile card -->
+      <div class="card p-5 md:p-6 mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+          <span class="grid place-items-center w-20 h-20 rounded-2xl font-serif text-2xl font-semibold text-[var(--primary-foreground)] shrink-0" style="background:linear-gradient(180deg,#E0A24C,#D4943A);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)">ST</span>
+          <div class="flex-1">
+            <h3 class="font-serif text-xl font-semibold">Student Name</h3>
+            <p class="text-sm text-[var(--muted-foreground)] mt-0.5">TVE21CS001 · Computer Science &amp; Engineering</p>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <span class="tag tag-amber">Semester 5</span>
+              <span class="tag">2019 Scheme</span>
+              <span class="tag">B.Tech</span>
+            </div>
+          </div>
+          <button class="btn-ghost self-start sm:self-center"><svg class="w-4 h-4"><use href="#i-sliders"/></svg>Edit profile</button>
+        </div>
+      </div>
+
+      <!-- Appearance -->
+      <div class="mb-8">
+        <span class="section-eyebrow">Appearance</span>
+        <div class="card mt-3 divide-y divide-[var(--hairline-soft)]">
+          <div class="flex items-center gap-4 p-4 md:p-5">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-moon"/></svg></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">Dark mode</div>
+              <div class="text-xs text-[var(--muted-foreground)] mt-0.5">Use the dark theme across the app.</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+          </div>
+          <div class="flex items-center gap-4 p-4 md:p-5">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-sparkle"/></svg></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">Liquid glass surfaces</div>
+              <div class="text-xs text-[var(--muted-foreground)] mt-0.5">Enable frosted glass blur effects on cards and navigation.</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+          </div>
+          <div class="flex items-center gap-4 p-4 md:p-5">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-trending"/></svg></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">Accent color</div>
+              <div class="text-xs text-[var(--muted-foreground)] mt-0.5">Choose the primary accent used throughout the interface.</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-[var(--primary)] ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--card)]"></span>
+              <span class="w-5 h-5 rounded-full bg-[#8FB8E6]"></span>
+              <span class="w-5 h-5 rounded-full bg-[#8FCFA8]"></span>
+              <span class="w-5 h-5 rounded-full bg-[#E69FB0]"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preferences -->
+      <div class="mb-8">
+        <span class="section-eyebrow">Preferences</span>
+        <div class="card mt-3 divide-y divide-[var(--hairline-soft)]">
+          <div class="flex items-center gap-4 p-4 md:p-5">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-bell"/></svg></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">Push notifications</div>
+              <div class="text-xs text-[var(--muted-foreground)] mt-0.5">Receive notices and event reminders.</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+          </div>
+          <div class="flex items-center gap-4 p-4 md:p-5">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-mail"/></svg></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">Email digest</div>
+              <div class="text-xs text-[var(--muted-foreground)] mt-0.5">A weekly summary of notices sent to your inbox.</div>
+            </div>
+            <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+          </div>
+          <div class="flex items-center gap-4 p-4 md:p-5">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-calendar"/></svg></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">Default landing page</div>
+              <div class="text-xs text-[var(--muted-foreground)] mt-0.5">The page shown when you open the app.</div>
+            </div>
+            <button class="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1">Home <svg class="w-4 h-4"><use href="#i-chev-down"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support -->
+      <div class="mb-8">
+        <span class="section-eyebrow">Support</span>
+        <div class="card mt-3 divide-y divide-[var(--hairline-soft)]">
+          <button class="w-full flex items-center gap-4 p-4 md:p-5 text-left hover:bg-white/[0.02] transition-colors">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-heart"/></svg></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">Become a supporter</div>
+              <div class="text-xs text-[var(--muted-foreground)] mt-0.5">Help keep KTU One free and ad-free.</div>
+            </div>
+            <svg class="w-4 h-4 text-[var(--text-faint)]"><use href="#i-chev-right"/></svg>
+          </button>
+          <button class="w-full flex items-center gap-4 p-4 md:p-5 text-left hover:bg-white/[0.02] transition-colors">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-mail"/></svg></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">Contact us</div>
+              <div class="text-xs text-[var(--muted-foreground)] mt-0.5">Send feedback or report an issue.</div>
+            </div>
+            <svg class="w-4 h-4 text-[var(--text-faint)]"><use href="#i-chev-right"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- About / Help / Legal -->
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div>
+          <span class="section-eyebrow">About</span>
+          <div class="card mt-3 divide-y divide-[var(--hairline-soft)]">
+            <button class="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02]"><div class="flex-1 text-sm">Version</div><span class="font-mono text-xs text-[var(--text-faint)]">2.4.0</span></button>
+            <button class="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02]"><div class="flex-1 text-sm">Changelog</div><svg class="w-4 h-4 text-[var(--text-faint)]"><use href="#i-chev-right"/></svg></button>
+            <button class="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02]"><div class="flex-1 text-sm">Open source</div><svg class="w-4 h-4 text-[var(--text-faint)]"><use href="#i-external"/></svg></button>
+          </div>
+        </div>
+        <div>
+          <span class="section-eyebrow">Help</span>
+          <div class="card mt-3 divide-y divide-[var(--hairline-soft)]">
+            <button class="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02]"><span class="icon-box !w-8 !h-8"><svg class="w-4 h-4"><use href="#i-help"/></svg></span><div class="flex-1 text-sm">FAQ</div><svg class="w-4 h-4 text-[var(--text-faint)]"><use href="#i-chev-right"/></svg></button>
+            <button class="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02]"><span class="icon-box !w-8 !h-8"><svg class="w-4 h-4"><use href="#i-info"/></svg></span><div class="flex-1 text-sm">Guides</div><svg class="w-4 h-4 text-[var(--text-faint)]"><use href="#i-chev-right"/></svg></button>
+          </div>
+        </div>
+        <div>
+          <span class="section-eyebrow">Legal</span>
+          <div class="card mt-3 divide-y divide-[var(--hairline-soft)]">
+            <button class="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02]"><span class="icon-box !w-8 !h-8"><svg class="w-4 h-4"><use href="#i-scale"/></svg></span><div class="flex-1 text-sm">Terms</div><svg class="w-4 h-4 text-[var(--text-faint)]"><use href="#i-chev-right"/></svg></button>
+            <button class="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02]"><span class="icon-box !w-8 !h-8"><svg class="w-4 h-4"><use href="#i-clipboard"/></svg></span><div class="flex-1 text-sm">Privacy</div><svg class="w-4 h-4 text-[var(--text-faint)]"><use href="#i-chev-right"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account -->
+      <div class="mb-8">
+        <span class="section-eyebrow">Account</span>
+        <div class="card mt-3 divide-y divide-[var(--hairline-soft)]">
+          <button class="w-full flex items-center gap-4 p-4 md:p-5 text-left hover:bg-white/[0.02]">
+            <span class="icon-box"><svg class="w-5 h-5"><use href="#i-user"/></svg></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium">Manage account</div>
+              <div class="text-xs text-[var(--muted-foreground)] mt-0.5">Update details and linked credentials.</div>
+            </div>
+            <svg class="w-4 h-4 text-[var(--text-faint)]"><use href="#i-chev-right"/></svg>
+          </button>
+          <button class="w-full flex items-center gap-4 p-4 md:p-5 text-left hover:bg-rose-500/5 group">
+            <span class="icon-box text-[#E69FB0]" style="border-color:rgba(210,95,120,.3);background:rgba(210,95,120,.08)"><svg class="w-5 h-5"><use href="#i-logout"/></svg></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-[#E69FB0]">Sign out</div>
+              <div class="text-xs text-[var(--muted-foreground)] mt-0.5">You'll need to sign in again to access your data.</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= SYLLABUS ============================= -->
+    <section id="page-syllabus" class="page">
+      <div class="mb-8">
+        <span class="section-eyebrow">Library</span>
+        <h1 class="section-title text-3xl md:text-4xl mt-2">Syllabus</h1>
+        <p class="text-[var(--muted-foreground)] mt-2 text-sm md:text-base max-w-2xl">Browse and download the official syllabus documents for every subject, organised by branch and semester.</p>
+      </div>
+
+      <!-- Search + filters -->
+      <div class="grid sm:grid-cols-3 gap-3 mb-8">
+        <div class="relative sm:col-span-1">
+          <svg class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-faint)]"><use href="#i-search"/></svg>
+          <input class="input pl-11" placeholder="Search subjects…" />
+        </div>
+        <select class="select"><option>All branches</option><option>CSE</option><option>ECE</option><option>MECH</option><option>CIVIL</option><option>EEE</option></select>
+        <select class="select"><option>All semesters</option><option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option><option>S6</option></select>
+      </div>
+
+      <!-- Syllabus list -->
+      <div class="grid gap-3">
+        <div class="card card-hover p-4 md:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="icon-box amber"><svg class="w-5 h-5"><use href="#i-book"/></svg></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-medium">Data Structures</h3>
+            <div class="font-mono text-xs text-[var(--text-faint)] mt-0.5">CS203</div>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <span class="tag">CSE</span><span class="tag">S3</span><span class="tag tag-amber">2019 Scheme</span>
+            </div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg>View</button>
+            <button class="btn-primary !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+          </div>
+        </div>
+        <div class="card card-hover p-4 md:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="icon-box amber"><svg class="w-5 h-5"><use href="#i-book"/></svg></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-medium">Operating Systems</h3>
+            <div class="font-mono text-xs text-[var(--text-faint)] mt-0.5">CS204</div>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <span class="tag">CSE</span><span class="tag">S4</span><span class="tag tag-amber">2019 Scheme</span>
+            </div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg>View</button>
+            <button class="btn-primary !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+          </div>
+        </div>
+        <div class="card card-hover p-4 md:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="icon-box amber"><svg class="w-5 h-5"><use href="#i-book"/></svg></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-medium">Database Management Systems</h3>
+            <div class="font-mono text-xs text-[var(--text-faint)] mt-0.5">CS205</div>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <span class="tag">CSE</span><span class="tag">S5</span><span class="tag tag-amber">2019 Scheme</span>
+            </div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg>View</button>
+            <button class="btn-primary !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+          </div>
+        </div>
+        <div class="card card-hover p-4 md:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="icon-box amber"><svg class="w-5 h-5"><use href="#i-book"/></svg></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-medium">Computer Networks</h3>
+            <div class="font-mono text-xs text-[var(--text-faint)] mt-0.5">CS206</div>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <span class="tag">CSE</span><span class="tag">S6</span><span class="tag tag-amber">2019 Scheme</span>
+            </div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg>View</button>
+            <button class="btn-primary !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+          </div>
+        </div>
+        <div class="card card-hover p-4 md:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <span class="icon-box amber"><svg class="w-5 h-5"><use href="#i-book"/></svg></span>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-medium">Theory of Computation</h3>
+            <div class="font-mono text-xs text-[var(--text-faint)] mt-0.5">CS301</div>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <span class="tag">CSE</span><span class="tag">S5</span><span class="tag tag-amber">2019 Scheme</span>
+            </div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button class="btn-ghost !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-external"/></svg>View</button>
+            <button class="btn-primary !py-1.5 !px-3 !text-xs"><svg class="w-3.5 h-3.5"><use href="#i-download"/></svg>Download</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="border-t border-[var(--border)] mt-12 pb-24 md:pb-10">
+    <div class="max-w-content mx-auto px-4 sm:px-6 py-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex items-center gap-2.5">
+          <span class="grid place-items-center w-8 h-8 rounded-lg font-serif font-semibold text-[var(--primary-foreground)]" style="background:linear-gradient(180deg,#E0A24C,#D4943A)">K</span>
+          <div>
+            <div class="font-serif font-semibold">KTU One</div>
+            <div class="text-xs text-[var(--text-faint)]">Built by students, for students.</div>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[var(--muted-foreground)]">
+          <a class="hover:text-[var(--primary)] cursor-pointer transition-colors">Calculators</a>
+          <a class="hover:text-[var(--primary)] cursor-pointer transition-colors">Papers</a>
+          <a class="hover:text-[var(--primary)] cursor-pointer transition-colors">Syllabus</a>
+          <a class="hover:text-[var(--primary)] cursor-pointer transition-colors">Calendar</a>
+          <a class="hover:text-[var(--primary)] cursor-pointer transition-colors">Support</a>
+        </div>
+        <div class="text-xs text-[var(--text-faint)] font-mono">© 2024 KTU One · v2.4.0</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ MOBILE BOTTOM NAV ============ -->
+  <nav class="bottom-nav lg:hidden">
+    <button class="bottom-nav-item active" data-bn="home" onclick="showPage('home')"><svg class="w-5 h-5"><use href="#i-home"/></svg>Home</button>
+    <button class="bottom-nav-item" data-bn="calculators" onclick="showPage('calculators')"><svg class="w-5 h-5"><use href="#i-calc"/></svg>Calc</button>
+    <button class="bottom-nav-item" data-bn="question-papers" onclick="showPage('question-papers')"><svg class="w-5 h-5"><use href="#i-file"/></svg>Papers</button>
+    <button class="bottom-nav-item" data-bn="calendar" onclick="showPage('calendar')"><svg class="w-5 h-5"><use href="#i-calendar"/></svg>Calendar</button>
+  </nav>
+
+  <!-- ============ SCRIPT ============ -->
+  <script>
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('page-' + id);
+      if (target) target.classList.add('active');
+
+      // Update top nav active
+      document.querySelectorAll('[data-nav]').forEach(n => {
+        n.classList.toggle('active', n.getAttribute('data-nav') === id);
+      });
+      // Update bottom nav active
+      document.querySelectorAll('[data-bn]').forEach(n => {
+        n.classList.toggle('active', n.getAttribute('data-bn') === id);
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMenu(open) {
+      const menu = document.getElementById('mobile-menu');
+      const backdrop = document.getElementById('menu-backdrop');
+      if (open) {
+        menu.classList.add('open');
+        backdrop.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      } else {
+        menu.classList.remove('open');
+        backdrop.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function switchCalTab(tab) {
+      document.querySelectorAll('[data-cal-tab]').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-cal-tab') === tab);
+      });
+      document.getElementById('cal-academic').classList.toggle('hidden', tab !== 'academic');
+      document.getElementById('cal-exam').classList.toggle('hidden', tab !== 'exam');
+    }
+
+    // Category pills (notices) toggle
+    document.querySelectorAll('.pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        pill.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+      });
+    });
+
+    // Close menu on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') toggleMenu(false);
+    });
+  </script>
+</body>
+</html>
