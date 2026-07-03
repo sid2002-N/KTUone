@@ -109,8 +109,8 @@ export default function RootLayout({
 }>) {
   // Blocking inline script — reads theme from localStorage and sets the
   // .light / .dark class on <html> BEFORE any CSS or React renders.
-  // This prevents the dark-mode flash (FOUC) that would occur if theme
-  // was applied after hydration via useEffect.
+  // Placed at top of <body> (not <head>) because Next.js App Router
+  // manages <head> internally — adding a manual <head> causes hydration issues.
   const themeScript = `
     (function() {
       try {
@@ -137,12 +137,10 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
       <body
         className={`${sourceSerif.variable} ${inter.variable} ${ibmPlexMono.variable} antialiased`}
       >
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <Providers>
           <AppShell>
             <main>{children}</main>
