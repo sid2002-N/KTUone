@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   Trophy,
@@ -24,7 +25,6 @@ import {
   CALCULATORS,
   APP_VERSION,
   UNIVERSITY_NAME,
-  type NavKey,
   type CalculatorKey,
 } from "@/lib/constants";
 import {
@@ -47,7 +47,7 @@ const calcIcons: Record<CalculatorKey, React.ComponentType<{ className?: string 
 };
 
 export function Dashboard() {
-  const set = useNavStore((s) => s.set);
+  const router = useRouter();
   const setSupportOpen = useNavStore((s) => s.setSupportOpen);
   const isSupporter = useSupporterStore((s) => s.isSupporter);
   const profile = useAuthStore((s) => s.profile);
@@ -250,7 +250,7 @@ export function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="section-title text-[19px]">Calculators</h2>
           <button
-            onClick={() => set("calculators")}
+            onClick={() => router.push("/calculators")}
             className="text-[12.5px] text-muted-foreground hover:text-foreground"
           >
             See all →
@@ -262,7 +262,7 @@ export function Dashboard() {
             return (
               <button
                 key={calc.key}
-                onClick={() => set("calculators")}
+                onClick={() => router.push("/calculators")}
                 className="card card-hover p-4 text-left"
               >
                 <div className="icon-box mb-3">
@@ -290,7 +290,7 @@ export function Dashboard() {
           <h2 className="section-title text-[19px]">Recent activity</h2>
           {recentHistory.length > 0 && (
             <button
-              onClick={() => set("calculators")}
+              onClick={() => router.push("/calculators")}
               className="text-[12.5px] text-muted-foreground hover:text-foreground"
             >
               View all →
@@ -303,7 +303,7 @@ export function Dashboard() {
               No calculations yet.
             </p>
             <button
-              onClick={() => set("calculators")}
+              onClick={() => router.push("/calculators")}
               className="text-[12.5px] underline decoration-dotted text-muted-foreground hover:text-foreground"
             >
               Open a calculator
@@ -333,7 +333,7 @@ export function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="section-title text-[19px]">Upcoming</h2>
           <button
-            onClick={() => set("calendar")}
+            onClick={() => router.push("/calendar")}
             className="text-[12.5px] text-muted-foreground hover:text-foreground"
           >
             View calendar →
@@ -349,7 +349,7 @@ export function Dashboard() {
               Add your class timetable or exam dates to see them here.
             </p>
             <button
-              onClick={() => set("calendar")}
+              onClick={() => router.push("/calendar")}
               className="btn-ghost text-[12.5px] px-3.5 py-2 rounded-md"
             >
               Open calendar
@@ -365,7 +365,7 @@ export function Dashboard() {
               return (
                 <button
                   key={e.id}
-                  onClick={() => set("calendar")}
+                  onClick={() => router.push("/calendar")}
                   className="text-left p-3 rounded-lg border border-border hover:bg-secondary/40 transition-colors relative overflow-hidden"
                 >
                   <div
@@ -398,7 +398,7 @@ export function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="section-title text-[19px]">Notices</h2>
           <button
-            onClick={() => set("notices" as NavKey)}
+            onClick={() => router.push("/notices")}
             className="text-[12.5px] text-muted-foreground hover:text-foreground"
           >
             All notices →
@@ -413,7 +413,7 @@ export function Dashboard() {
             {recentNotices.map((n) => (
               <button
                 key={n.id}
-                onClick={() => set("notices" as NavKey)}
+                onClick={() => router.push("/notices")}
                 className="text-left p-3.5 rounded-lg border border-border hover:bg-secondary/40 transition-colors"
               >
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -438,7 +438,7 @@ export function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="section-title text-[19px]">Papers</h2>
           <button
-            onClick={() => set("papers" as NavKey)}
+            onClick={() => router.push("/papers")}
             className="text-[12.5px] text-muted-foreground hover:text-foreground"
           >
             All papers →
@@ -453,7 +453,7 @@ export function Dashboard() {
             {recentPapers.map((p) => (
               <button
                 key={p.id}
-                onClick={() => set("papers" as NavKey)}
+                onClick={() => router.push("/papers")}
                 className="text-left p-3 rounded-lg border border-border hover:bg-secondary/40 transition-colors"
               >
                 <div className="flex items-center gap-1.5 mb-2">

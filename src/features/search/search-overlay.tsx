@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Search, X, Clock, FileText, BookOpen, Bell, CalendarDays, TrendingUp, Loader2 } from "lucide-react";
 import { useNavStore } from "@/store/nav-store";
 import { searchAll } from "@/features/search/actions";
 import { getAnalyticsProvider } from "@/lib/providers/analytics";
-import type { NavKey } from "@/lib/constants";
 import type { SearchResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/utils/calc";
@@ -62,7 +62,7 @@ const RECENT_KEY = "ktu_one:search:recent";
 export function SearchOverlay() {
   const open = useNavStore((s) => s.searchOpen);
   const setOpen = useNavStore((s) => s.setSearchOpen);
-  const setNav = useNavStore((s) => s.set);
+  const router = useRouter();
   const prefersReduced = useReducedMotion();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
@@ -116,14 +116,14 @@ export function SearchOverlay() {
       name: "search_performed",
       props: { query, resultCount: results.length },
     });
-    const navMap: Record<ResultKind, NavKey> = {
-      paper: "papers",
-      syllabus: "syllabus",
-      notice: "notices",
-      calendar: "calendar",
-      subject: "papers",
+    const navMap: Record<ResultKind, string> = {
+      paper: "/papers",
+      syllabus: "/syllabus",
+      notice: "/notices",
+      calendar: "/calendar",
+      subject: "/papers",
     };
-    setNav(navMap[r.kind]);
+    router.push(navMap[r.kind]);
     setOpen(false);
   };
 

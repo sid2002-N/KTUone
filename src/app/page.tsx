@@ -1,90 +1,42 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { AppShell } from "@/components/layout/app-shell";
-import { SupportCurtain } from "@/components/support/support-curtain";
-import { LoginDialog } from "@/features/login/login-dialog";
-import { SearchOverlay } from "@/features/search/search-overlay";
+import type { Metadata } from "next";
 import { Dashboard } from "@/features/dashboard/dashboard";
-import { Calculators } from "@/features/calculators/calculators";
-import { Papers } from "@/features/papers/papers";
-import { Syllabus } from "@/features/syllabus/syllabus";
-import { Calendar } from "@/features/calendar/calendar";
-import { Notices } from "@/features/notices/notices";
-import { Settings } from "@/features/settings/settings";
-import { useNavStore } from "@/store/nav-store";
-import { getAnalyticsProvider } from "@/lib/providers/analytics";
-import type { NavKey } from "@/lib/constants";
 
-const views: Record<NavKey, React.ComponentType> = {
-  dashboard: Dashboard,
-  calculators: Calculators,
-  papers: Papers,
-  syllabus: Syllabus,
-  calendar: Calendar,
-  notices: Notices,
-  settings: Settings,
+export const metadata: Metadata = {
+  title: "KTU One — Student Companion for APJ Abdul Kalam University",
+  description:
+    "Track CGPA, browse question papers, check notices, and manage your academic life at KTU. Free calculators, syllabus downloads, and exam timetables.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "KTU One — Student Companion for APJ Abdul Kalam University",
+    description:
+      "Track CGPA, browse question papers, check notices, and manage your academic life at KTU. Free calculators, syllabus downloads, and exam timetables.",
+    url: "/",
+  },
 };
 
-export default function Home() {
-  const active = useNavStore((s) => s.active);
-  const prefersReduced = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
-  const View = views[active];
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "EducationalApplication",
+  name: "KTU One",
+  applicationCategory: "EducationalApplication",
+  operatingSystem: "Web, Android, iOS",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+  description:
+    "Student companion for APJ Abdul Kalam Technological University — calculators, question papers, syllabus, notices, calendar.",
+  publisher: {
+    "@type": "Organization",
+    name: "KTU One",
+  },
+};
 
-  useEffect(() => {
-    // Use microtask to avoid synchronous setState in effect
-    Promise.resolve().then(() => setMounted(true));
-    getAnalyticsProvider().track({
-      name: "page_view",
-      props: { path: active, title: active },
-    });
-  }, [active]);
-
-  // Render an empty shell during SSR + first paint to avoid hydration mismatches
-  // from Date.now() / useReducedMotion / Math.random inside feature views.
-  // After mount, swap to the live view.
+export default function HomePage() {
   return (
-    <AppShell>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={mounted ? active : "ssr"}
-          // Premium page transition: fade + slight upward drift + scale +
-          // subtle blur. Spring easing gives it a natural, premium feel.
-          initial={
-            mounted && !prefersReduced
-              ? { opacity: 0, y: 16, scale: 0.99, filter: "blur(4px)" }
-              : false
-          }
-          animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-          exit={
-            mounted && !prefersReduced
-              ? { opacity: 0, y: -8, scale: 0.99, filter: "blur(4px)" }
-              : { opacity: 0 }
-          }
-          transition={{
-            duration: 0.4,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-        >
-          {mounted ? <View /> : <SSRShell />}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Global overlays */}
-      <SupportCurtain />
-      <LoginDialog />
-      <SearchOverlay />
-    </AppShell>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <Dashboard />
+    </>
   );
 }
-
-function SSRShell() {
-  // Minimal stable shell rendered during SSR — no time-dependent or
-  // browser-API-derived content. Replaced after mount.
-  return (
-    <div className="min-h-[60vh]" aria-busy="true" aria-live="polite" />
-  );
-}
-

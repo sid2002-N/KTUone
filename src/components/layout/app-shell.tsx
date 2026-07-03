@@ -2,6 +2,8 @@
 
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ScrollToTop } from "@/components/ui-custom/scroll-to-top";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
   Calculator,
@@ -24,8 +26,7 @@ import { useNavStore } from "@/store/nav-store";
 import { useThemeStore } from "@/store/theme-store";
 import { useSupporterStore } from "@/store/supporter-store";
 import { useAuthStore } from "@/store/auth-store";
-import { NAV_ITEMS, PRIMARY_NAV_KEYS, APP_NAME } from "@/lib/constants";
-import type { NavKey } from "@/lib/constants";
+import { NAV_ITEMS, PRIMARY_NAV_KEYS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { getAnalyticsProvider } from "@/lib/providers/analytics";
 import { formatRelativeTime } from "@/lib/utils/calc";
@@ -47,17 +48,14 @@ interface AppShellProps {
 }
 
 /**
- * AppShell — single top navigation bar (desktop) + bottom tab bar (mobile).
- *
- * No sidebar. The spec calls for a single navigation system, not two showing
- * the same links. Desktop: top bar with tab-style nav. Mobile: bottom tab bar.
- *
- * Theme: always defaults to dark (ink base). The toggle switches to a warm
- * cream light variant. Both use the same amber accent.
+ * AppShell — wraps all pages with nav bar (desktop), bottom nav (mobile),
+ * and global overlays. Active nav state is derived from usePathname().
+ * useNavStore is kept ONLY for modal/overlay state (login, sync, search,
+ * support curtain).
  */
 export function AppShell({ children }: AppShellProps) {
-  const active = useNavStore((s) => s.active);
-  const setActive = useNavStore((s) => s.set);
+  const pathname = usePathname();
+  const router = useRouter();
   const setSearchOpen = useNavStore((s) => s.setSearchOpen);
   const setSupportOpen = useNavStore((s) => s.setSupportOpen);
   const setLoginOpen = useNavStore((s) => s.setLoginOpen);
@@ -70,15 +68,25 @@ export function AppShell({ children }: AppShellProps) {
   const lastSyncedAt = useAuthStore((s) => s.lastSyncedAt);
   const [mobileMenu, setMobileMenu] = useState(false);
 
-  const navigate = (key: NavKey) => {
+  const navigate = (href: string) => {
     hapticSync("light");
-    setActive(key);
+    router.push(href);
     setMobileMenu(false);
     getAnalyticsProvider().track({
       name: "page_view",
-      props: { path: key },
+      props: { path: href },
     });
   };
+
+  // Determine active nav item from pathname
+  const getActiveItem = () => {
+    return NAV_ITEMS.find(
+      (item) =>
+        item.href === pathname ||
+        (item.href !== "/" && pathname.startsWith(item.href)),
+    );
+  };
+  const activeItem = getActiveItem();
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -94,10 +102,7 @@ export function AppShell({ children }: AppShellProps) {
             >
               <Menu className="size-5 text-muted-foreground" />
             </button>
-            <button
-              onClick={() => navigate("dashboard")}
-              className="flex items-center gap-2.5 no-tap-highlight"
-            >
+            <Link href="/" className="flex items-center gap-2.5 no-tap-highlight">
               <div className="w-8 h-8 rounded-[9px] flex items-center justify-center font-serif text-[15px] font-semibold bg-primary text-primary-foreground">
                 K
               </div>
@@ -107,22 +112,25 @@ export function AppShell({ children }: AppShellProps) {
                   Student companion
                 </div>
               </div>
-            </button>
+            </Link>
           </div>
 
-          {/* Center: desktop nav (tab style) */}
+          {/* Center: desktop nav (tab style with Link) */}
           <nav className="hidden md:flex items-center gap-7 text-[13.5px]">
             {NAV_ITEMS.map((item) => {
-              const isActive = active === item.key;
+              const isActive =
+                item.href === pathname ||
+                (item.href !== "/" && pathname.startsWith(item.href));
               return (
-                <button
+                <Link
                   key={item.key}
-                  onClick={() => navigate(item.key)}
+                  href={item.href}
+                  onClick={() => hapticSync("light")}
                   className={cn("tab-btn pb-1", isActive && "active")}
                 >
                   {item.label}
                   <div className="tab-underline mt-1" />
-                </button>
+                </Link>
               );
             })}
           </nav>
@@ -186,14 +194,14 @@ export function AppShell({ children }: AppShellProps) {
 
             {/* Avatar / Login */}
             {profile ? (
-              <button
-                onClick={() => navigate("settings")}
+              <Link
+                href="/settings"
                 className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-[12px] font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                 aria-label="Profile"
                 title={profile.name}
               >
                 {profile.avatarInitials}
-              </button>
+              </Link>
             ) : (
               <button
                 onClick={() => setLoginOpen(true)}
@@ -209,7 +217,7 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* ===== BODY — single column, no sidebar ===== */}
       <div className="flex-1 max-w-6xl mx-auto w-full px-5 md:px-8 pt-8 pb-28 md:pb-10">
-        <main>{children}</main>
+        {children}
       </div>
 
       {/* ===== BOTTOM NAV — liquid glass (mobile) ===== */}
@@ -218,11 +226,13 @@ export function AppShell({ children }: AppShellProps) {
           {PRIMARY_NAV_KEYS.map((key) => {
             const item = NAV_ITEMS.find((i) => i.key === key)!;
             const Icon = ICONS[item.icon] ?? Home;
-            const isActive = active === key;
+            const isActive =
+              item.href === pathname ||
+              (item.href !== "/" && pathname.startsWith(item.href));
             return (
               <button
                 key={key}
-                onClick={() => navigate(key)}
+                onClick={() => navigate(item.href)}
                 className={cn(
                   "bottom-nav-btn flex flex-col items-center gap-1 px-3 py-2 min-w-[58px]",
                   isActive && "active",
@@ -272,11 +282,13 @@ export function AppShell({ children }: AppShellProps) {
               <div className="space-y-1">
                 {NAV_ITEMS.map((item) => {
                   const Icon = ICONS[item.icon] ?? Home;
-                  const isActive = active === item.key;
+                  const isActive =
+                    item.href === pathname ||
+                    (item.href !== "/" && pathname.startsWith(item.href));
                   return (
                     <button
                       key={item.key}
-                      onClick={() => navigate(item.key)}
+                      onClick={() => navigate(item.href)}
                       className={cn(
                         "w-full flex items-center gap-3 px-3.5 py-3 rounded-md text-sm font-medium text-left transition-colors",
                         isActive

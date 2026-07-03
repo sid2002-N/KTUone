@@ -4,6 +4,10 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { Providers } from "@/lib/providers";
+import { AppShell } from "@/components/layout/app-shell";
+import { SupportCurtain } from "@/components/support/support-curtain";
+import { LoginDialog } from "@/features/login/login-dialog";
+import { SearchOverlay } from "@/features/search/search-overlay";
 
 const sourceSerif = Source_Serif_4({
   variable: "--font-serif",
@@ -25,7 +29,10 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KTU One — Student Companion",
+  title: {
+    default: "KTU One — Student Companion",
+    template: "%s | KTU One",
+  },
   description:
     "A student companion for APJ Abdul Kalam Technological University. Calculators, question papers, syllabus, calendar — built for clarity under exam stress.",
   keywords: [
@@ -51,11 +58,26 @@ export const metadata: Metadata = {
     description: "A student companion for KTU students.",
     type: "website",
     siteName: "KTU One",
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "KTU One" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "KTU One",
     description: "A student companion for KTU students.",
+    images: ["/og-default.png"],
+  },
+  metadataBase: new URL("https://ktuone.in"),
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+    },
   },
 };
 
@@ -77,7 +99,14 @@ export default function RootLayout({
       <body
         className={`${sourceSerif.variable} ${inter.variable} ${ibmPlexMono.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <AppShell>
+            <main>{children}</main>
+          </AppShell>
+          <SupportCurtain />
+          <LoginDialog />
+          <SearchOverlay />
+        </Providers>
         <Toaster />
         <SonnerToaster position="top-center" />
       </body>
