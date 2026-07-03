@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { getAdsProvider } from "@/lib/providers/ads";
@@ -32,6 +32,10 @@ export function BannerAd({ slot, className }: BannerAdProps) {
   const isSupporter = useSupporterStore((s) => s.isSupporter);
   const setSupportOpen = useNavStore((s) => s.setSupportOpen);
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
 
   const ad = useMemo(() => getAdsProvider().getAd(slot), [slot]);
   const showAd = !isSupporter && getAdsProvider().isEnabled();
@@ -79,7 +83,7 @@ export function BannerAd({ slot, className }: BannerAdProps) {
   // Default: in-house promotional banner
   return (
     <motion.div
-      initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+      initial={mounted && !prefersReduced ? { opacity: 0, y: 8 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className={cn(

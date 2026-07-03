@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { SketchStar, SketchHeart, SketchCheckmark, SketchArrow } from "./sketch-elements";
 import { motion, useReducedMotion } from "framer-motion";
@@ -47,6 +48,8 @@ export function CardDecoration({
   color = "amber",
 }: CardDecorationProps) {
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { Promise.resolve().then(() => setMounted(true)); }, []);
 
   if (variant === "paperClip") {
     return <div className={cn("paper-clip", className)} aria-hidden="true" />;
@@ -78,7 +81,7 @@ export function CardDecoration({
   return (
     <motion.div
       className={cn("absolute pointer-events-none", positionClass[position], className)}
-      initial={prefersReduced ? false : { opacity: 0, scale: 0.5 }}
+      initial={mounted && !prefersReduced ? { opacity: 0, scale: 0.5 } : false}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.3, type: "spring", stiffness: 220, damping: 14 }}
       aria-hidden="true"

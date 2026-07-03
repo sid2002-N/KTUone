@@ -1,18 +1,23 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { SketchNotebook } from "@/components/ui-custom/sketch-elements";
 import { HandwrittenText } from "@/components/ui-custom/handwritten-text";
 
 export default function NotFound() {
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center text-center px-6"
       style={{ background: "oklch(0.96 0.02 78)" }}
     >
       <motion.div
-        initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+        initial={mounted && !prefersReduced ? { opacity: 0, y: 12 } : false}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="flex flex-col items-center gap-4"

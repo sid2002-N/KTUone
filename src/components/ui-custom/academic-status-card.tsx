@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { TrendingUp, Award, Target } from "lucide-react";
 import { AnimatedCounter } from "@/components/ui-custom/animated-counter";
@@ -37,6 +38,10 @@ export function AcademicStatusCard({
   onLoginClick,
 }: AcademicStatusCardProps) {
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
 
   const percentage = cgpa !== null ? cgpa * 10 : null;
   const creditProgress =
@@ -47,7 +52,7 @@ export function AcademicStatusCard({
 
   return (
     <motion.div
-      initial={prefersReduced ? false : { opacity: 0, y: 16 }}
+      initial={mounted && !prefersReduced ? { opacity: 0, y: 16 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
       className="academic-status p-6 sm:p-8"
