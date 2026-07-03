@@ -45,6 +45,10 @@ const calcIcons: Record<CalculatorKey, React.ComponentType<{ className?: string 
 export function Calculators() {
   const [active, setActive] = useState<CalculatorKey | null>(null);
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
 
   // ===== GRID VIEW (no calculator selected) =====
   if (active === null) {
@@ -64,7 +68,7 @@ export function Calculators() {
             return (
               <motion.button
                 key={c.key}
-                initial={prefersReduced ? false : { opacity: 0, y: 10 }}
+                initial={mounted && !prefersReduced ? { opacity: 0, y: 10 } : false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
                   delay: i * 0.06,
@@ -138,7 +142,7 @@ export function Calculators() {
         <AnimatePresence mode="wait">
           <motion.div
             key={active}
-            initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+            initial={mounted && !prefersReduced ? { opacity: 0, y: 8 } : false}
             animate={{ opacity: 1, y: 0 }}
             exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
             transition={{ duration: 0.25 }}

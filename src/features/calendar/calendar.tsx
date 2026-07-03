@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { CalendarDays, Clock, Bell, GraduationCap, LogIn } from "lucide-react";
@@ -26,6 +26,10 @@ const eventTypeLabel: Record<CalendarEventType, string> = {
 export function Calendar() {
   const [tab, setTab] = useState<"events" | "timetable">("events");
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -70,7 +74,7 @@ export function Calendar() {
       <AnimatePresence mode="wait">
         <motion.div
           key={tab}
-          initial={prefersReduced ? false : { opacity: 0, y: 6 }}
+          initial={mounted && !prefersReduced ? { opacity: 0, y: 6 } : false}
           animate={{ opacity: 1, y: 0 }}
           exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -6 }}
           transition={{ duration: 0.25 }}
@@ -88,6 +92,10 @@ export function Calendar() {
 
 function EventsTab() {
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["calendar"],
     queryFn: () => getCalendarEvents(),
@@ -132,7 +140,7 @@ function EventsTab() {
             return (
               <motion.div
                 key={e.id}
-                initial={prefersReduced ? false : { opacity: 0, y: 4 }}
+                initial={mounted && !prefersReduced ? { opacity: 0, y: 4 } : false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: Math.min(i * 0.04, 0.3), duration: 0.25 }}
                 className="px-4 py-4 border-t border-border card-hover rounded-md first:border-t-0 relative"
@@ -203,6 +211,10 @@ function EventsTab() {
 
 function TimetableTab() {
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const profile = useAuthStore((s) => s.profile);
 
@@ -249,7 +261,7 @@ function TimetableTab() {
 
   return (
     <motion.div
-      initial={prefersReduced ? false : { opacity: 0, y: 6 }}
+      initial={mounted && !prefersReduced ? { opacity: 0, y: 6 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >

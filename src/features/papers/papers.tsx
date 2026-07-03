@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -38,6 +38,10 @@ export function Papers() {
   const [semester, setSemester] = useState<SemesterNumber | "ALL">("ALL");
   const [year, setYear] = useState<number | "ALL">("ALL");
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
   const { toggle: toggleBookmark, has: hasBookmark } = useBookmarks();
 
   const { data: years = [] } = useQuery({
@@ -220,6 +224,7 @@ export function Papers() {
                     paper={p}
                     index={i}
                     prefersReduced={prefersReduced}
+                    mounted={mounted}
                     bookmarked={hasBookmark("paper", p.id)}
                     onBookmark={() => onBookmark(p.id, p.subjectName)}
                     onDownload={() => onDownload(p.id, p.title)}
@@ -243,6 +248,7 @@ export function Papers() {
                   paper={p}
                   index={i}
                   prefersReduced={prefersReduced}
+                  mounted={mounted}
                   bookmarked={hasBookmark("paper", p.id)}
                   onBookmark={() => onBookmark(p.id, p.subjectName)}
                   onDownload={() => onDownload(p.id, p.title)}
@@ -284,15 +290,16 @@ interface PaperCardProps {
   };
   index: number;
   prefersReduced: boolean | null;
+  mounted: boolean;
   bookmarked: boolean;
   onBookmark: () => void;
   onDownload: () => void;
 }
 
-function PaperCard({ paper, index, prefersReduced, bookmarked, onBookmark, onDownload }: PaperCardProps) {
+function PaperCard({ paper, index, prefersReduced, mounted, bookmarked, onBookmark, onDownload }: PaperCardProps) {
   return (
     <motion.div
-      initial={prefersReduced ? false : { opacity: 0, y: 12 }}
+      initial={mounted && !prefersReduced ? { opacity: 0, y: 12 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{
         delay: Math.min(index * 0.05, 0.4),

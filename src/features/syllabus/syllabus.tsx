@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
 import { BookOpen, Search, Download, Bookmark, BookmarkCheck, Eye, FileText } from "lucide-react";
@@ -27,6 +27,10 @@ export function Syllabus() {
   const [branch, setBranch] = useState<BranchCode | "ALL">("ALL");
   const [semester, setSemester] = useState<SemesterNumber | "ALL">("ALL");
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
   const { toggle: toggleBookmark, has: hasBookmark } = useBookmarks();
 
   const filters: SyllabusFilters = { search, branch, semester };
@@ -117,7 +121,7 @@ export function Syllabus() {
             return (
               <motion.div
                 key={s.id}
-                initial={prefersReduced ? false : { opacity: 0, y: 4 }}
+                initial={mounted && !prefersReduced ? { opacity: 0, y: 4 } : false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.25 }}
                 className="px-4 py-4 border-t border-border card-hover rounded-md first:border-t-0 group"

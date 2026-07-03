@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Bell, Pin, ExternalLink, FileText, ChevronLeft, X } from "lucide-react";
@@ -27,6 +27,10 @@ export function Notices() {
   const [filter, setFilter] = useState<NoticeCategory | "All">("All");
   const [selected, setSelected] = useState<KTUNotice | null>(null);
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
 
   const { data: notices = [], isLoading } = useQuery({
     queryKey: ["notices", filter],
@@ -84,7 +88,7 @@ export function Notices() {
           {notices.map((n, i) => (
             <motion.button
               key={n.id}
-              initial={prefersReduced ? false : { opacity: 0, y: 4 }}
+              initial={mounted && !prefersReduced ? { opacity: 0, y: 4 } : false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(i * 0.04, 0.3), duration: 0.25 }}
               onClick={() => {

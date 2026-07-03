@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Settings as SettingsIcon,
@@ -41,6 +41,10 @@ export function Settings() {
   const profile = useAuthStore((s) => s.profile);
   const clearAuth = useAuthStore((s) => s.clear);
   const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    Promise.resolve().then(() => setMounted(true));
+  }, []);
 
   const handleLogout = async () => {
     hapticSync("medium");
@@ -64,7 +68,7 @@ export function Settings() {
       {/* ===== PROFILE CARD ===== */}
       {profile ? (
         <motion.div
-          initial={prefersReduced ? false : { opacity: 0, y: 8 }}
+          initial={mounted && !prefersReduced ? { opacity: 0, y: 8 } : false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
