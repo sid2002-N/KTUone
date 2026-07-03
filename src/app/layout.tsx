@@ -58,13 +58,20 @@ export const metadata: Metadata = {
     description: "A student companion for KTU students.",
     type: "website",
     siteName: "KTU One",
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "KTU One" }],
+    images: [
+      {
+        url: "https://ktuone.in/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "KTU One — Student Companion for APJ Abdul Kalam Technological University",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "KTU One",
     description: "A student companion for KTU students.",
-    images: ["/og-default.png"],
+    images: ["https://ktuone.in/og-default.png"],
   },
   metadataBase: new URL("https://ktuone.in"),
   alternates: {

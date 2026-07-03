@@ -16,11 +16,14 @@ export const metadata: Metadata = {
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
+  "@type": "WebApplication",
   name: "KTU Calculators",
-  applicationCategory: "Calculator",
+  applicationCategory: "EducationalApplication",
   operatingSystem: "Web, Android, iOS",
   offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+  description:
+    "SGPA, CGPA, attendance, internal marks, and pass mark calculators for KTU students.",
+  url: "https://ktuone.in/calculators",
 };
 
 export default function CalculatorsPage() {

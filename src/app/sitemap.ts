@@ -11,7 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/syllabus", priority: 0.8, changeFrequency: "weekly" as const },
     { url: "/calendar", priority: 0.8, changeFrequency: "weekly" as const },
     { url: "/notices", priority: 0.9, changeFrequency: "daily" as const },
-    { url: "/settings", priority: 0.3, changeFrequency: "monthly" as const },
+    // /settings excluded — it's noindex, shouldn't be in sitemap
   ];
 
   return routes.map((route) => ({
