@@ -1,5 +1,5 @@
-Notice Cleanup Diff — 2026-07-03T17:24:37.232Z
-Mode: DRY RUN
+Notice Cleanup Diff — 2026-07-03T17:31:22.980Z
+Mode: LIVE RUN
 Notices needing update: 8
 Notices already clean: 2
 
