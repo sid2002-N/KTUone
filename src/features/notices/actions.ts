@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import type { KTUNotice, NoticeCategory, NoticePriority } from "@/lib/types";
+import { cleanScraperText, cleanScraperTitle } from "@/lib/utils/clean-text";
 
 export async function getNotices(category: NoticeCategory | "All" = "All"): Promise<KTUNotice[]> {
   const where: Record<string, unknown> = {
@@ -69,17 +70,23 @@ export async function upsertScraperNotifications(
     const parsed = new Date(n.date);
     const publishedAt = isNaN(parsed.getTime()) ? new Date() : parsed;
 
+    // Clean HTML entities + tags from scraper data.
+    // This ONLY affects scraper-synced notices — admin notices go through
+    // createNotice() in admin/actions.ts which has its own separate write path.
+    const cleanTitle = cleanScraperTitle(n.heading);
+    const cleanDescription = cleanScraperText(n.data);
+
     const result = await db.kTUNotice.upsert({
       where: { key: n.key },
       update: {
-        title: n.heading,
-        description: n.data,
+        title: cleanTitle,
+        description: cleanDescription,
         publishedAt,
       },
       create: {
         key: n.key,
-        title: n.heading,
-        description: n.data,
+        title: cleanTitle,
+        description: cleanDescription,
         category: "General",
         publishedAt,
         priority: "Normal",

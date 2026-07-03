@@ -158,7 +158,7 @@ export function Notices() {
                 <p className="text-xs font-mono mt-2 text-[color:var(--text-faint)]">
                   Published {formatDate(selected.publishedAt)} · {formatRelativeTime(selected.publishedAt)}
                 </p>
-                <p className="mt-4 text-sm leading-relaxed text-foreground/90">
+                <p className="mt-4 text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
                   {selected.description}
                 </p>
                 {selected.tags.length > 0 && (

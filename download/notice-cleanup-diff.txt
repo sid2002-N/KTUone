@@ -1,0 +1,114 @@
+Notice Cleanup Diff — 2026-07-03T17:24:37.232Z
+Mode: DRY RUN
+Notices needing update: 8
+Notices already clean: 2
+
+────────────────────────────────────────────────────────────
+ID: cmr46eg4q0002la0462fac3fq
+Key: appointment-of-zone-convenors-for-the-academic-year-202627-conduct-of-university-intercollegiate-sports-competitions
+
+TITLE BEFORE: Appointment of Zone Convenors for the academic year 2026–27 – Conduct of University Intercollegiate Sports Competitions
+TITLE AFTER:  Appointment of Zone Convenors for the academic year 2026–27 – Conduct of University Intercollegiate Sports Competitions
+Title changed: no
+
+DESCRIPTION BEFORE: <p>APJ Abdul Kalam Technological University &ndash; Physical Education &ndash; Appointment of Zone Convenors for the academic year 2026&ndash;27 &ndash; Conduct of University Intercollegiate Sports Competitions &ndash; Applications Invited</p>
+DESCRIPTION AFTER:  APJ Abdul Kalam Technological University – Physical Education – Appointment of Zone Convenors for the academic year 2026–27 – Conduct of University Intercollegiate Sports Competitions – Applications Invited
+Description changed: YES
+
+────────────────────────────────────────────────────────────
+ID: cmr46eg4u0003la04rtwo7q39
+Key: apjaktu-examination-pg-valuation-march-s4-rs-examination-may-2026-2016-scheme-and-mplan-s4-rs-examination-may-2026-2016-scheme
+
+TITLE BEFORE: APJAKTU - Examination (PG-Valuation) - M.Arch S4 (R,S) Examination May 2026 (2016 scheme) and M.Plan S4 (R,S) Examination May 2026 (2016 scheme
+TITLE AFTER:  APJAKTU - Examination (PG-Valuation) - M.Arch S4 (R,S) Examination May 2026 (2016 scheme) and M.Plan S4 (R,S) Examination May 2026 (2016 scheme
+Title changed: no
+
+DESCRIPTION BEFORE: <div>
+<div><strong>&nbsp;&nbsp;Result&nbsp;&nbsp;Published&nbsp;-&nbsp;&nbsp;</strong>M.Arch S4 (R,S) Examination May 2026 (2016 scheme)&nbsp;and&nbsp;M.Plan S4 (R,S) Examination May 2026 (2016 scheme)</div>
+</div>
+<div>&nbsp;</div>
+<div>
+<div>&nbsp;<span style="color: #000000;">It is hereby notified that the&nbsp;results&nbsp;of&nbsp;</span>M.Arch S4 (R,S) Examination May 2026 (2016 scheme)&nbsp;and&nbsp;M.Plan S4 (R,S) Examination May 2026 (2016 scheme)<span style="color: #000000;"><br />...
+DESCRIPTION AFTER:  Result  Published -  M.Arch S4 (R,S) Examination May 2026 (2016 scheme) and M.Plan S4 (R,S) Examination May 2026 (2016 scheme)
+
+
+
+It is hereby notified that the results of M.Arch S4 (R,S) Examination May 2026 (2016 scheme) and M.Plan S4 (R,S) Examination May 2026 (2016 scheme)
+
+are published herewith. The detailed results are available under the 'Result' tab of the University website and in the Student/College login
+Description changed: YES
+
+────────────────────────────────────────────────────────────
+ID: cmr46eg5j0009la04ncvcdmt7
+Key: btech-s7-wp-s-exam-may-2026
+
+TITLE BEFORE: B.Tech S7 (WP) (S) Exam May 2026
+TITLE AFTER:  B.Tech S7 (WP) (S) Exam May 2026
+Title changed: no
+
+DESCRIPTION BEFORE: <p>It is hereby notified for information of all concerned that the result of B.Tech S7 (WP) (S) Exam May 2026 is published. The detailed results are available under 'Examination---&gt;Results' tab of the University website and also in Student/ College login.</p>
+DESCRIPTION AFTER:  It is hereby notified for information of all concerned that the result of B.Tech S7 (WP) (S) Exam May 2026 is published. The detailed results are available under 'Examination--->Results' tab of the University website and also in Student/ College login.
+Description changed: YES
+
+────────────────────────────────────────────────────────────
+ID: cmr46eg5g0008la04vh36at3l
+Key: ktu-examination-valuationug-result-publication-of-btech-s2-rs-exam-april-2026-2024-scheme
+
+TITLE BEFORE: KTU - Examination - Valuation(UG) - Result publication of B.Tech S2 (R,S) Exam April 2026 (2024 Scheme)
+TITLE AFTER:  KTU - Examination - Valuation(UG) - Result publication of B.Tech S2 (R,S) Exam April 2026 (2024 Scheme)
+Title changed: no
+
+DESCRIPTION BEFORE: <p>It is hereby notified that the result of <strong>B.Tech S2 (R,S) Exam April 2026 (2024 Scheme)</strong> is published. Detailed results are available in Student/ College portal login.</p>
+DESCRIPTION AFTER:  It is hereby notified that the result of B.Tech S2 (R,S) Exam April 2026 (2024 Scheme) is published. Detailed results are available in Student/ College portal login.
+Description changed: YES
+
+────────────────────────────────────────────────────────────
+ID: cmr46eg580006la04pzqtlezb
+Key: ktu-detailed-time-tables-of-mca-second-year-direct-special-examinations-january-2026-2016-regulations
+
+TITLE BEFORE: KTU - Detailed Time Tables of MCA Second Year Direct Special Examinations January 2026 (2016 Regulations)
+TITLE AFTER:  KTU - Detailed Time Tables of MCA Second Year Direct Special Examinations January 2026 (2016 Regulations)
+Title changed: no
+
+DESCRIPTION BEFORE: <p>The detailed time tables of <strong>MCA Second Year Direct, Special Examinations January 2026 (2016 Regulations)</strong> are published herewith.</p>
+DESCRIPTION AFTER:  The detailed time tables of MCA Second Year Direct, Special Examinations January 2026 (2016 Regulations) are published herewith.
+Description changed: YES
+
+────────────────────────────────────────────────────────────
+ID: cmr46eg5c0007la0423obzhvc
+Key: ktu-detailed-time-tables-of-mca-integrated-special-examinations-2016-scheme-s1-s9-april-2026
+
+TITLE BEFORE: KTU - Detailed Time Tables of MCA Integrated Special Examinations (2016 Scheme) (S1 - S9) April 2026
+TITLE AFTER:  KTU - Detailed Time Tables of MCA Integrated Special Examinations (2016 Scheme) (S1 - S9) April 2026
+Title changed: no
+
+DESCRIPTION BEFORE: <p>The detailed time tables of <strong>MCA Integrated Special Examinations (2016 scheme) (S1 - S9) April 2026</strong> are published herewith.</p>
+DESCRIPTION AFTER:  The detailed time tables of MCA Integrated Special Examinations (2016 scheme) (S1 - S9) April 2026 are published herewith.
+Description changed: YES
+
+────────────────────────────────────────────────────────────
+ID: cmr46eg550005la043ei3eyp4
+Key: ktu-detailed-time-tables-of-mca-s1-s5-special-examinations-january-2026-2016-regulations
+
+TITLE BEFORE: KTU - Detailed Time Tables of MCA (S1 - S5) Special Examinations January 2026 (2016 Regulations)
+TITLE AFTER:  KTU - Detailed Time Tables of MCA (S1 - S5) Special Examinations January 2026 (2016 Regulations)
+Title changed: no
+
+DESCRIPTION BEFORE: <p>The detailed time tables of <strong>MCA S1 - S5, Special Examinations January 2026 (2016 Regulations)</strong> are published herewith.</p>
+DESCRIPTION AFTER:  The detailed time tables of MCA S1 - S5, Special Examinations January 2026 (2016 Regulations) are published herewith.
+Description changed: YES
+
+────────────────────────────────────────────────────────────
+ID: cmr46eg4y0004la04yae8meyv
+Key: admission-to-m-tech-programmes-2026-2027
+
+TITLE BEFORE: ADMISSION TO M. TECH PROGRAMMES - 2026-2027
+TITLE AFTER:  ADMISSION TO M. TECH PROGRAMMES - 2026-2027
+Title changed: no
+
+DESCRIPTION BEFORE: <p>Applications are invited from eligible candidates for admission to the following two-year full-time M.Tech Programmes offered under various Schools of the APJ Abdul Kalam Technological University for the Academic Year 2026 - 2027</p>
+<p>Link for admission portal : <a href="https://lbsapplications.kerala.gov.in/ktumtech2026/">https://lbsapplications.kerala.gov.in/ktumtech2026/</a></p>
+DESCRIPTION AFTER:  Applications are invited from eligible candidates for admission to the following two-year full-time M.Tech Programmes offered under various Schools of the APJ Abdul Kalam Technological University for the Academic Year 2026 - 2027
+
+Link for admission portal : https://lbsapplications.kerala.gov.in/ktumtech2026/ [https://lbsapplications.kerala.gov.in/ktumtech2026/]
+Description changed: YES
