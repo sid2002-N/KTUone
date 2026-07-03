@@ -988,3 +988,11 @@ body {
 .sketch-coral { color: var(--destructive); }
 .sketch-mint { color: var(--primary); }
 .sketch-lavender { color: var(--muted-foreground); }
+
+/* btn-tactile — legacy alias */
+.btn-tactile {
+  transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1), background 0.15s ease;
+}
+.btn-tactile:active {
+  transform: scale(0.97);
+}
