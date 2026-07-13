@@ -1,4 +1,4 @@
-Notice Cleanup Diff — 2026-07-03T17:31:22.980Z
+Notice Cleanup Diff — 2026-07-13T09:19:05.964Z
 Mode: LIVE RUN
 Notices needing update: 8
 Notices already clean: 2
@@ -39,18 +39,6 @@ are published herewith. The detailed results are available under the 'Result
 Description changed: YES
 
 ────────────────────────────────────────────────────────────
-ID: cmr46eg5j0009la04ncvcdmt7
-Key: btech-s7-wp-s-exam-may-2026
-
-TITLE BEFORE: B.Tech S7 (WP) (S) Exam May 2026
-TITLE AFTER:  B.Tech S7 (WP) (S) Exam May 2026
-Title changed: no
-
-DESCRIPTION BEFORE: <p>It is hereby notified for information of all concerned that the result of B.Tech S7 (WP) (S) Exam May 2026 is published. The detailed results are available under 'Examination---&gt;Results' tab of the University website and also in Student/ College login.</p>
-DESCRIPTION AFTER:  It is hereby notified for information of all concerned that the result of B.Tech S7 (WP) (S) Exam May 2026 is published. The detailed results are available under 'Examination--->Results' tab of the University website and also in Student/ College login.
-Description changed: YES
-
-────────────────────────────────────────────────────────────
 ID: cmr46eg5g0008la04vh36at3l
 Key: ktu-examination-valuationug-result-publication-of-btech-s2-rs-exam-april-2026-2024-scheme
 
@@ -63,15 +51,15 @@ DESCRIPTION AFTER:  It is hereby notified that the result of B.Tech S2 (R,S) Exa
 Description changed: YES
 
 ────────────────────────────────────────────────────────────
-ID: cmr46eg580006la04pzqtlezb
-Key: ktu-detailed-time-tables-of-mca-second-year-direct-special-examinations-january-2026-2016-regulations
+ID: cmr46eg5j0009la04ncvcdmt7
+Key: btech-s7-wp-s-exam-may-2026
 
-TITLE BEFORE: KTU - Detailed Time Tables of MCA Second Year Direct Special Examinations January 2026 (2016 Regulations)
-TITLE AFTER:  KTU - Detailed Time Tables of MCA Second Year Direct Special Examinations January 2026 (2016 Regulations)
+TITLE BEFORE: B.Tech S7 (WP) (S) Exam May 2026
+TITLE AFTER:  B.Tech S7 (WP) (S) Exam May 2026
 Title changed: no
 
-DESCRIPTION BEFORE: <p>The detailed time tables of <strong>MCA Second Year Direct, Special Examinations January 2026 (2016 Regulations)</strong> are published herewith.</p>
-DESCRIPTION AFTER:  The detailed time tables of MCA Second Year Direct, Special Examinations January 2026 (2016 Regulations) are published herewith.
+DESCRIPTION BEFORE: <p>It is hereby notified for information of all concerned that the result of B.Tech S7 (WP) (S) Exam May 2026 is published. The detailed results are available under 'Examination---&gt;Results' tab of the University website and also in Student/ College login.</p>
+DESCRIPTION AFTER:  It is hereby notified for information of all concerned that the result of B.Tech S7 (WP) (S) Exam May 2026 is published. The detailed results are available under 'Examination--->Results' tab of the University website and also in Student/ College login.
 Description changed: YES
 
 ────────────────────────────────────────────────────────────
@@ -96,6 +84,18 @@ Title changed: no
 
 DESCRIPTION BEFORE: <p>The detailed time tables of <strong>MCA S1 - S5, Special Examinations January 2026 (2016 Regulations)</strong> are published herewith.</p>
 DESCRIPTION AFTER:  The detailed time tables of MCA S1 - S5, Special Examinations January 2026 (2016 Regulations) are published herewith.
+Description changed: YES
+
+────────────────────────────────────────────────────────────
+ID: cmr46eg580006la04pzqtlezb
+Key: ktu-detailed-time-tables-of-mca-second-year-direct-special-examinations-january-2026-2016-regulations
+
+TITLE BEFORE: KTU - Detailed Time Tables of MCA Second Year Direct Special Examinations January 2026 (2016 Regulations)
+TITLE AFTER:  KTU - Detailed Time Tables of MCA Second Year Direct Special Examinations January 2026 (2016 Regulations)
+Title changed: no
+
+DESCRIPTION BEFORE: <p>The detailed time tables of <strong>MCA Second Year Direct, Special Examinations January 2026 (2016 Regulations)</strong> are published herewith.</p>
+DESCRIPTION AFTER:  The detailed time tables of MCA Second Year Direct, Special Examinations January 2026 (2016 Regulations) are published herewith.
 Description changed: YES
 
 ────────────────────────────────────────────────────────────
