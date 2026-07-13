@@ -67,4 +67,4 @@ secrets*
 # Conflicting public files — we use route handlers (src/app/robots.ts, src/app/sitemap.ts)
 /public/robots.txt
 /public/sitemap.xml
-/public/proxy.ts
+/public/proxy.tstool-results/
